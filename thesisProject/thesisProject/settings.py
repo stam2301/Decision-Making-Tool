@@ -80,7 +80,7 @@ WSGI_APPLICATION = 'thesisProject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'thesis_app',
+        'NAME': 'thesisdb',
         'USER': 'root',
         'PASSWORD': '',
         'HOST':'localhost',
