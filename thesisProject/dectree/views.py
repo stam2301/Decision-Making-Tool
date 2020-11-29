@@ -4,6 +4,9 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.template import loader
 
 # Create your views here.
+def dectree_index(request):
+    if request.method == 'GET':
+        return render(request, 'dectree/decision_tree_index.html')
 
 def upload_form(request):
 
