@@ -1,19 +1,38 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from .forms import upload_file_form
+from django.http import HttpResponseRedirect, HttpResponse
+from django.template import loader
 
 # Create your views here.
 
 def upload_form(request):
-    form = upload_file_form()
 
     if request.method == 'POST':
-        form = upload_file_form(request.POST)
 
+        input_form = upload_file_form(request.POST, request.FILES)
+        #print (input_form)
+        if input_form.is_valid():
+            new_method = input_form.save(commit=False)
+            #print (new_method)
+            #print (request.FILES)
+            new_method.input_file = request.FILES['input_file']
+            new_method.output_file = request.FILES['input_file']
+            new_method.save()
+            print (new_method.input_file)
+            
+        return redirect('/dectree/results/')
+        #form = upload_file_form(request.POST)
+        
         #if form.is_valid():
 
-        #if 'inspect_tree' in request.POST:
+        #if 'Run Method' in request.POST:
+        
+        #elif 'Ispect Tree' in request.POST: 
+    elif request.method == 'GET':
+        form = upload_file_form()
+        return render(request, 'dectree/decision_tree_upload.html',{'form':form})
 
-        #Selif 'run_method' in request.POST:
 
-
-    return render(request, 'dectree/decision_tree_upload.html',{'form':form})
+def show_results(request):
+    if request.method == 'GET':
+        return render(request, 'dectree/decision_tree_results.html')
