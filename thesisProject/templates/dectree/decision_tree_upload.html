@@ -13,8 +13,8 @@
             <form enctype="multipart/form-data" method="POST">
                 {% csrf_token %}
                 {% bootstrap_form form %}
-                <input type="submit" class="btn btn-primary" name="action" value="Inspect Tree">
-                <input type="submit" class="btn btn-primary" name="action" value="Run Method">
+                <input type="submit" class="btn btn-primary" name="manage" value="Inspect Tree">
+                <input type="submit" class="btn btn-primary" name="run" value="Run Method">
             </form>
             
         </div>

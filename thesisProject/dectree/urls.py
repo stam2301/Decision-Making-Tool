@@ -8,6 +8,7 @@ app_name = 'dectree'
 urlpatterns = [
     url(r'^$', views.dectree_index, name='dectree_index'),
     url(r'^upload/', views.upload_form, name='dectree_upload'),
-    url(r'^results/', views.show_results, name='dectree_results')
+    url(r'^results/', views.show_results, name='dectree_results'),
+    url(r'^manage/', views.manage_tree, name='manage_tree')
 ]
 
