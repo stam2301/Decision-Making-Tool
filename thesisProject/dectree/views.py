@@ -21,7 +21,7 @@ def upload_form(request):
             new_method.input_file = request.FILES['input_file']
             new_method.output_file = request.FILES['input_file']
             new_method.save()
-            print (new_method.input_file)
+            #print (new_method.input_file)
             
         return redirect('/dectree/results/')
         #form = upload_file_form(request.POST)
