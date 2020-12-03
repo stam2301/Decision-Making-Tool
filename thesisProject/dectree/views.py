@@ -2,6 +2,10 @@ from django.shortcuts import render, redirect
 from .forms import upload_file_form
 from django.http import HttpResponseRedirect, HttpResponse
 from django.template import loader
+from .utilities.dectree_algo import dectree_algo_main
+import os
+from django.core.exceptions import ValidationError
+
 
 # Create your views here.
 def dectree_index(request):
@@ -13,15 +17,18 @@ def upload_form(request):
     if request.method == 'POST':
         if 'run' in request.POST:
             input_form = upload_file_form(request.POST, request.FILES)
-            #print (input_form)
+            
             if input_form.is_valid():
                 new_method = input_form.save(commit=False)
-                #print (new_method)
+                #print (new_method.title)
                 #print (request.FILES)
                 new_method.input_file = request.FILES['input_file']
+                #dectree_algo_main(new_method.input_file.name)
                 new_method.output_file = request.FILES['input_file']
                 new_method.save()
                 #print (new_method.input_file)
+            else: 
+                print (input_form.errors)
                 
             return redirect('/dectree/results/')
         
