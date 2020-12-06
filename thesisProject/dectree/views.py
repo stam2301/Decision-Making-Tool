@@ -4,6 +4,8 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.template import loader
 from .utilities.dectree_algo import dectree_algo_main
 import os
+from django.core.files.temp import NamedTemporaryFile
+from django.core import files
 from django.core.exceptions import ValidationError
 
 
@@ -20,16 +22,18 @@ def upload_form(request):
             
             if input_form.is_valid():
                 new_method = input_form.save(commit=False)
-                #print (new_method.title)
-                #print (request.FILES)
-                new_method.input_file = request.FILES['input_file']
-                #json_input_file = request.FILES['input_file']
-                #dectree_algo_main(json_input_file)
-                new_method.output_file = request.FILES['input_file']
+                #new_method.input_file = request.FILES['input_file']
+                json_file = request.FILES['input_file']
+                dectree_algo_main(json_file)
+
                 new_method.save()
+                
+                new_method.output_file = request.FILES['input_file']
+                #new_method.save()
                 #print (new_method.input_file)
             else: 
-                print (input_form.errors)
+                #print (input_form.errors)
+                return render(request, 'dectree/decision_tree_upload.html',{'form':input_form})
                 
             return redirect('/dectree/results/')
         
