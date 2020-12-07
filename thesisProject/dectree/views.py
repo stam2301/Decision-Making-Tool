@@ -24,7 +24,7 @@ def upload_form(request):
                 new_method = input_form.save(commit=False)
                 #new_method.input_file = request.FILES['input_file']
                 json_file = request.FILES['input_file']
-                dectree_algo_main(json_file)
+                dectree_algo_main(json_file.read())
 
                 new_method.save()
                 
