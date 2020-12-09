@@ -6,8 +6,8 @@ def handle_decision (decision_root):
 
     for decision in decision_root['decisions']:
         handle_decision(decision['decisionToDecision'])
-        if (max_value < decision['decisionToDecision']['value']):
-            max_value = decision['decisionToDecision']['value']
+        if (max_value < decision['decisionToDecision']['value'] + decision['profit/loss']):
+            max_value = decision['decisionToDecision']['value'] + decision['profit/loss']
     
     for chance in decision_root['chances']:
         if (decision_root['criterion'] == 'BAYES'):
@@ -18,27 +18,28 @@ def handle_decision (decision_root):
         
         else: 
             handle_chance_maximax(chance['decisionToChance'])
-        if (max_value < chance['decisionToChance']['value']):
-            max_value = chance['decisionToChance']['value']
+        
+        if (max_value < chance['decisionToChance']['value'] + chance['profit/loss']):
+            max_value = chance['decisionToChance']['value'] + chance['profit/loss']
     
     for leaf in decision_root['leafs']:
-        if (max_value < leaf['decisionToLeaf']['profit/loss']):
-            max_value = leaf['decisionToLeaf']['profit/loss']
+        if (max_value < leaf['decisionToLeaf']['profit/loss'] + leaf['profit/loss']):
+            max_value = leaf['decisionToLeaf']['profit/loss'] + leaf['profit/loss']
     
     for decision in decision_root['decisions']:
-        if (max_value == decision['decisionToDecision']['value']):
+        if (max_value == decision['decisionToDecision']['value'] + decision['profit/loss']):
             decision['selected'] = True
         else:
             decision['selected'] = False
     
     for chance in decision_root['chances']:
-        if (max_value == chance['decisionToChance']['value']):
+        if (max_value == chance['decisionToChance']['value'] + chance['profit/loss']):
             chance['selected'] = True
         else:
             chance['selected'] = False
     
     for leaf in decision_root['leafs']:
-        if (max_value == leaf['decisionToLeaf']['profit/loss']):
+        if (max_value == leaf['decisionToLeaf']['profit/loss'] + leaf['profit/loss']):
             leaf['selected'] = True
         else:
             leaf['selected'] = False
