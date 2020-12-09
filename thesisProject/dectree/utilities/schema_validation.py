@@ -44,7 +44,8 @@ schema = {
 		"decision":{
 			"type": "object",
 			"properties": {
-				"criterion": {"type": "string"},
+				"criterion": {  "type": "string",
+                                "enum": ["BAYES", "MAXIMIN", "MAXIMAX"]},
 				"leafs": {
 					"type": "array",
 					"items": {
@@ -90,8 +91,6 @@ schema = {
 }
 
 def validate_schema(instance):
-    validate(instance=instance, schema=schema)
-
     if Draft7Validator(schema).is_valid(instance):
         return True
     else:

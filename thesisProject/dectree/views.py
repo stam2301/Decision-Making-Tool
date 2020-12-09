@@ -29,7 +29,7 @@ def upload_form(request):
                 new_method.save()
                 
                 new_method.output_file = request.FILES['input_file']
-                #new_method.save()
+                new_method.save()
                 #print (new_method.input_file)
             else: 
                 #print (input_form.errors)
