@@ -4,9 +4,6 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.template import loader
 from .utilities.dectree_algo import dectree_algo_main
 import os
-from django.core.files.temp import NamedTemporaryFile
-from django.core import files
-from django.core.exceptions import ValidationError
 
 
 # Create your views here.
