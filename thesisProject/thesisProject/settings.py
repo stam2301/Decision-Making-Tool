@@ -80,12 +80,12 @@ WSGI_APPLICATION = 'thesisProject.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.mysql',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'thesisdb',
-        'USER': 'root',
-        'PASSWORD': '',
-        'HOST':'localhost',
-        'PORT':'3306',
+        'USER': 'postgres',
+        'PASSWORD': '7jbhBu3hyuCumnCV',
+        'HOST':'127.0.0.1',
+        'PORT':'5432',
     }
 }
 

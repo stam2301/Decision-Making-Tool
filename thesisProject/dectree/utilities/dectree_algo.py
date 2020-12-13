@@ -1,5 +1,4 @@
 import json, logging, os
-from .schema_validation import validate_schema
 
 def handle_decision (decision_root):
     max_value =  -2.2250738585072014e-308
@@ -90,14 +89,11 @@ def handle_chance_maximax (chance_root):
 
 
 
-def dectree_algo_main (input_file):
+def dectree_algo_main (input):
     
     #input file to python dict
-    data = json.loads(input_file)
-    if validate_schema(data):
-        root = data['headNode'] #get the head node
-        handle_decision(root)
-        print(root)
-
-    else:
-        print('wrong schema')
+    data = json.loads(input)
+    root = data['headNode'] #get the head node
+    handle_decision(root)
+    output = json.dumps(data, indent=3)
+    return output

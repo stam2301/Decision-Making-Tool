@@ -1,4 +1,6 @@
-from jsonschema import validate, Draft7Validator
+import django
+from django.core.validators import BaseValidator
+import jsonschema
 
 
 schema = {
@@ -90,8 +92,9 @@ schema = {
 	}
 }
 
-def validate_schema(instance):
-    if Draft7Validator(schema).is_valid(instance):
-        return True
-    else:
-        return False
+class JSONSchemaValidator(BaseValidator):
+	def compare(self, input, schema):
+		try:
+			jsonschema.validate(input.read(), schema)
+		except jsonschema.exceptions.ValidationError:
+			raise django.core.exceptions.ValidationError('%(value)s failed JSON schema check', params={'value': input})
