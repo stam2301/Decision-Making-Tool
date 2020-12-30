@@ -65,7 +65,7 @@ schema = {
 						"type": "object",
 						"properties": {
 							"describe": {"type": "string"},
-							"profit/lost": {"type": "number"},
+							"profit/loss": {"type": "number"},
 							"decisionToChance": {"$ref": "#/definitions/chance"}
 						}
 					}
