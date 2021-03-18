@@ -1,11 +1,92 @@
-<!DOCTYPE html>
-<html>
-    <head>
-   
-    </head>
-    <body>
-        <h1>Here are the results</h1>
+{% extends "mainApp/base.html" %}
+{% load static %}
 
-        
+{% block title %}Decision Tree Results{% endblock %}
+
+{% block head %}
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>Network</title>
+    <link rel="stylesheet" href="{% static 'dectree/css/dectree_network.css' %}">
+    <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript">
+        var db_nodes = {{ db_nodes|safe }};
+        var db_edges = {{ db_edges|safe }};
+        var nodes = null;
+        var edges = null;
+        var network = null;
+
+        function draw(){
+            var nodes = db_nodes;
+            var edges = db_edges;
+            var mynetwork = document.getElementById('mynetwork');
+
+            var container = document.getElementById('mynetwork');
+
+            var data = {
+                nodes: nodes,
+                edges: edges
+            };
+
+            var options = {
+                nodes: {
+                    fontColor: '#000000',
+                    size: 10
+                },
+                edges:{
+                    color: '#7C7C7C',
+                },
+                groups:{
+                    startNode: {
+				        shape: 'box',
+                        color: '#F000FF',
+			        },
+                    decision: {
+                        shape: 'box',
+                        color: '#57AFC9'
+                    },
+                    chance: {
+                        shape: 'circle',
+                        color: '#E73538'
+                    },
+                    leaf: {
+                        shape: 'dot',
+                        color: '#5AA57D'
+                    },
+                    research: {
+                        shape: 'circle',
+                        color: '#24D017'
+                    }},
+                    physics: {
+                        enabled: true,
+                        barnesHut: { 
+                            gravitationalConstant: -1700,
+                            centralGravity: 0.4,
+                            springLength: 46,
+                            springConstant: 0.032,
+                            damping: 0.115}
+                        
+                        },
+                    layout: {
+                        hierarchical: {
+                            direction: "LR"
+                        }
+                    }
+                
+            };
+            network = new vis.Network(container, data, options);
+        }
+
+
+    </script>
+    <!-- <script type="text/javascript" src="{% static 'dectree/js/dectree_network.js' %}"></script> -->
+{% endblock %}
+
+{% block body %}
+    <body onload="draw()">
+        <h2>Here are the Results</h2>
+        <div id="mynetwork"></div>
+            <div class="vis network-frame" style="position: relative; overflow: hidden; width: 100%; height: 100%;"></div>
+        </div>    
     </body>
-</html>
+{% endblock %}

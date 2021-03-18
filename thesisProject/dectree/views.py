@@ -44,9 +44,17 @@ def upload_form(request):
 def results(request, method_id):
     if request.method == 'GET':
         method = Method.objects.get(methodID=method_id)
-        print(method.method_type)
-        return render(request, 'dectree/decision_tree_results.html')
+        data = method.output_file
+        db_nodes = data['nodes']
+        db_edges = data['edges']
+        return render(request, 'dectree/decision_tree_results.html', context={"db_nodes": db_nodes, "db_edges":db_edges})
+        #return render(request, 'dectree/decision_tree_results.html', context={"data": data})
 
 def manage_tree(request):
     if request.method == 'GET':
         return render(request, 'dectree/decision_tree_manage.html')
+
+def create_tree(request):
+    if request.method == 'GET':
+
+        return render(request, 'dectree/decision_tree_create.html')

@@ -1,0 +1,232 @@
+{% extends "mainApp/base.html" %}
+{% load static %}
+
+{% block title %}Decision Tree{% endblock %}
+
+{% block head %}
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title> Decision Tree </title>
+    <link rel="stylesheet" href="{% static 'dectree/css/dectree_create_network.css' %}">
+    <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript">
+        var nodes = null;
+        var edges = null;
+        var network = null;
+        var id = 1;
+        
+
+        function draw(){
+            nodes = [
+                {
+                    id:1,
+                    group:"startNode",
+                    label:"start",
+                    level: 0},
+                ];
+            edges = [];
+
+            var container = document.getElementById('mynetwork');
+            var data = {
+                nodes: nodes,
+                edges: edges
+            };
+            var options = {
+                edges:{
+                    color: '#7C7C7C',
+                },
+                groups:{
+                    startNode: {
+				        shape: 'box',
+                        color: '#F000FF',
+			        },
+                    decision: {
+                        shape: 'box',
+                        color: '#57AFC9'
+                    },
+                    chance: {
+                        shape: 'circle',
+                        color: '#E73538'
+                    },
+                    leaf: {
+                        shape: 'dot',
+                        color: '#5AA57D'
+                    },
+                    research: {
+                        shape: 'circle',
+                        color: '#24D017'
+                    }},
+                /*layout: {
+                        hierarchical: {
+                            direction: "LR"
+                        }
+                    },*/
+                interaction: {keyboard:true},
+                manipulation: {
+                    addNode: function(data, callback){
+                        document.getElementById("node-operation").innerText = "Add Node";
+                        editNode(data,clearNodePopUp, callback);
+                    },
+                    editNode: function(data, callback){
+                        document.getElementById("node-operation").innerText = "Edit Node";
+                        editNode(data,cancelNodeEdit, callback);
+                    },
+                    addEdge: function(data, callback) {
+                        if (data.from == data.to) {
+                            alert("You are not able to connect a node to itself!");
+                                callback(null);
+                                return;
+                            }
+                        document.getElementById("edge-operation").innerText = "Add Edge";
+                        editEdgeWithoutDrag(data, callback);
+                    },
+                    editEdge:{
+                        editWithoutDrag: function(data, callback){
+                            document.getElementById("edge-operation").innerText = "Edit Edge";
+                            editEdgeWithoutDrag(data, callback);
+                        }
+                    },
+
+                    
+                },
+            };
+            network = new vis.Network(container, data, options);
+            //set = new vis.DataSet(options);
+        }
+
+            function editNode(data, cancelAction, callback) {
+                console.log(JSON.stringify(data));
+                //document.getElementById("node-label").value = data.label;
+                //document.getElementById("node-type").value = data.group;
+                console.log(JSON.stringify(data));
+                document.getElementById("node-saveButton").onclick = saveNodeData.bind(this, data, callback);
+                document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
+                document.getElementById("node-popUp").style.display = "block";
+            }
+
+            // Callback passed as parameter is ignored
+            function clearNodePopUp() {
+                document.getElementById("node-saveButton").onclick = null;
+                document.getElementById("node-cancelButton").onclick = null;
+                document.getElementById("node-popUp").style.display = "none";
+            }
+
+            function cancelNodeEdit(callback) {
+                clearNodePopUp();
+                callback(null);
+            }
+
+            function saveNodeData(data, callback) {
+                console.log(JSON.stringify(data));
+                data.id = ++id;
+                console.log(JSON.stringify(data));
+                data.label = document.getElementById("node-label").value;
+                data.group = document.getElementById("node-type").value;
+                clearNodePopUp();
+                callback(data);
+            }
+
+            function editEdgeWithoutDrag(data, callback) {
+                // filling in the popup DOM elements
+                document.getElementById("edge-label").value = data.label;
+                document.getElementById("edge-saveButton").onclick = saveEdgeData.bind(this, data, callback);
+                document.getElementById("edge-cancelButton").onclick = cancelEdgeEdit.bind(this, callback);
+                document.getElementById("edge-popUp").style.display = "block";
+            }
+
+            function clearEdgePopUp() {
+                document.getElementById("edge-saveButton").onclick = null;
+                document.getElementById("edge-cancelButton").onclick = null;
+                document.getElementById("edge-popUp").style.display = "none";
+            }
+
+            function cancelEdgeEdit(callback) {
+                clearEdgePopUp();
+                callback(null);
+            }
+
+            function saveEdgeData(data, callback) {
+                if (typeof data.to === "object") data.to = data.to.id;
+                if (typeof data.from === "object") data.from = data.from.id;
+                //if ()
+                //console.log((Object.values(network.body.nodes[data.to].options.group)).join(''));
+                //if ("level" in network.body.nodes[data.to].options){
+                   
+                //    k = (Object.values(network.body.nodes[data.to].options.level));
+                //    data.from.level = k + 1;
+                //    console.log(k);
+                //} else if ("level" in network.body.nodes[data.from].options){
+                //    data.to.level = data.from.level + 1;
+                //}
+                //console.log((Object.entries(network.body.nodes[data.to].options)));
+                
+                data.label = document.getElementById("edge-label").value;
+                clearEdgePopUp();
+                callback(data);
+            }
+
+            function init() {
+                draw();
+            }
+            
+    </script>
+{% endblock %}
+
+{% block body %}
+<body onload="init();">
+    <h2>Create Your Tree</h2>
+    <br>
+    <div id="node-popUp">
+        <span id="node-operation">node</span> <br>
+        <table style="margin: auto">
+            <tbody>
+                <tr>
+                    <td>label</td>
+                    <td><input id="node-label" value="new value"></td>
+                </tr>
+                <tr>
+                    <td>type</td>
+                    <td>
+                        <select name="type" id="node-type">
+                            <option value="chance">chance</option>
+                            <option value="decision">decision</option>
+                            <option value="leaf">leaf</option>
+                            <option value="research">research</option>
+                        </select>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="button" class="btn btn-secondary" value="save" id="node-saveButton">
+        <input type="button" class="btn btn-secondary" value="cancel" id="node-cancelButton">
+    </div>
+    <div id="edge-popUp">
+        <span id="edge-operation">edge</span> <br>
+        <table style="margin: auto">
+            <tbody>
+                <tr>
+                    <td>label</td>
+                    <td><input id="edge-label" value="new value"></td>
+                </tr>
+            </tbody>
+        </table>
+        <input type="button" class="btn btn-secondary" value="save" id="edge-saveButton">
+        <input type="button" class="btn btn-secondary" value="cancel" id="edge-cancelButton">
+      </div>
+    <br>
+    <div class="row">
+        <div id="mynetwork" class="col-8">
+            <div class="vis-network">
+                <div class="vis-manipulation"></div>
+                <div class="vis-edit-mode"></div>
+                <button class="vis-close"></button>
+            </div>
+        </div>
+        <div class="col-4">
+            <button class="btn btn-lg btn-primary" id="send-data">Calculate Tree</button>
+        </div>
+    </div>
+</body>
+    
+
+{% endblock %}

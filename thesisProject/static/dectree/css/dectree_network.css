@@ -1,0 +1,10 @@
+
+    body {
+        font: 10pt arial;
+      }
+      #mynetwork {
+        width: 1000px;
+        height: 1000px;
+        box-sizing: content-box;
+      }
+    
