@@ -11,16 +11,16 @@ def handle_research(research, dec_root, id, nodes, edges, level):
     research_chance['decisionToChance']['decisions']=[]
     decisions = []
     decision = dict({})
-    for research_result in research['reliability table']:
+    for research_result in research['reliability_table']:
         
         decision.clear()
     
-        decision['describe'] = research_result['describe']
+        decision['describe'] = research_result['description']
         probability = 0
             
         i=0
         while i<(len(research['initial'])):
-            probability += research['initial'][i]*research_result['forecast'][i]
+            probability += research['initial'][i]['chance']*research_result['forecast'][i]
             i += 1
         
         decision['probability'] = probability
@@ -51,7 +51,7 @@ def handle_research(research, dec_root, id, nodes, edges, level):
             
             j=0
             while j<(len(research['initial'])):
-                chan['decisionToChance']['leafs'][j]['probability'] = round(research['initial'][j]*research_result['forecast'][j]/probability, 5)
+                chan['decisionToChance']['leafs'][j]['probability'] = round(research['initial'][j]['chance']*research_result['forecast'][j]/probability, 5)
                 j += 1
         
         decisions.append(copy.deepcopy(decision)) 
@@ -243,7 +243,7 @@ def dectree_algo_main (input):
     edges = list([])
     
     #input file to python dict
-    data = json.loads(input)
+    data = input
     root = data['headNode'] #get the head node
     root['id'] = id
     id = handle_decision(root, id, nodes, edges, (level+1))

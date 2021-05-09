@@ -3,91 +3,136 @@ from django.core.validators import FileExtensionValidator
 from dectree.utilities.validators.schema_validation import JSONSchemaValidator
 
 MY_JSON_FIELD_SCHEMA = {
-    "$schema": "http://json-schema.org/draft-07/schema#",
+	"$schema": "http://json-schema.org/draft-07/schema#",
 
 	"definitions": {
-		"leaf":{
+		"startNode":{
 			"type": "object",
 			"properties": {
-				"describe":{"type": "string"},
-				"profit/loss": {"type": "number"}
-			}
+				"id": {"type": "integer"},
+				"level": {"type": "integer"},
+				"group": {"type": "string",
+					"enum": ["startNode"]},
+				"label": {"type": "string",
+					"enum": ["start"]}
+			},
+			"required": ["id", "level", "group", "label"]
 		},
-
+		"decisionNode":{
+			"type": "object",
+			"properties": {
+				"id": {"type": "integer"},
+				"level": {"type": "integer"},
+				"group": {"type": "string",
+					"enum": ["decision"]},
+				"label": {"type": "string"}	
+			},
+			"required": ["id", "level", "group", "label"]
+		},
 		"chance":{
 			"type": "object",
 			"properties": {
-				"leafs": {
-					"type": "array",
-					"items":{
-						"type": "object",
-						"properties": {
-							"describe":{"type": "string"},
-							"probability": {"type": "number"},
-							"chanceToLeaf": {"$ref": "#/definitions/leaf"}
-						}
-					}
-				},
-				"decisions": {
-					"type": "array",
-					"items":{
-						"type": "object",
-						"properties":{
-							"describe":{"type": "string"},
-							"probability": {"type": "number"},
-							"chanceToDecision": {"$ref": "#/definitions/decision"}
-						}
-					}
-				}
-			}
+				"id": {"type": "integer"},
+				"level": {"type": "integer"},
+				"group": {"type": "string",
+					"enum": ["chance"]},
+				"label": {"type": "string",
+					"enum": ["BAYES", "MAXIMIN", "MAXIMAX"]},
+				"title": {"type": "string"}
+			},
+			"required": ["id", "level", "group", "label", "title"]
 		},
-
-		"decision":{
+		"leaf":{
 			"type": "object",
 			"properties": {
-				"criterion": {  "type": "string",
-                                "enum": ["BAYES", "MAXIMIN", "MAXIMAX"]},
-				"leafs": {
-					"type": "array",
+				"id": {"type": "integer"},
+				"level": {"type": "integer"},
+				"group": {"type": "string",
+					"enum": ["leaf"]},
+				"label": {"type": "string"}
+			},
+			"required": ["id", "level", "group", "label"]
+		},
+		"research":{
+			"type": "object",
+			"properties": {
+				"id":{"type": "integer"},
+				"level": {"type": "integer"},
+				"group": {"type": "string",
+					"enum": ["research"]},
+				"label": {"type": "string"},
+				"crowd": {"type": "integer"}
+			},
+			"required": ["id", "level", "group", "label", "crowd"]
+		},
+		"edge":{
+			"type": "object",
+			"properties": {
+				"id": {"type": "integer"},
+				"from": {"type": "integer"},
+				"to": {"type": "integer"},
+				"label": {"type": "string"}
+			},
+			"required": ["id", "from", "to"]
+		},
+		"chanceEdge":{
+			"type": "object",
+			"properties": {
+				"id": {"type": "integer"},
+				"from": {"type": "integer"},
+				"to": {"type": "integer"},
+				"label": {"type": "string",
+					"pattern": "^((U+0030)-(U+002E)-[0-9]{3})"}
+			},
+			"required": ["id", "from", "to", "label"]
+		},
+		"researchEdge":{
+			"type": "object",
+			"properties": {
+				"id": {"type": "integer"},
+				"from": {"type": "integer"},
+				"to": {"type": "integer"},
+				"label": {"type": "string"},
+				"situation_table": {"type": "array",
+					"items": {"type": "object",
+						"properties": {
+							"description": {"type": "string"},
+							"situation": {"type": "number"}
+						},
+						"required": ["description", "situation"]}},
+				"research_table": {"type": "array",
 					"items": {
 						"type": "object",
 						"properties": {
-							"describe":{"type": "string"},
-							"profit/loss": {"type": "number"},
-							"decisionToLeaf": {"$ref": "#/definitions/leaf"}
-						}
-					}
-				},
-				"chances": {
-					"type": "array",
-					"items": {
-						"type": "object",
-						"properties": {
-							"describe": {"type": "string"},
-							"profit/lost": {"type": "number"},
-							"decisionToChance": {"$ref": "#/definitions/chance"}
-						}
-					}
-				},
-				"decisions": {
-					"type": "array",
-					"items":{
-						"type": "object",
-						"properties":{
-							"describe":{"type": "string"},
-							"probability": {"type": "number"},
-							"DecisionToDecision": {"$ref": "#/definitions/decision"}
-						}
-					}
-				}
-			}
+							"description": {"type": "string"},
+							"forecast": {"type": "array",
+								"items": {"type": "number"}}
+						},
+						"required": ["forecast"]
+					}}
+			},
+			"required": ["id", "from", "to", "situation_table", "research_table"]
 		}
-
-
 	},
-	"type": "object",
-	"properties":{
-		"headNode": {"$ref": "#/definitions/decision"}
+	"nodes":{
+		"type": "array",
+		"items": {
+			"AnyOf": [
+				{"$ref": "#/definitions/startNode"},
+				{"$ref": "#/definitions/decision"},
+				{"$ref": "#/definitions/chance"},
+				{"$ref": "#/definitions/leaf"},
+				{"$ref": "#/definitions/research"}]
+			}
+	},
+	"edges": {
+		"type": "array",
+		"items": {
+			"AnyOf": [
+				{"$ref": "#/definitions/edge"},
+				{"$ref": "#/definitions/chanceEdge"},
+				{"$ref": "#/definitions/researchEdge"}]
+		}
 	}
 }
 

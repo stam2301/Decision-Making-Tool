@@ -1,9 +1,732 @@
-<!DOCTYPE html>
-<html>
-    <head>
+{% extends "mainApp/base.html" %}
+{% load static %}
 
-    </head>
-    <body>
-        <h1>Manage your tree</h1>
-    </body>
-</html>
+{% block title %}Decision Tree{% endblock %}
+
+{% block head %}
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title> Decision Tree </title>
+    <link rel="stylesheet" href="{% static 'dectree/css/dectree_create_network.css' %}">
+    <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript">
+        var meth_id = {{ method_id|safe }};
+        var input_nodes = {{ nodes|safe }};
+        var input_edges = {{ edges|safe }};
+        var network = null;
+        var id = {{ nodes_id |safe }};
+        var edge_id = {{ edges_id|safe }};
+        var input_researches = {{ researches|safe }};
+        var researches = Object.create(input_researches);
+
+        function destroy() {
+            if (network !== null) {
+                network.destroy();
+                network = null;
+            }
+        }
+
+        function draw(){
+            destroy();
+            var nodes = new vis.DataSet(input_nodes);
+            var edges = new vis.DataSet(input_edges);
+
+            var container = document.getElementById('mynetwork');
+            
+            var data = {
+                nodes: nodes,
+                edges: edges
+            };
+            var options = {
+                edges:{
+                    color: '#7C7C7C',
+                },
+                groups:{
+                    startNode: {
+				        shape: 'box',
+                        color: '#F000FF',
+			        },
+                    decision: {
+                        shape: 'box',
+                        color: '#57AFC9'
+                    },
+                    chance: {
+                        shape: 'circle',
+                        color: '#E73538'
+                    },
+                    leaf: {
+                        shape: 'dot',
+                        color: '#5AA57D'
+                    },
+                    research: {
+                        shape: 'circle',
+                        color: '#24D017'
+                    }},
+                interaction: {keyboard:false},
+                manipulation: {
+                    addNode: function(data, callback){
+                        document.getElementById("node-operation").innerText = "Add Node";
+                        editNode(data,clearNodePopUp, callback);
+                    },
+                    editNode: function(data, callback){
+                        document.getElementById("node-operation").innerText = "Edit Node";
+                        editNode(data,cancelNodeEdit, callback);
+
+                    },
+                    addEdge: function(data, callback) {
+                        if (network.body.nodes[data.from].options.level == 1000) {
+                            alert("From Node should be part of the main netwrok!")
+                            callback(null);
+                            return;
+                        }
+                        if (data.from == data.to) {
+                            alert("You are not able to connect a node to itself!");
+                            callback(null);
+                            return;
+                        } else if (network.body.nodes[data.to].options.group == "leaf" && network.body.nodes[data.from].options.group == "leaf"){
+                            alert("You are not able to create a connection between leaf nodes");
+                            callback(null);
+                            return;
+                        } else if (network.body.nodes[data.to].options.group == "chance" && network.body.nodes[data.from].options.group == "chance"){
+                            alert("You are not able to create a connection between chance nodes");
+                            callback(null);
+                            return;
+                        } else if (network.body.nodes[data.to].options.group == "research" && network.body.nodes[data.from].options.group == "research"){
+                            alert("You are not able to create a connection between chance nodes");
+                            callback(null);
+                            return;
+                        } else if ((network.body.nodes[data.to].options.group == "research" && (network.body.nodes[data.from].options.group == "chance" || network.body.nodes[data.from].options.group == "leaf" || network.body.nodes[data.from].options.group == "research"))){
+                            alert("You are not able to perform a research to a leaf, chance or research node!");
+                            callback(null);
+                            return;
+                        }
+                        document.getElementById("edge-operation").innerText = "Add Edge";
+                        editEdgeWithoutDrag(data, callback);
+                    },
+                    editEdge:{
+                        editWithoutDrag: function(data, callback){
+                            document.getElementById("edge-operation").innerText = "Edit Edge";
+                            editEdgeWithoutDrag(data, callback);
+                        }
+                    },
+
+                    
+                },
+            };
+            network = new vis.Network(container, data, options);
+        }
+
+            function editNode(data, cancelAction, callback) {
+                
+                if (data.id in network.body.nodes){
+                    document.getElementById("node-type").style.display = "none";
+                    if(data.group == "decision"){
+                        document.getElementById("node-type").value = "decision";
+                        $("#node-type").change();
+                        document.getElementById("decision-type-input").value = data.title;
+                        document.getElementById("decision-cost-input").value = data.label;
+                        document.getElementById("node-saveButton").onclick = saveEditNodeData.bind(this, data, callback);
+                        document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
+                        document.getElementById("node-popUp").style.display = "block";
+                    } else if (data.group == "startNode"){
+                        document.getElementById("node-type").value = "start";
+                        $("#node-type").change();
+                        document.getElementById("decision-type-input").value = data.title;
+                        document.getElementById("node-saveButton").onclick = saveEditNodeData.bind(this, data, callback);
+                        document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
+                        document.getElementById("node-popUp").style.display = "block";
+                    }else if (data.group == "leaf"){
+                        document.getElementById("node-type").value = "leaf";
+                        $("#node-type").change();
+                        document.getElementById("leaf-cost-input").value = data.label;
+                        document.getElementById("node-saveButton").onclick = saveEditNodeData.bind(this, data, callback);
+                        document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
+                        document.getElementById("node-popUp").style.display = "block";
+                    } else if (data.group == "chance"){
+                        document.getElementById("node-type").value = "chance";
+                        $("#node-type").change();
+                        document.getElementById("chance-cost-input").value = data.label;
+                        document.getElementById("node-saveButton").onclick = saveEditNodeData.bind(this, data, callback);
+                        document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
+                        document.getElementById("node-popUp").style.display = "block";
+                    } else if (data.group == "research"){
+                        document.getElementById("node-type").value = "research";
+                        $("#node-type").change();
+                        document.getElementById("research-cost-input").value = data.label;
+                        document.getElementById("research-number-input").value = data.crowd;
+                        document.getElementById("node-saveButton").onclick = saveEditNodeData.bind(this, data, callback);
+                        document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
+                        document.getElementById("node-popUp").style.display = "block";
+                    } else if (data.group == "startNode"){
+                        alert("You are not able to edit the start node!");
+                        document.getElementById("node-type").style.display = "block";
+                        callback(null);
+                        return;
+                    }
+                } else {
+                    document.getElementById("leaf-cost-input").value = "";
+                    document.getElementById("chance-cost-input").value = "";
+                    document.getElementById("decision-cost-input").value = "";
+                    document.getElementById("research-cost-input").value = "";
+                    document.getElementById("research-number-input").value = "";
+                    document.getElementById("node-saveButton").onclick = saveNodeData.bind(this, data, callback);
+                    document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
+                    document.getElementById("node-popUp").style.display = "block";
+                }
+            }
+
+            // Callback passed as parameter is ignored
+            function clearNodePopUp() {
+                document.getElementById("node-saveButton").onclick = null;
+                document.getElementById("node-cancelButton").onclick = null;
+                document.getElementById("node-popUp").style.display = "none";
+            }
+            function clearEditNodePopUp() {
+                document.getElementById("node-saveButton").onclick = null;
+                document.getElementById("node-cancelButton").onclick = null;
+                document.getElementById("node-popUp").style.display = "none";
+            }
+
+            function cancelNodeEdit(callback) {
+                clearEditNodePopUp();
+                document.getElementById("node-type").style.display = "block";
+                callback(null);
+            }
+            function saveEditNodeData(data, callback){
+                if (document.getElementById("node-type").value == "decision") {
+                    if (document.getElementById("decision-cost-input").value.length == 0){
+                        data.label = 0;
+                    } else {
+                        data.label = document.getElementById("decision-cost-input").value;
+                    }
+                    data.title = document.getElementById("decision-type-input").value;
+                    clearNodePopUp();
+                    callback(data);
+                    document.getElementById("node-type").style.display = "block";
+                    document.getElementById("decision-cost-input").value = "";
+                } else if (document.getElementById("node-type").value == "startNode"){
+                    data.title = document.getElementById("decision-type-input").value;
+                    clearNodePopUp();
+                    callback(data);
+                    document.getElementById("node-type").style.display = "block";
+                    document.getElementById("decision-cost-input").value = "";
+                } else if (document.getElementById("node-type").value == "leaf") {
+                    if (document.getElementById("leaf-cost-input").value.length == 0){
+                        data.label = 0;
+                    } else {
+                        data.label = document.getElementById("leaf-cost-input").value;
+                    }
+                    clearNodePopUp();
+                    callback(data);
+                    document.getElementById("node-type").style.display = "block";
+                    document.getElementById("leaf-cost-input").value = "";
+                } else if (document.getElementById("node-type").value == "chance") {
+                    if (document.getElementById("chance-cost-input").value.length == 0){
+                        data.label = 0;
+                    } else {
+                        data.label = document.getElementById("chance-cost-input").value;
+                    }
+                    clearNodePopUp();
+                    callback(data);
+                    document.getElementById("node-type").style.display = "block";
+                    document.getElementById("chance-cost-input").value = "";
+                } else if (document.getElementById("node-type").value == "research") {
+                    if (document.getElementById("research-cost-input").value.length == 0){
+                        data.label = 0;
+                    } else {
+                        data.label = document.getElementById("research-cost-input").value;
+                    }
+                    data.crowd = document.getElementById("research-number-input").value;
+                    clearNodePopUp();
+                    callback(data);
+                    document.getElementById("node-type").style.display = "block";
+                    document.getElementById("research-cost-input").value = "";
+                    document.getElementById("research-number-input").value = "";
+                }
+            }
+
+            function saveNodeData(data, callback) {
+                if (document.getElementById("node-type").value == "decision") {
+                    data.id = ++id;
+                    data.level = 1000;
+                    if (document.getElementById("decision-cost-input").value.length == 0){
+                        data.label = 0;
+                    } else {
+                        data.label = document.getElementById("decision-cost-input").value;
+                    }
+                    data.group = document.getElementById("node-type").value;
+                    data.title = document.getElementById("decision-type-input").value;
+                    clearNodePopUp();
+                    callback(data);
+                } else if (document.getElementById("node-type").value == "leaf") {
+                    data.id = ++id;
+                    data.level = 1000;
+                    if (document.getElementById("leaf-cost-input").value.length == 0){
+                        data.label = 0;
+                    } else {
+                        data.label = document.getElementById("leaf-cost-input").value;
+                    }
+                    data.group = document.getElementById("node-type").value;
+                    clearNodePopUp();
+                    callback(data);
+                } else if (document.getElementById("node-type").value == "chance") {
+                    data.id = ++id;
+                    data.level = 1000;
+                    if (document.getElementById("chance-cost-input").value.length == 0){
+                        data.label = 0;
+                    } else {
+                        data.label = document.getElementById("chance-cost-input").value;
+                    }
+                    data.group = document.getElementById("node-type").value;
+                    clearNodePopUp();
+                    callback(data);
+                } else if (document.getElementById("node-type").value == "research") {
+                    data.id = ++id;
+                    data.level = 1000;
+                    if (document.getElementById("research-cost-input").value.length == 0){
+                        data.label = 0;
+                    } else {
+                        data.label = document.getElementById("research-cost-input").value;
+                    }
+                    data.group = document.getElementById("node-type").value;
+                    data.crowd = document.getElementById("research-number-input").value;
+                    clearNodePopUp();
+                    callback(data);
+                }
+            }
+
+            function editEdgeWithoutDrag(data, callback) {
+                // filling in the popup DOM elements
+                if (data.id in network.body.edges){
+                    document.getElementById("edge-label").value = data.label;
+                    document.getElementById("edge-label").placeholder = "description";
+                    if (((network.body.nodes[data.to].options.group == "chance") && (network.body.nodes[data.to].options.level < network.body.nodes[data.from].options.level))||((network.body.nodes[data.from].options.group == "chance" )&&(network.body.nodes[data.to].options.level > network.body.nodes[data.from].options.level))){
+                        document.getElementById("edge-label").placeholder = "ex. 0.46:label";
+                    } else if (network.body.nodes[data.to].options.group == "research") {
+                        //αριθμός αποτελεσμάτων έρευνας
+                        var rows = network.body.nodes[data.to].options.crowd;
+                        researchedNodes = get_chance_table(data.from, data.to);
+                        data.rows = rows;
+                        data.cols = researchedNodes.length;
+                        gen_pop_research_table(rows, researchedNodes.length, researchedNodes, researches[data.to].research_table);
+                    }
+                    document.getElementById("edge-saveButton").onclick = saveEditEdgeData.bind(this, data, callback);
+                    document.getElementById("edge-cancelButton").onclick = cancelEdgeEdit.bind(this, callback);
+                    document.getElementById("edge-popUp").style.display = "block";
+
+                } else {
+                    document.getElementById("edge-label").value = "";
+                    document.getElementById("edge-label").placeholder = "description";
+                    if (((network.body.nodes[data.to].options.group == "chance") && (network.body.nodes[data.to].options.level < network.body.nodes[data.from].options.level))||((network.body.nodes[data.from].options.group == "chance" )&&(network.body.nodes[data.to].options.level > network.body.nodes[data.from].options.level))){
+                        document.getElementById("edge-label").placeholder = "ex. 0.46:label";
+                    } else if (network.body.nodes[data.to].options.group == "research") {
+                        //αριθμός αποτελεσμάτων έρευνας
+                        var rows = network.body.nodes[data.to].options.crowd;
+                        researchedNodes = get_chance_table(data.from, data.to);
+                        data.rows = rows;
+                        data.cols = researchedNodes.length;
+                        gen_research(rows, researchedNodes.length, researchedNodes);
+                    }
+
+                    //document.getElementById("edge-label").value = data.label;
+                    document.getElementById("edge-saveButton").onclick = saveEdgeData.bind(this, data, callback);
+                    document.getElementById("edge-cancelButton").onclick = cancelEdgeEdit.bind(this, callback);
+                    document.getElementById("edge-popUp").style.display = "block";
+                }
+            }
+
+            function clearEdgePopUp() {
+                document.getElementById("edge-saveButton").onclick = null;
+                document.getElementById("edge-cancelButton").onclick = null;
+                document.getElementById("edge-popUp").style.display = "none";
+                reset_table();
+            }
+
+            function cancelEdgeEdit(callback) {
+                //document.getElementById("edge-label").placeholder = "description";
+                clearEdgePopUp();
+                callback(null);
+            }
+            function saveEditEdgeData(data, callback) {
+                var edge_name = document.getElementById("edge-label").value;
+                if ((((network.body.nodes[data.to].options.group == "chance") && (network.body.nodes[data.to].options.level < network.body.nodes[data.from].options.level))||((network.body.nodes[data.from].options.group == "chance" )&&(network.body.nodes[data.to].options.level > network.body.nodes[data.from].options.level))) && (!check_edge_chance(edge_name))) {
+                    alert("Your edge data are invalid! \n ex. 0.46:Description");
+                    clearEdgePopUp();
+                    callback(null);
+                    return;
+                }
+                if (network.body.nodes[data.to].options.group == "research"){
+                    labels = get_chance_table(data.from, data.to);
+                    var temp_table = [];
+                    for (var i = 0; i < labels.length; i++){
+                        var temp = labels[i].split(":");
+                        temp_table.push({description: temp[1], chance: temp[0]});
+                    }
+                    chance_table = temp_table;
+                    research_table = get_research_table(data.rows, data.cols);
+                    researches[data.to] = {};
+                    researches[data.to].chance_table = chance_table;
+                    researches[data.to].research_table = research_table;
+                }
+                data.dashes = true;
+                data.label = edge_name;
+                clearEdgePopUp();
+                callback(data);
+            }
+
+            function saveEdgeData(data, callback) {
+                if (typeof data.to === "object") data.to = data.to.id;
+                if (typeof data.from === "object") data.from = data.from.id;
+                var edge_name = document.getElementById("edge-label").value;
+                if ((((network.body.nodes[data.to].options.group == "chance") && (network.body.nodes[data.to].options.level < network.body.nodes[data.from].options.level))||((network.body.nodes[data.from].options.group == "chance" )&&(network.body.nodes[data.to].options.level > network.body.nodes[data.from].options.level))) && (!check_edge_chance(edge_name))) {
+                    alert("Your edge data are invalid! \n ex. 0.46:Description");
+                    clearEdgePopUp();
+                    callback(null);
+                    return;
+                }
+                if (network.body.nodes[data.to].options.level > network.body.nodes[data.from].options.level){
+                    network.body.nodes[data.to].options.level = network.body.nodes[data.from].options.level + 1;
+                } else{
+                    network.body.nodes[data.from].options.level = network.body.nodes[data.to].options.level + 1;
+                }
+                if (network.body.nodes[data.to].options.group == "research"){
+                    labels = get_chance_table(data.from, data.to);
+                    var temp_table = [];
+                    for (var i = 0; i < labels.length; i++){
+                        var temp = labels[i].split(":");
+                        temp_table.push({description: temp[1], chance: temp[0]});
+                    }
+                    chance_table = temp_table;
+                    research_table = get_research_table(data.rows, data.cols);
+                    researches[data.to] = {};
+                    researches[data.to].chance_table = chance_table;
+                    researches[data.to].research_table = research_table;
+                }
+                data.id = ++edge_id;
+                data.dashes = true;
+                data.label = edge_name;
+                clearEdgePopUp();
+                callback(data);
+            }
+
+            
+            $(document).ready(function(){
+                $("#edit-node-type").change(function(){
+                    var nodeType = $(this).attr("value");
+                })
+            });
+            
+
+            $(document).ready(function(){
+                $("#node-type").change(function(){
+                    $(this).find("option:selected").each(function(){
+                        var optionValue = $(this).attr("value");
+                        if(optionValue){
+                            $(".input").not("." + optionValue).hide();
+                            $("." + optionValue).show();
+                        } else{
+                            $(".box").hide();
+                        }
+                    });
+                }).change();
+            });
+
+            function check_edge_chance(title){
+                arr = title.split(":");
+                if(isNaN(arr[0])==false) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+
+            function reset_table(){
+                $("#research-table").empty();
+            }
+
+            function init() {
+                researches = Object.create(input_researches);
+                draw();
+            }
+            
+            $(document).ready(function(){
+                init();
+            });
+
+            function gen_research(x, y, labels) {
+                var rows = x;
+                var cols = y;
+                var table_body = $("<table/>", {
+                    class: "table",
+                    id: "research_input_table"
+                });
+
+                for (var i=-1; i<rows; i++){
+                    var row = $("<tr></tr>");
+                    for (var j=-1; j<cols; j++){
+                        if (i == -1 && j == -1) {
+                            var item = $("<th></th>", {
+                                scope: "col"
+                            }).text("E/S");
+                        } else if ( i == -1 && j > -1) {
+                            var item = $("<th></th>", {
+                                scope: "col",
+                                id: "label"+(j+1).toString()
+                            }).text(labels[j]);
+                        } else if (i > -1 && j == -1) {
+                            var item = $("<th></th>", {
+                                scope: "col"
+                            });
+                            var input = $("<input/>", {
+                                type: "text",
+                                class: "form-control",
+                                id: "E"+(i+1).toString(),
+                                placeholder: "E"+(i+1).toString()
+                            })
+                            item.append(input);
+                        } else {
+                            var item = $("<td></td>");
+                            var input = $("<input/>", {
+                                type: "number",
+                                min: "0",
+                                max: "1",
+                                step: "0.001",
+                                class: "form-control",
+                                id: "E"+(i+1).toString()+"/S"+(j+1).toString(),
+                                placeholder: "E"+(i+1).toString()+"/S"+(j+1).toString()
+                            });
+                            item.append(input);
+                        }
+                        row.append(item);
+                    }
+                    table_body.append(row);
+                }
+                $("#research-table").append(table_body);
+            }
+
+            function get_chance_table(from, to){
+                var rows = network.body.nodes[to].options.crowd;
+                    var ref = 0;
+                    //συνδεδεμένοι κόμβοι στον κόμβο απόφασης
+                    var conNodes = network.getConnectedNodes(from);
+                    for (var i = 0; i < conNodes.length; i++) {
+                        if ((network.body.nodes[conNodes[i]].options.level > network.body.nodes[from].options.level) && (network.body.nodes[conNodes[i]].options.group == "chance")) {
+                            //βρίσκω έναν κόμβο ευκαιρίας συνδεδεμένο στον κόμβο απόφασης και τον κάνω κόμβο αναφοράς
+                            ref = conNodes[i];
+                            break;
+                        }
+                    }
+                    //βρες τους συνδεδεμένους κόμβους στον κόμβο αναφοράς
+                    var refConNodes = network.getConnectedNodes(ref);
+
+                    //Πίνακας των Si ενδεχόμενων
+                    var researchedNodes = [];
+                    //Αφαίρεσε από τον refConNodes τον κόμβο απόφασης
+                    for(var i = 0; i < refConNodes.length; i++) {
+                        for(var j = 0; j < conNodes.length; j++) {
+                            if (refConNodes[i]=conNodes[j]) {
+                                refConNodes.splice(i,1);
+                                i = refConNodes.length + 1;
+                                break;
+                            }
+                        }
+                    }
+                    for (key in network.body.edges) {
+                        if (network.body.edges[key].fromId == ref && network.body.edges[key].toId) {
+                            researchedNodes.push(network.body.edges[key].options.label);
+                        }
+                    }
+                return researchedNodes;
+            }
+            function gen_pop_research_table(x, y, labels, research){
+                var rows = x;
+                var cols = y;
+                var table_body = $("<table/>", {
+                    class: "table",
+                    id: "research_input_table"
+                });
+
+                for (var i=-1; i<rows; i++){
+                    var row = $("<tr></tr>");
+                    for (var j=-1; j<cols; j++){
+                        if (i == -1 && j == -1) {
+                            var item = $("<th></th>", {
+                                scope: "col"
+                            }).text("E/S");
+                        } else if ( i == -1 && j > -1) {
+                            var item = $("<th></th>", {
+                                scope: "col",
+                                id: "label"+(j+1).toString()
+                            }).text(labels[j]);
+                        } else if (i > -1 && j == -1) {
+                            var item = $("<th></th>", {
+                                scope: "col"
+                            });
+                            var input = $("<input/>", {
+                                type: "text",
+                                class: "form-control",
+                                id: "E"+(i+1).toString(),
+                                placeholder: "E"+(i+1).toString(),
+                                value: research[i].description
+                            })
+                            item.append(input);
+                        } else {
+                            var item = $("<td></td>");
+                            var input = $("<input/>", {
+                                type: "number",
+                                step: "0.001",
+                                class: "form-control",
+                                id: "E"+(i+1).toString()+"/S"+(j+1).toString(),
+                                placeholder: "E"+(i+1).toString()+"/S"+(j+1).toString(),
+                                value: research[i].forecast[j]
+                            });
+                            item.append(input);
+                        }
+                        row.append(item);
+                    }
+                    table_body.append(row);
+                }
+                $("#research-table").append(table_body);
+            }
+
+            function get_research_table(x, y){
+                var re_table = [];
+                var temp = {};
+                for (var i=0; i<x; i++){
+                    temp.description = $("#E"+(i+1).toString()).val();
+                    temp.forecast = [];
+                    for (var j=0; j<y; j++){
+                        temp.forecast.push(document.getElementById("E"+(i+1).toString()+"/S"+(j+1).toString()).value);
+                    }
+                    re_table.push(Object.assign({},temp));        
+                }
+                var vp_object = re_table;
+
+                return vp_object;
+            }
+
+            function get_data_output(){
+                var output_data = {};
+                var network_nodes = Object.keys(network.getPositions());
+                var network_edges = Object.keys(network.body.edges);
+                var output_nodes = [];
+                var output_edges = [];
+                network_nodes.forEach(element => {
+                    var temp = {};
+                    temp.id = network.body.nodes[element].options.id;
+                    temp.level = network.body.nodes[element].options.level;
+                    temp.group = network.body.nodes[element].options.group;
+                    if (network.body.nodes[element].options.group == "chance"){
+                        temp.cost = parseFloat(network.body.nodes[element].options.label);
+                    } else if (network.body.nodes[element].options.group == "decision"){
+                        temp.cost = parseFloat(network.body.nodes[element].options.label);
+                        temp.criterion = network.body.nodes[element].options.title;
+                    } else if (network.body.nodes[element].options.group == "leaf"){
+                        temp.cost = parseFloat(network.body.nodes[element].options.label);
+                    } else if (network.body.nodes[element].options.group == "research"){
+                        temp.cost = parseFloat(network.body.nodes[element].options.label);
+                        temp.crowd = parseFloat(network.body.nodes[element].options.crowd);
+                        temp.chance_table = researches[element].chance_table;
+                        temp.research_table = researches[element].research_table;
+                    } else {
+                        temp.criterion = network.body.nodes[element].options.title;
+                    }
+                    output_nodes.push(Object.assign({}, temp));
+                });
+
+                network_edges.forEach(element => {
+                    var temp = {};
+                    temp.id = network.body.edges[element].options.id;
+                    temp.from = network.body.edges[element].options.from;
+                    temp.to = network.body.edges[element].options.to;
+                    temp.label = network.body.edges[element].options.label;
+                    output_edges.push(Object.assign({}, temp));
+                });
+                output_data.nodes = output_nodes;
+                output_data.edges = output_edges;
+                output_data.title = $("#tree_title").val();
+                output_data.id = Number(meth_id);
+                return output_data;
+            }
+            
+            $(document).ready(function(){
+                $("#send_data").click(function() {
+                    $.ajax({
+                        type: "POST",
+                        dataType: "json",
+                        data: {csrfmiddlewaretoken: "{{ csrf_token }}",
+                            data: JSON.stringify(get_data_output())},
+                        url: "/dectree/ajax/calculate",
+                        success: function(response){
+                        }
+                    })
+                    document.forms[0].submit();
+                });
+            });
+            //console.log(meth_id);
+    </script>
+{% endblock %}
+
+{% block body %}
+<body>
+    <h2>Manage your Decision Tree</h2>
+    <input type="text" class="form-control" id="tree_title" value="{{ title | safe }}" placeholder="Tree Title" class="col-8">
+    <br>
+    <div id="node-popUp">
+        <span id="node-operation">node</span> <br>
+            <select name="node-type" id="node-type">
+                <option value="leaf">leaf</option>
+                <option value="chance">chance</option>
+                <option value="decision">decision</option>
+                <option value="research">research</option>
+            </select>
+            <div class="decision input">
+                <select name="decision-type-input" id="decision-type-input">
+                    <option value="BAYES">BAYES</option>
+                    <option value="MAXIMIN">MAXIMIN</option>
+                    <option value="MAXIMAX">MAXIMAX</option>   
+                </select>
+                <input type="number" class="form-control" step="0.001" placeholder="cost" aria-label="cost" aria-describedby="basic-describeby" id="decision-cost-input">
+            </div>
+            <div class="chance input">
+                <input type="number" class="form-control" step="0.001" placeholder="cost" aria-label="cost" aria-describedby="basic-describeby" id="chance-cost-input">
+            </div>
+            <div class="leaf input">
+                <input type="number" class="form-control" step="0.001" placeholder="cost" aria-label="cost" aria-describedby="basic-describeby" id="leaf-cost-input">
+            </div>
+            <div class="research input">
+                <input type="number" class="form-control" step="0.001" placeholder="Research Cost" aria-label="cost" aria-describedby="basic-describeby" id="research-cost-input">
+                <input type="number" class="form-control" min="1" max="10" placeholder="Number of results" aria-label="cost" aria-describedby="basic-describeby" id="research-number-input">
+                
+            </div>
+            <input type="button" class="btn btn-secondary" value="save" id="node-saveButton">
+            <input type="button" class="btn btn-secondary" value="cancel" id="node-cancelButton">
+    </div>
+    <div id="edge-popUp">
+        <span id="edge-operation">edge</span> <br>
+            <input type="text" class="form-control" placeholder="description" id="edge-label">
+            <div id="research-table"></div>
+        <input type="button" class="btn btn-secondary" value="save" id="edge-saveButton">
+        <input type="button" class="btn btn-secondary" value="cancel" id="edge-cancelButton">
+    </div>
+    <br>
+    <div class="row">
+        <div id="mynetwork" class="col-8">
+            <div class="vis-network">
+                <div class="vis-manipulation"></div>
+                <div class="vis-edit-mode"></div>
+                <button class="vis-close"></button>
+            </div>
+        </div>
+        <div class="col-4">
+            <button class="btn btn-lg btn-primary" id="send_data">Calculate Tree</button>
+            <br>
+            <br>
+            <button class="btn btn-lg btn-primary" id="reset" onclick="init();">Reset</button>
+        </div>
+        <form id="submit_form" enctype="multipart/form-data" method="POST">
+            {% csrf_token %}
+        </form>
+    </div>
+</body>
+{% endblock %}
