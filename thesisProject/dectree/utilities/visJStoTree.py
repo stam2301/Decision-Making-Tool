@@ -49,7 +49,7 @@ def tree_construct (current_node, rem_edges, from_node, nodes):
                 if nodes[id]['cost'] is None:
                     temp['profit/loss'] = 0
                 else: 
-                    temp['profit/loss'] = nodes[id]['cost']
+                    temp['profit/loss'] = 0
                 temp['decisionToLeaf'] = dict({})
                 tree_construct(temp['decisionToLeaf'], rem_edges, item['to'], nodes)
                 current_node['leafs'].append(temp.copy())
