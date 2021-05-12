@@ -15,7 +15,8 @@
                     id:1,
                     group:"startNode",
                     label:"start",
-                    level: 0},
+                    level: 0,
+                    title: "BAYES"},
                 ];
         var input_edges = [];
         var network = null;
@@ -136,7 +137,7 @@
                     } else if (data.group == "startNode"){
                         document.getElementById("node-type").value = "start";
                         $("#node-type").change();
-                        document.getElementById("decision-type-input").value = data.title;
+                        document.getElementById("start-type-input").value = data.title;
                         document.getElementById("node-saveButton").onclick = saveEditNodeData.bind(this, data, callback);
                         document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
                         document.getElementById("node-popUp").style.display = "block";
@@ -162,11 +163,6 @@
                         document.getElementById("node-saveButton").onclick = saveEditNodeData.bind(this, data, callback);
                         document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
                         document.getElementById("node-popUp").style.display = "block";
-                    } else if (data.group == "startNode"){
-                        alert("You are not able to edit the start node!");
-                        document.getElementById("node-type").style.display = "block";
-                        callback(null);
-                        return;
                     }
                 } else {
                     document.getElementById("leaf-cost-input").value = "";
@@ -209,8 +205,8 @@
                     callback(data);
                     document.getElementById("node-type").style.display = "block";
                     document.getElementById("decision-cost-input").value = "";
-                } else if (document.getElementById("node-type").value == "startNode"){
-                    data.title = document.getElementById("decision-type-input").value;
+                } else if (document.getElementById("node-type").value == "start"){
+                    data.title = document.getElementById("start-type-input").value;
                     clearNodePopUp();
                     callback(data);
                     document.getElementById("node-type").style.display = "block";
@@ -623,18 +619,25 @@
                     temp.group = network.body.nodes[element].options.group;
                     if (network.body.nodes[element].options.group == "chance"){
                         temp.cost = parseFloat(network.body.nodes[element].options.label);
+                        temp.label = network.body.nodes[element].options.label;
                     } else if (network.body.nodes[element].options.group == "decision"){
                         temp.cost = parseFloat(network.body.nodes[element].options.label);
+                        temp.label = network.body.nodes[element].options.label;
                         temp.criterion = network.body.nodes[element].options.title;
+                        temp.title = network.body.nodes[element].options.title;
                     } else if (network.body.nodes[element].options.group == "leaf"){
                         temp.cost = parseFloat(network.body.nodes[element].options.label);
+                        temp.label = network.body.nodes[element].options.label;
                     } else if (network.body.nodes[element].options.group == "research"){
                         temp.cost = parseFloat(network.body.nodes[element].options.label);
+                        temp.label = network.body.nodes[element].options.label;
                         temp.crowd = parseFloat(network.body.nodes[element].options.crowd);
                         temp.chance_table = researches[element].chance_table;
                         temp.research_table = researches[element].research_table;
                     } else {
                         temp.criterion = network.body.nodes[element].options.title;
+                        temp.title = network.body.nodes[element].options.title;
+                        temp.label = network.body.nodes[element].options.label;
                     }
                     output_nodes.push(Object.assign({}, temp));
                 });
@@ -660,8 +663,10 @@
                         dataType: "json",
                         data: {csrfmiddlewaretoken: "{{ csrf_token }}",
                             data: JSON.stringify(get_data_output())},
-                        url: "/dectree/ajax/calculate",
-
+                        url: "/dectree/ajax/create_and_calculate",
+                        success: function(response){
+                            document.forms[0].submit();
+                        }
                     })
                 });
             });
@@ -671,16 +676,17 @@
 
 {% block body %}
 <body>
-    <h2>Manage your Decision Tree</h2>
+    <h2>Create your Decision Tree</h2>
     <input type="text" class="form-control" id="tree_title" placeholder="Tree Title" class="col-8">
     <br>
     <div id="node-popUp">
         <span id="node-operation">node</span> <br>
             <select name="node-type" id="node-type">
-                <option value="leaf">leaf</option>
+                <option value="leaf" selected="selected">leaf</option>
                 <option value="chance">chance</option>
                 <option value="decision">decision</option>
                 <option value="research">research</option>
+                <option hidden value="start"></option>
             </select>
             <div class="decision input">
                 <select name="decision-type-input" id="decision-type-input">
@@ -698,8 +704,14 @@
             </div>
             <div class="research input">
                 <input type="number" class="form-control" step="0.001" placeholder="Research Cost" aria-label="cost" aria-describedby="basic-describeby" id="research-cost-input">
-                <input type="number" class="form-control" min="1" max="10" placeholder="Number of results" aria-label="cost" aria-describedby="basic-describeby" id="research-number-input">
-                
+                <input type="number" class="form-control" min="1" max="10" placeholder="Number of results" aria-label="cost" aria-describedby="basic-describeby" id="research-number-input">    
+            </div>
+            <div class="start input">
+                <select name="start-type-input" id="start-type-input">
+                    <option value="BAYES">BAYES</option>
+                    <option value="MAXIMIN">MAXIMIN</option>
+                    <option value="MAXIMAX">MAXIMAX</option>   
+                </select>
             </div>
             <input type="button" class="btn btn-secondary" value="save" id="node-saveButton">
             <input type="button" class="btn btn-secondary" value="cancel" id="node-cancelButton">
@@ -726,6 +738,9 @@
             <br>
             <button class="btn btn-lg btn-primary" id="reset" onclick="init();">Reset</button>
         </div>
+        <form id="submit_form" enctype="multipart/form-data" method="POST">
+            {% csrf_token %}
+        </form>
     </div>
 </body>
     
