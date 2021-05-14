@@ -10,7 +10,7 @@ import os, json, copy
 from mainApp.models import Method
 
 
-# Create your views here.
+# Create your views here
 def dectree_index(request):
     if request.method == 'GET':
         return render(request, 'dectree/decision_tree_index.html')
