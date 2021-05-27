@@ -1,0 +1,36 @@
+table {
+    align-items: center;
+}
+caption {
+    white-space: nowrap;
+}
+select {
+    width: 400px; text-align-last:center; 
+}
+
+#objective-function {
+    text-align: center;
+}
+
+#constraints-table{
+    text-align: center;
+}
+
+#add-constraint{
+    align-self: center;
+}
+
+#cons-button{
+    text-align: center;
+}
+
+#activity-table{
+    text-align: center;
+}
+#act-button{
+    text-align: center;
+}
+
+#add-activity{
+    align-self: center;
+}

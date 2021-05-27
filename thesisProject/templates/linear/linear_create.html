@@ -1,0 +1,660 @@
+{% extends "mainApp/base.html" %}
+{% load static %}
+
+{% block title %}Linear Programming {% endblock %}
+
+{% block head %}
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <link rel="stylesheet" href="{% static 'linear/css/linear_create.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" type="text/css">
+    <title> Linear Programming </title>
+    <script type="text/javascript">
+
+        var constraints = 0;
+        var constraints_obj = {};
+        var activities = 1000;
+        var activities_obj = {};
+
+        $(document).ready(function(){
+            $("#fill").click(function(){
+                $("#objective-function").empty();
+                $("#activity-table").empty();
+                $("#act-button").empty();
+                $("#constraints-table").empty();
+                $("#cons-button").empty();
+                $("#run").empty();
+                constraints = 0;
+                activities = 1000;
+                constraints_obj = {};
+                activities_obj = {};
+                var n = $("#no-dec-variables").val();
+                if (n.length == 0 || n == 0){
+                    alert("Select Number of Decision Variables!");
+                }   else if (n>8){
+                    alert("Maximum number of varible is 8!");
+                } else {
+                    var n = $("#no-dec-variables").val();
+                    var run = $("<button/>", {
+                        id: "run-method",
+                        type: "button",
+                        class: "run",
+                        class: "btn btn-success",
+                        onClick: "get_data_output();"
+                    }).html("Run Optimization");
+                    $("#run").append(run);
+                    obj_table(n);
+                }          
+            });
+        });
+
+        function obj_table(n){
+            var table_body = $("<table/>", {
+                    class: "table",
+                    id: "obj-table"
+                });
+            var p = $("<p/>").text("Objective Function");
+            $("#objective-function").append(p);
+            //κατασκευή objective function
+            for (var j = 0; j < (n/10); j++ ){
+                var row = $("<tr/>");
+                iter = 10;
+                if ((j+1)>(n/10)){
+                    var iter = n%10;
+                }
+                //Xi
+                for (var i=0; i<iter; i++){
+                    var item = $("<th/>", {
+                        scope: "col"
+                    }).text("X"+((j*10)+(i+1)).toString());
+                    row.append(item);
+                }
+                table_body.append(row);
+                var row = $("<tr/>");
+                //descriptions
+                for (var i=0; i<iter; i++){
+                    var item = $("<td/>");
+                    var input = $("<input/>", {
+                        type: "text",
+                        class: "form-control",
+                        id: "C"+(i+1).toString()+"description",
+                        placeholder: "Description"
+                    });
+                    item.append(input);
+                    row.append(item);
+                }
+                table_body.append(row);
+
+                var row = $("<tr/>");
+                //inputs
+                for (var i=0; i<iter; i++){
+                    var item = $("<td/>");
+                    var input = $("<input/>", {
+                        type: "number",
+                        min: "0",
+                        step: "0.001",
+                        class: "form-control",
+                        id: "C"+(i+1).toString(),
+                        placeholder: "C"+((j*10)+(i+1)).toString()
+                    });
+                    item.append(input);
+                    row.append(item);
+                }
+                table_body.append(row);
+            }
+            //κατασκευή πίνακα constraints
+            create_input_group(n);
+            $("#objective-function").append(table_body);
+            
+            //κατασκευή πίνακα δραστηριοτήτων
+            create_activity_group(n);
+        }
+
+        function create_input_group(n){
+            var p = $("<p/>").text("Set Constraints");
+            $("#constraints-table").append(p);
+            var div = $("<div/>", {
+                class: "constraints, input-group mb-3"
+            });
+
+            var var_sel_prep = $("<div/>", {
+                class: "input-group-prepend"
+            });
+
+            var var_sel = $("<select/>", {
+                class: "custom-select",
+                id: "constraint-variable"+constraints.toString()
+            });
+            var option = $("<option/>", {
+                value: 0
+            }).html("Variable");
+            var_sel.append(option);
+            for (var i = 0; i < n ; i++) {
+                
+                var option = $("<option/>", {
+                value: 1+i
+                }).html("X"+(i+1).toString());
+                var_sel.append(option);
+            }
+            var_sel_prep.append(var_sel);
+            div.append(var_sel_prep);
+            
+            var var_sel = $("<select/>", {
+                class: "custom-select",
+                id: "constraint-operand"+constraints.toString()
+            });
+            var option = $("<option/>", {
+                value: 0
+            }).html("Operand");
+            var_sel.append(option);
+            var option = $("<option/>", {
+                value: 1
+            }).html("&#61;");
+            var_sel.append(option);
+            var option = $("<option/>", {
+                value: 2
+            }).html("&#8925;");
+            var_sel.append(option);
+            var option = $("<option/>", {
+                value: 3
+            }).html("&#8924;");
+            var_sel.append(option);
+
+            div.append(var_sel);
+           
+            var input = $("<input/>", {
+                        type: "number",
+                        id: "constraint-value"+constraints.toString(),
+                        step: "0.001",
+                        class: "form-control",
+                        placeholder: "Value"
+                    });
+            div.append(input);
+
+            var del = $("<button/>", {
+                type: "button",
+                id: constraints.toString(),
+                class: "remove-constraint",
+                class: "btn btn-danger",
+                onClick: "delete_constraint($(this))"
+            }).html('<i class="fas fa-trash-alt"></i>');
+            div.append(del);
+            constraints_obj[constraints] = constraints;
+
+            $("#constraints-table").append(div);
+            var item = $("<button/>", { 
+                type: "button",
+                class: "btn btn-secondary",
+                id: "add-constraint",
+                onClick: "add_constraint("+n.toString()+");"
+            }).html('<i class="fas fa-plus-circle"></i>');
+            $("#cons-button").append(item);
+
+            constraints++;
+        }
+
+        
+        
+        function add_constraint(n){
+            var div = $("<div/>", {
+                class: "constraints, input-group mb-3"
+            });
+
+            var var_sel_prep = $("<div/>", {
+                class: "input-group-prepend"
+            });
+
+            var var_sel = $("<select/>", {
+                class: "custom-select",
+                id: "constraint-variable"+constraints.toString()
+            });
+            var option = $("<option/>", {
+                value: 0
+            }).html("Variable");
+            var_sel.append(option);
+            for (var i = 0; i < n ; i++) {
+                
+                var option = $("<option/>", {
+                value: 1+i
+                }).html("X"+(i+1).toString());
+                var_sel.append(option);
+            }
+            var_sel_prep.append(var_sel);
+            div.append(var_sel_prep);
+            
+            var var_sel = $("<select/>", {
+                class: "custom-select",
+                id: "constraint-operand"+constraints.toString()
+            });
+            var option = $("<option/>", {
+                value: 0
+            }).html("Operand");
+            var_sel.append(option);
+            var option = $("<option/>", {
+                value: 1
+            }).html("&#61;");
+            var_sel.append(option);
+            var option = $("<option/>", {
+                value: 2
+            }).html("&#8925;");
+            var_sel.append(option);
+            var option = $("<option/>", {
+                value: 3
+            }).html("&#8924;");
+            var_sel.append(option);
+
+            div.append(var_sel);
+           
+            var input = $("<input/>", {
+                        type: "number",
+                        id: "constraint-value"+constraints.toString(),
+                        step: "0.001",
+                        class: "form-control",
+                        placeholder: "Value"
+                    });
+            div.append(input);
+            
+            var del = $("<button/>", {
+                id: constraints.toString(),
+                class: "remove-constraint",
+                class: "btn btn-danger",
+                onClick: "delete_constraint($(this))"
+            }).html('<i class="fas fa-trash-alt"></i>');
+            div.append(del);
+            
+            constraints_obj[constraints] = constraints;
+
+            $("#constraints-table").append(div);
+            constraints++;
+        }
+
+        function delete_constraint(elem){
+            delete constraints_obj[elem.attr("id")];
+            $(elem).parent('div').remove();
+        }
+        
+        function create_activity_group(n){
+            var p = $("<p/>").text("Set Activities");
+            $("#activity-table").append(p);
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
+
+            for (var i=0; i<n; i++){
+                var input = $("<input/>", {
+                        type: "number",
+                        id: activities.toString()+"a"+(i+1).toString(),
+                        step: "0.001",
+                        class: "form-control",
+                        placeholder: "a"+(i+1).toString()
+                    });
+                div.append(input);
+                if (i<n-1){
+                    var span = $("<span/>",{
+                        class: "input-group-text",
+                        }).html("X" +(i+1).toString()+" "+ "&#43;");
+                    div.append(span);
+                } else {
+                    var span = $("<span/>",{
+                        class: "input-group-text"
+                        }).html("X" +(i+1).toString());
+                    div.append(span);
+                }
+            }
+            var var_sel = $("<select/>", {
+                class: "custom-select",
+                id: activities.toString()+"activity-operand"
+            });
+            var option = $("<option/>", {
+                value: 0
+            }).html("Operand");
+            var_sel.append(option);
+            var option = $("<option/>", {
+                value: 1
+            }).html("&#61;");
+            var_sel.append(option);
+            var option = $("<option/>", {
+                value: 2
+            }).html("&#8925;");
+            var_sel.append(option);
+            var option = $("<option/>", {
+                value: 3
+            }).html("&#8924;");
+            var_sel.append(option);
+
+            div.append(var_sel);
+
+            var input = $("<input/>", {
+                        type: "number",
+                        id: activities.toString()+"b",
+                        step: "0.001",
+                        class: "form-control",
+                        placeholder: "b"
+                    });
+            div.append(input);
+
+            var del = $("<button/>", {
+                id: activities,
+                class: "remove-activity",
+                class: "btn btn-danger",
+                onClick: "delete_activity($(this))"
+            }).html('<i class="fas fa-trash-alt"></i>');
+            div.append(del);
+            activities_obj[activities] = activities;
+            $("#activity-table").append(div);
+
+            //κατασκευή κουμπιού προσθήκης δραστηριότητας
+            var item = $("<button/>", { 
+                type: "button",
+                class: "btn btn-secondary",
+                id: "add-activity",
+                onClick: "add_activity("+n.toString()+");"
+            }).html('<i class="fas fa-plus-circle"></i>');
+            $("#act-button").append(item);
+
+            activities++;
+        }
+
+        function add_activity(n){
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
+
+            for (var i=0; i<n; i++){
+                var input = $("<input/>", {
+                        type: "number",
+                        id: activities.toString()+"a"+(i+1).toString(),
+                        step: "0.001",
+                        class: "form-control",
+                        placeholder: "a"+(i+1).toString()
+                    });
+                div.append(input);
+                if (i<n-1){
+                    var span = $("<span/>",{
+                        class: "input-group-text"
+                        }).html("X" +(i+1).toString()+" "+ "&#43;");
+                    div.append(span);
+                } else {
+                    var span = $("<span/>",{
+                        class: "input-group-text"
+                        }).html("X" +(i+1).toString());
+                    div.append(span);
+                }
+            }
+            var var_sel = $("<select/>", {
+                class: "custom-select",
+                id: activities.toString()+"activity-operand"
+            });
+            var option = $("<option/>", {
+                value: 0
+            }).html("Operand");
+            var_sel.append(option);
+            var option = $("<option/>", {
+                value: 1
+            }).html("&#61;");
+            var_sel.append(option);
+            var option = $("<option/>", {
+                value: 2
+            }).html("&#8925;");
+            var_sel.append(option);
+            var option = $("<option/>", {
+                value: 3
+            }).html("&#8924;");
+            var_sel.append(option);
+
+            div.append(var_sel);
+
+            var input = $("<input/>", {
+                        type: "number",
+                        id: activities.toString()+"b",
+                        step: "0.001",
+                        class: "form-control",
+                        placeholder: "b"
+                    });
+            div.append(input);
+            var del = $("<button/>", {
+                id: activities,
+                class: "remove-activity",
+                class: "btn btn-danger",
+                onClick: "delete_activity($(this))"
+            }).html('<i class="fas fa-trash-alt"></i>');
+            div.append(del);
+
+            activities_obj[activities] = activities;
+
+            $("#activity-table").append(div);
+            activities++;
+        }
+        
+        function delete_activity(elem){
+            delete activities_obj[elem.attr("id")];
+            $(elem).parent('div').remove();
+        }
+
+        function collect_obj_function(n){
+            var objective_info = {};
+            objective_info.flag = 1;
+            objective_info.values = [];
+            objective_info.descriptions = [];
+            var arr_val = [];
+            var arr_desc = [];
+            for (var i=0; i<n; i++){
+                if(!$("#C"+(i+1).toString()).val().length){
+                    objective_info.flag = 0;
+                    return objective_info;
+                }
+                temp = $("#C"+(i+1).toString()).val();
+                arr_val.push(parseFloat(temp));
+                temp = $("#C"+(i+1).toString()+"description").val();
+                arr_desc.push(temp);
+            }
+            objective_info.values = arr_val;
+            objective_info.descriptions = arr_desc;
+            return objective_info;
+        }
+
+        function collect_activities(n){
+            var flag = 1;
+            var activities_info = [];
+            activities_info.flag = 1;
+            for (const key in activities_obj){
+                var activity = [];
+                for (var i = 0; i<n; i++){
+                    if(!$("#"+activities_obj[key].toString()+"a"+(i+1).toString()).val().length){
+                        activities_info.flag = 0;
+                        return activities_info;
+                    }
+                    temp = $("#"+activities_obj[key].toString()+"a"+(i+1).toString()).val();
+                    activity.push(parseFloat(temp));
+                }
+                if($("#"+activities_obj[key].toString()+"activity-operand").val() == 0){
+                    activities_info.flag = 0;
+                    return activities_info;                   
+                }
+                temp = $("#"+activities_obj[key].toString()+"activity-operand").val();
+                activity.push(parseInt(temp));
+                if(!$("#"+activities_obj[key].toString()+"b").val().length){
+                    activities_info.flag = 0;
+                    return activities_info;                   
+                }
+                temp =$("#"+activities_obj[key].toString()+"b").val();
+                activity.push(parseFloat(temp));
+                activities_info.push(activity);
+
+            }
+            return activities_info;
+        }
+
+        function collect_constraints(n){           
+            var flag = 1;
+            var constraints_info = {};
+            constraints_info.flag = 1;
+            for(var i=0; i<n; i++){
+                constraints_info[i+1] = [];
+            }
+            for (const key in constraints_obj){
+                var constraint = [];
+                if($("#constraint-variable"+constraints_obj[key].toString()).val()==0){
+                    constraints_info.flag = 0;
+                    return constraints_info;
+                }
+                variable = $("#constraint-variable"+constraints_obj[key].toString()).val();
+
+                if($("#constraint-operand"+constraints_obj[key].toString()).val()==0){
+                    constraints_info.flag = 0;
+                    return constraints_info;
+                }
+                temp = $("#constraint-operand"+constraints_obj[key].toString()).val();
+                constraint.push(parseInt(temp));
+                
+                if(!$("#constraint-value"+constraints_obj[key].toString()).val().length){
+                    constraints_info.flag = 0;
+                    return constraints_info;
+                }
+                temp = $("#constraint-value"+constraints_obj[key].toString()).val();
+                constraint.push(parseFloat(temp));
+                constraints_info[variable].push(constraint);
+                
+            }
+            return constraints_info;
+        }
+
+
+        function get_data_output(){
+            var output_data = {};
+            n = $("#no-dec-variables").val();
+            output_data.title = $("#title").val();
+            if ($("#opt-type").val()==1){
+                output_data.optimize = "minimize";
+            } else {
+                output_data.optimize = "maximize";
+            }
+            output_data.number = parseInt(n);
+            output_data.objective = collect_obj_function(n);
+            if (output_data.objective.flag == 0){
+                alert("Fill the fields of the Objective function correctly!")
+                return;
+            }
+            delete output_data.objective.flag;
+            output_data.activities = collect_activities(n);
+            if(output_data.activities.flag == 0){
+                alert("Fill the fields of the activities correctly!");
+                return;
+            }
+            delete output_data.activities.flag;
+
+            output_data.constraints = collect_constraints(n);
+            if(output_data.constraints.flag == 0){
+                alert("Fill the fields of the constraints correctly!");
+                return;
+            }
+            delete output_data.constraints.flag;
+
+            ajax_post(output_data);
+        }
+
+        
+        function ajax_post(out_data){
+                $.ajax({
+                    type: "POST",
+                    dataType: "json",
+                    data: {csrfmiddlewaretoken: "{{ csrf_token }}",
+                        data: JSON.stringify(out_data)},
+                    url: "/linear/ajax/create_and_calculate",
+                    success: function(response){
+                        document.forms[0].submit();
+                    },
+                    error: function (response){
+                        alert(response["responseJSON"]["error"]);
+                    }
+                })
+            
+        }
+        
+    </script>
+{% endblock %}
+
+{% block body %}
+    <body>
+        <h2>Create your dataset</h2>
+        <br>
+        <div class="row">
+            
+            <div class="col-1"> 
+
+            </div>
+            <div class="col-10"> 
+                <div class="input-group mb-3" id="info-group">
+                    <input type="text" class="form-control" id="title" placeholder="Enter Title">
+                    <span class= "input-group-text">Optimize:</span>
+                    <select id="opt-type" class="custom-select">
+                        <option value="1">minimize</option>
+                        <option value="2">maximize</option>
+                    </select>
+                    <span class= "input-group-text">No. of Decision Variables:</span>
+                    <input type="number" class="form-control" step="1" min="1" max="8" placeholder="max 8" id="no-dec-variables">
+                    <button type="button" class="btn btn-info" id="fill">Fill Dataset</button>
+                    <div class="input-group-append" id="run">
+    
+                      </div>
+                </div>
+            </div>
+            <div class="col-1"> 
+
+            </div>
+
+
+            
+        </div>
+        <br>
+        <br>
+        <div class="row">
+            
+            <div class="col-9">
+                <div id="objective-function">
+                    
+                </div>
+            </div>
+            <div class="col-3">
+                <div id="constraints-table">
+                    
+                </div>
+                <div id="cons-button">
+
+                </div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <div class="row">
+            <div class="col-1"> 
+
+            </div>
+            <div class="col-10"> 
+                <div id="activity-table">
+
+                </div>
+            </div>
+            <div class="col-1"> 
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1"> 
+
+            </div>
+            <div class="col-10"> 
+                <div id="act-button">
+
+                </div>
+            </div>
+            <div class="col-1"> 
+
+            </div>
+            
+        </div>
+        <form id="submit_form" enctype="multipart/form-data" method="POST">
+            {% csrf_token %}
+        </form>
+    </body>
+{% endblock %}
+

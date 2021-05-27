@@ -1,11 +1,13 @@
 {% extends "mainApp/base.html" %}
 {% load static %}
 
-{% block title %} Decision Tree {% endblock %}
+{% block title %}Linear Programming {% endblock %}
+
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title> Decision Tree </title>
+    <title> Linear Programming </title>
 {% endblock %}
+
 {% block body %}
     <body>
         {% load bootstrap4 %}
@@ -16,10 +18,10 @@
                 {% csrf_token %}
                 {% bootstrap_form form %}
                 <p>{{ form.fieldname.errors.as_text }}</p>
-                <input type="submit" class="btn btn-primary" name="manage" value="Inspect Tree">
+                <input type="submit" class="btn btn-primary" name="manage" value="Inspect Data">
                 <input type="submit" class="btn btn-primary" name="run" value="Run Method">
             </form>
             
         </div>
     </body>
-    {% endblock %}
+{% endblock %}

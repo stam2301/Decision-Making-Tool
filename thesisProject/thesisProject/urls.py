@@ -19,4 +19,5 @@ from django.urls import path, include
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('dectree/', include('dectree.urls')),
+    path('linear/', include('linear.urls')),
 ]
