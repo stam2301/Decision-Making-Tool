@@ -74,38 +74,4 @@ def linear_prog_main(input):
     output['message'] = opt.message
     output['values'] = (opt.x).tolist()
     output['names'] = data['objective']['descriptions']
-    
-    
-    
-    print("data")
-    print(data)
-    print("\n")        
-    
-    print("obj")
-    print(obj)
-    print("\n")
-
-    print("lhs_ineq")
-    print(lhs_ineq)
-    print("\n")
-
-    print("rhs_ineq")
-    print(rhs_ineq)
-    print("\n")
-    
-    print("lhs_eq")
-    print(lhs_eq)
-    print("\n")
-
-    print("rhs_eq")
-    print(rhs_eq)
-    print("\n")
-
-    print("bnd")
-    print(bnd)
-    print("\n")
-    
-    print(opt)
-    print("\n")
-    print(output)
     return output
