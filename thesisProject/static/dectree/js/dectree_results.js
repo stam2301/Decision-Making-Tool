@@ -1,15 +1,4 @@
-{% extends "mainApp/base.html" %}
-{% load static %}
 
-{% block title %}Decision Tree Results{% endblock %}
-
-{% block head %}
-    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title>Network</title>
-    <link rel="stylesheet" href="{% static 'dectree/css/dectree_network.css' %}">
-    <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
-    <script type="text/javascript">
         var db_nodes = {{ db_nodes|safe }};
         var db_edges = {{ db_edges|safe }};
         var nodes = null;
@@ -75,30 +64,5 @@
                 
             };
             network = new vis.Network(container, data, options);
+            draw();
         }
-
-
-    </script>
-{% endblock %}
-
-{% block body %}
-    <body onload="draw()">
-        <h2>Here are the Results</h2>
-        <div class="row">
-            <div class="col-8">
-                <div id="mynetwork">
-                    <div class="vis network-frame" style="position: relative; overflow: hidden; width: 100%; height: 100%;"></div>
-                </div>
-            </div>
-            <div class="col-4">
-                    <form id="submit_form" enctype="multipart/form-data" method="POST">
-                        {% csrf_token %}
-                        <input type="submit" class="btn btn-primary" name="inspect" value="Inspect Tree">
-                        <br>
-                        <br>
-                        <input type="submit" class="btn btn-primary" name="new" value="New Decision Tree">
-                    </form>
-            </div>
-        </div>
-    </body>
-{% endblock %}

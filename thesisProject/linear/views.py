@@ -2,10 +2,13 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 import os, json, copy
+from matplotlib.pyplot import plot_date
 from numpy import number
 from .forms import upload_file_form
 from mainApp.models import Method
 from .utilities.linear_algo import linear_prog_main
+from .utilities.generate_plots import generate_plots_main
+from .utilities.simplex import simplex_main
 
 # Create your views here.
 def linear_index(request):
@@ -23,10 +26,13 @@ def upload_form(request):
                 json_file = request.FILES['upload_file']
                 json_input_data = json_file.read()
                 data = json.loads(json_input_data)
-                outfile = linear_prog_main(data)
-                if (outfile['success'] == False):
-                    error_message = outfile['message']
-                    return render(request, 'linear/linear_upload.html',{'form':input_form, 'error_message':error_message})
+                if data['number'] == 2:
+                    outfile = linear_prog_main(data)
+                    if (outfile['success'] == False):
+                        error_message = outfile['message']
+                        return render(request, 'linear/linear_upload.html',{'form':input_form, 'error_message':error_message})
+                else:
+                    outfile = simplex_main(data)
                 new_method.output_file = outfile
                 new_method.input_file = json.loads(json_input_data)
                 new_method.save()
@@ -92,11 +98,15 @@ def ajax_create_and_calculate(request):
         del data['title']
         new_method.method_type = 'Linear Programming'
         new_method.input_file = copy.deepcopy(data)
-        data = json.loads(request_getdata)
-        outfile = linear_prog_main(data)
-        if (outfile['success'] == False):
-            return JsonResponse({"error": outfile['message']}, status=400)
-        new_method.output_file = outfile
+        if data['number'] == 2:
+            #print(simplex_main(copy.deepcopy(data)))
+            outfile = linear_prog_main(data)
+            if (outfile['success'] == False):
+                return JsonResponse({"error": outfile['message']}, status=400)
+            new_method.output_file = outfile
+        elif data['number'] > 2:
+            outfile = simplex_main(data)
+            new_method.output_file = outfile
         new_method.save()
         return JsonResponse({"method_id": new_method.methodID}, status =200)
 
@@ -109,10 +119,15 @@ def ajax_calculate(request):
         method.title = data['title']
         del data['title']
         method.input_file = copy.deepcopy(data)
-        outfile = linear_prog_main(data)
-        if (outfile['success'] == False):
-            return JsonResponse({"error": outfile['message']}, status=400)
-        method.output_file = outfile
+        if data['number'] == 2:
+            #print(simplex_main(copy.deepcopy(data)))
+            outfile = linear_prog_main(data)
+            if (outfile['success'] == False):
+                return JsonResponse({"error": outfile['message']}, status=400)
+            method.output_file = outfile
+        elif data['number'] > 2:
+            outfile = simplex_main(data)
+            method.output_file = outfile
         method.save()
         return JsonResponse({"method_id": method.methodID}, status =200)
 
@@ -120,9 +135,13 @@ def results(request, method_id):
     if request.method == 'GET':
         method = Method.objects.get(methodID=method_id)
         data = method.output_file
-        if (len(data['values']) == 2):
-             return render(request, 'linear/linear_results_am.html', context={})
+        if (method.input_file['number'] == 2):
+            input_data = method.input_file
+            plot_data = generate_plots_main(input_data, data)
+            labels = plot_data['labels']
+            plots = plot_data['plots']
+            return render(request, 'linear/linear_results_am.html', context={"plots_data": plots, "plot_labels": labels, "axis_descriptions": input_data["objective"]["descriptions"]})
         else:
-            return render(request, 'linear/linear_results.html', context={})
+            return render(request, 'linear/linear_results.html', context={"output": method.output_file, "input": method.input_file})
     elif request.method == 'POST':
         print("HEY")

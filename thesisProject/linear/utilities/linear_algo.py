@@ -7,9 +7,6 @@ import numpy as np
 
 
 def linear_prog_main(input):
-
-    print(input)
-    print("\n")
     data = input
     n = int(data['number'])
     
@@ -45,9 +42,8 @@ def linear_prog_main(input):
             lhs_eq.append(activity)
 
     for key in data['constraints']:
-        min = -2.2250738585072014e-308
-        max = 1.7976931348623157e+308
-        equal = -2.2250738585072014e-308
+        min = -1000000
+        max = 1000000
         temp = ()
         for item in data['constraints'][key]:
             if (item[0] == 2):
@@ -67,8 +63,12 @@ def linear_prog_main(input):
 
         t = (min, max)
         bnd.append(t)
-        
-    opt = linprog(c=obj, A_ub=lhs_ineq, b_ub=rhs_ineq, A_eq=lhs_eq, b_eq=rhs_eq, bounds=bnd, method="revised simplex")
+    
+    print(lhs_eq)
+    if not lhs_eq:
+        opt = linprog(c=obj, A_ub=lhs_ineq, b_ub=rhs_ineq, bounds=bnd, method="revised simplex")
+    else:
+        opt = linprog(c=obj, A_ub=lhs_ineq, b_ub=rhs_ineq, A_eq=lhs_eq, b_eq=rhs_eq, bounds=bnd, method="revised simplex")
 
     output['success'] = opt.success
     output['message'] = opt.message

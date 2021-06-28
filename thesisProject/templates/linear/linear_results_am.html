@@ -7,14 +7,83 @@
 
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <title> Linear Programming </title>
-    <script src="//cdn.amcharts.com/lib/4/core.js"></script>
-    <script src="//cdn.amcharts.com/lib/4/charts.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.0.1/chartjs-plugin-zoom.min.js"></script>
+    <script type="text/javascript">
+        var input_labels = {{ plot_labels|safe }} ;
+        var plots = {{ plots_data|safe }};
+        var descriptions = {{ axis_descriptions|safe }};        
+
+        function draw(){
+            const labels = input_labels;
+            const data = {
+                labels: labels,
+                datasets: plots,
+                
+            };
+            const config = {
+                type: 'line',
+                data,
+                options: {
+                    elements: {
+                        point:{
+                            radius: 0
+                        }
+                    },
+                    scales: {
+                        y: {
+                            scaleLabel: {
+                                fontSize: 16,
+                                display: true,
+                                labelString: 'description1'
+                            },
+                            title: {
+                                color: 'black',
+                                display: true,
+                                text: descriptions[1],
+                                sampleSize: 10
+                            }
+
+                        }
+                        ,
+                        x: {
+                            type:'linear',
+                            position: 'bottom',
+                            max: labels[20],
+                            title: {
+                                color: 'black',
+                                display: true,
+                                text: descriptions[0],
+                                sampleSize: 10
+                            }
+                        }
+                    },
+                    plugins: {
+                        filler: {
+                            propagate: false,
+                        }
+                    },
+                    
+                    parsing: false
+                }
+            };
+            var ctx = document.getElementById('myChart');
+            var myChart = new Chart(ctx,
+                config
+            );
+        }
+        
+
+    </script>
 
 {% endblock %}
 
 {% block body %}
-    <body>
+    <body onload="draw()">
         <h1>HERE ARE THE RESULTS</h1>
+        <div>
+            <canvas id="myChart"></canvas>
+        </div>
     </body>
 
 {% endblock %}

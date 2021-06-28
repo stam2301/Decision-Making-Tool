@@ -7,7 +7,126 @@
 
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <title> Linear Programming </title>
+    <script type="text/javascript">
+        var input_data = {{ input|safe }};
+        var output_data = {{ output|safe }};
 
+        $(document).ready(function(){
+            for (const iteration in output_data.iterations) {
+                var table_body = $("<table/>", {
+                    class: "table table-bordered"
+                });
+                var p = $("<p/>").text("Iteration:"+iteration);
+                $("#simplex-tables").append(p);
+                table_length = 2 + output_data.iterations[iteration].simplex_ind.length;
+                table_height = 3 + input_data.activities.length;
+                   
+                var row = $("<tr/>");
+                var item = $("<th/>", {
+                    scope: "col",
+                    class: "text-center"
+                }).text("BASE");
+                row.append(item);
+                for (var k=0; k<output_data.iterations[iteration].simplex_ind.length; k++){
+                    var item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center",
+                        style: "color:#4287f5;"
+                    }).text(output_data.iterations[iteration].simplex_ind[k]);
+                    row.append(item);
+                }
+                var item = $("<th/>", {
+                    scope: "col",
+                    class: "text-center"
+                }).text("b");
+                row.append(item);
+                table_body.append(row);
+                
+                for(j=0; j<input_data.activities.length; j++){
+                    var row = $("<tr/>");
+                    for(i=0; i<table_length; i++){
+                        if(i==0){
+                            var item = $("<th/>", {
+                                scope: "col",
+                                class: "text-center",
+                                style: "color:#fa6e6e;"
+                            }).text(output_data.iterations[iteration].base[j]);
+                            row.append(item);
+                        } else if(i==table_length-1){
+                            var item = $("<td/>",{
+                                class: "text-center"
+                            }).text(output_data.iterations[iteration].b[j]);
+                            row.append(item);
+                        } else {
+                            if ("pivot" in output_data.iterations[iteration]){
+                                if (j==output_data.iterations[iteration].pivot_index[0] && i==1+output_data.iterations[iteration].pivot_index[1]){
+                                    var item = $("<td/>",{
+                                        class: "text-center",
+                                        bgcolor: "lightgreen"
+                                    }).text(output_data.iterations[iteration].simplex_arr[j][i-1]);
+                                    row.append(item);
+                                } else{
+                                    var item = $("<td/>",{
+                                        class: "text-center"
+                                    }).text(output_data.iterations[iteration].simplex_arr[j][i-1]);
+                                    row.append(item);
+                                }
+                            } else{
+                                var item = $("<td/>",{
+                                    class: "text-center"
+                                }).text(output_data.iterations[iteration].simplex_arr[j][i-1]);
+                                row.append(item);
+                            }
+                        }
+                    }
+                    table_body.append(row);
+                }
+                var row = $("<tr/>");
+                var item = $("<th/>", {
+                    scope: "col",
+                    class: "text-center"
+                }).text("Cj");
+                row.append(item);
+
+                for(i=0; i<output_data.iterations[iteration].c_stable.length; i++){
+                    var item = $("<td/>",{
+                        class: "text-center"
+                    }).text(output_data.iterations[iteration].c_stable[i]);
+                    row.append(item);
+                }
+                
+                var item = $("<td/>",{
+                        class: "text-center"
+                    });
+                    row.append(item);
+                table_body.append(row);
+
+                var row = $("<tr/>");
+                var item = $("<th/>", {
+                    scope: "col",
+                    class: "text-center"
+                }).text("Rel. Prof.");
+                row.append(item);
+
+                for(i=0; i<output_data.iterations[iteration].relative_profit.length; i++){
+                    var item = $("<td/>",{
+                        class: "text-center"
+                    }).text(output_data.iterations[iteration].relative_profit[i]);
+                    row.append(item);
+                }
+                
+                var item = $("<th/>", {
+                    scope: "col",
+                    class: "text-center"
+                }).text("Z="+(output_data.iterations[iteration].z.toFixed(4)).toString());
+                row.append(item);
+                table_body.append(row);
+
+                
+                $("#simplex-tables").append(table_body);
+            }
+        });
+    </script>
 {% endblock %}
 
 {% block body %}
@@ -37,6 +156,19 @@
                 <h3>Optimal Solution</h3>
             </div>
             <div class="col-1">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-2">
+
+            </div>
+            <div class="col-8">
+                <div id="simplex-tables">
+
+                </div>
+            </div>
+            <div class="col-2">
 
             </div>
         </div>

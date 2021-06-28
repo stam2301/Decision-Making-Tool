@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'mainApp',
     'dectree',
     'linear',
-    
 ]
 
 MIDDLEWARE = [
