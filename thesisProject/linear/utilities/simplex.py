@@ -205,5 +205,5 @@ def simplex_main(input):
         solution['variables'] = [0]*n
         for item in obj_variables_in_base:
             solution['variables'][np.where(simplex_index == item)[0][0]] = float(b[np.where(base == item)[0][0]])
-    output['solution'] = solution
+        output['solution'] = solution
     return output

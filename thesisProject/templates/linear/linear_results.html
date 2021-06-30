@@ -10,6 +10,125 @@
     <script type="text/javascript">
         var input_data = {{ input|safe }};
         var output_data = {{ output|safe }};
+        
+        //objective function
+        $(document).ready(function(){
+            if(input_data.optimize == "maximize"){
+                obj = "MAXZ =";
+            } else {
+                obj = "MINZ =";
+            }
+            if (input_data.objective.values[0]<0){
+                obj = obj + " "+"&#8722;" + " " + (Math.abs(input_data.objective.values[0])).toString() + "X1";
+            } else{
+                obj = obj + " " + input_data.objective.values[0].toString() + "X1";
+            }
+            for(i=1; i<input_data.number; i++){
+                if (input_data.objective.values[i]<0){
+                    obj = obj + " "+ "&#8722;" + " " + (Math.abs(input_data.objective.values[i])).toString() + "X"+(i+1).toString();
+                } else {
+                    obj = obj + " "+ "&#43;" + " " + input_data.objective.values[i].toString() + "X"+(i+1).toString();
+                }
+            }
+            $("#objective-function").html(obj);
+        });
+        //activities
+        $(document).ready(function(){
+            for (i=0; i<input_data.activities.length; i++){
+                activity = "";
+                if(input_data.activities[i][0]<0){    
+                    activity = activity +"&#8722;"+ input_data.activities[i][0].toString() + "X1";
+                } else {
+                    activity = activity + input_data.activities[i][0].toString() + "X1";
+                }
+                for(j=1; j<input_data.number; j++){
+                    if (input_data.activities[i][j]<0){
+                        activity = activity + " " + "&#8722;" + " " + (Math.abs(input_data.activities[i][j])).toString() + "X"+(j+1).toString();
+                    } else {
+                        activity = activity + " " + "&#43;" + " " + input_data.activities[i][j].toString() + "X"+(j+1).toString();
+                    }
+                }
+
+                if (input_data.activities[i][input_data.number] == 1){
+                    activity = activity + " "+ "&#61;";
+                } else if (input_data.activities[i][input_data.number] == 2){
+                    activity = activity + " "+ "&#8925;";
+                } else {
+                    activity = activity + " "+ "&#8924;";
+                }
+
+                if (input_data.activities[i][input_data.number+1] < 0){
+                    activity = activity + " " + "&#8722;" + " " + (Math.abs(input_data.activities[i][input_data.number+1])).toString();
+                } else {
+                    activity = activity + " " + input_data.activities[i][input_data.number+1].toString();
+                }
+                var list_item = $("<span/>", {
+                    class: "input-group-text"
+                }).html(activity);
+                var div = $("<div/>", {
+                    class: "input-group mb-3"
+                });
+                div.append(list_item);
+                $("#activities").append(div);
+            }
+
+        });
+        //restrictions
+        $(document).ready(function(){
+            for (const constraint in input_data.constraints){
+                for (item in input_data.constraints[constraint]){
+                    if (input_data.constraints[constraint][item][0] == 2){
+                        str="X" + constraint.toString() + " " + "&#8925;" + " " + input_data.constraints[constraint][item][1].toString();
+                        var list_item = $("<span/>", {
+                            class: "input-group-text"
+                        }).html(str);
+                        var div = $("<div/>", {
+                            class: "input-group mb-3"
+                        });
+                        div.append(list_item);
+                        $("#constraints").append(div);
+                    }
+                }
+            }
+        });
+
+        //results
+        $(document).ready(function(){
+            if (output_data.unbounded == 1){
+                var text = "Your objective function is unbounded!"
+                var text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+            } else {
+                var text = "There is optimal solution for your objective function."
+                var text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+                var text = "Optimal solution is "
+                for (i=0; i<input_data.number - 1; i++){
+                    text = text + output_data.solution.variables[i].toString() + " ";
+                    if (input_data.objective.descriptions[i] == NaN){
+                        text = text + "(X" + (i+1).toString() + "), ";
+                    } else {
+                        text = text + input_data.objective.descriptions[i] + "(X" + (i+1).toString() + "), ";
+                    }
+                }
+                text = text + output_data.solution.variables[(input_data.number)-1].toString() + " ";
+                if (input_data.objective.descriptions[(input_data.number)-1] == NaN){
+                    text = text + "(X" + (input_data.number).toString() + ").";
+                } else {
+                    text = text + input_data.objective.descriptions[(input_data.number)-1].toString() + "(X" + (input_data.number).toString() + ").";
+                }
+                var text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+                var text = "The optimal result is Z = " + output_data.solution.z.toFixed(4).toString()+".";
+                var text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+                if (output_data.alternate == 1){
+                    var text = "There is an alternate solution for your objective function!"
+                    var text_area = $("<p/>").html(text);
+                    $("#results").append(text_area);
+                }
+            }
+        });
 
         $(document).ready(function(){
             for (const iteration in output_data.iterations) {
@@ -38,7 +157,7 @@
                 var item = $("<th/>", {
                     scope: "col",
                     class: "text-center"
-                }).text("b");
+                }).text("Right Side");
                 row.append(item);
                 table_body.append(row);
                 
@@ -117,7 +236,8 @@
                 
                 var item = $("<th/>", {
                     scope: "col",
-                    class: "text-center"
+                    class: "text-center",
+                    bgcolor: "#b3cfff"
                 }).text("Z="+(output_data.iterations[iteration].z.toFixed(4)).toString());
                 row.append(item);
                 table_body.append(row);
@@ -131,40 +251,78 @@
 
 {% block body %}
     <body>
-        <h2>HERE ARE THE RESULTS</h2>
-        <br>
         <div class="row">
             <div class="col-1">
 
             </div>
-            <div class="col-10">
-                <h3>Your Input</h3>
+            <div class="col-9">
                 <div id="input-content">
+                    <p>Objective Function</p>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" id="objective-function" style="background-color: #b3cfff;"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-1">
+                <form id="submit_form" enctype="multipart/form-data" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-primary" name="inspect" value="Manage Data">
+                    <br>
+                    <br>
+                    <input type="submit" class="btn btn-primary" name="new" value="New Input">
+                </form>
+
+            </div>
+            <div class="col-1">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-2">
+                <p>Constraints</p>
+                <div id="constraints">
 
                 </div>
             </div>
             <div class="col-1">
 
             </div>
-        </div>
+            <div class="col-6">
+                <p>Activities</p>
+                <div id="activities">
 
-        <div class="row">
-            <div class="col-1">
-
+                </div>
             </div>
-            <div class="col-10">
-                <h3>Optimal Solution</h3>
-            </div>
-            <div class="col-1">
-
-            </div>
-        </div>
-        <div class="row">
             <div class="col-2">
 
             </div>
-            <div class="col-8">
+
+        </div>
+
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
+                <h4>Optimal Solution</h4>
+                <div id="results">
+
+                </div>
+            </div>
+            <div class="col-2">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
                 <div id="simplex-tables">
+                    <h4>Simplex Iterations</h4>
 
                 </div>
             </div>

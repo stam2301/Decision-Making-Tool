@@ -144,4 +144,7 @@ def results(request, method_id):
         else:
             return render(request, 'linear/linear_results.html', context={"output": method.output_file, "input": method.input_file})
     elif request.method == 'POST':
-        print("HEY")
+        if 'new' in request.POST:
+            return HttpResponseRedirect(reverse('linear:linear_index'))
+        elif 'inspect' in request.POST:
+            return HttpResponseRedirect(reverse('linear:manage', args=(method_id,)))
