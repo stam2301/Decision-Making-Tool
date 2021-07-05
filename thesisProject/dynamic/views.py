@@ -112,7 +112,7 @@ def results(request, method_id):
         input = method.input_file
         output = method.output_file
         if input['type'] == "invest":
-            return render(request, 'dynamic/dynamic_results_invest.html', context={"input": input, "output": output})
+            return render(request, 'dynamic/dynamic_results_invest.html', context={"input": input, "output": output, "title":method.title})
     elif request.method == 'POST':
         if 'new' in request.POST:
             return HttpResponseRedirect(reverse('dynamic:dynamic_index'))

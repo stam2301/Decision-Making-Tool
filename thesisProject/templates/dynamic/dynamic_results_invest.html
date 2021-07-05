@@ -91,7 +91,7 @@
                 text = "";
                 for (i=0; i<input_data.options.y; i++){
                     if (i== input_data.options.y - 1){
-                        text = text + (output_data.solution.routes[0][i]).toString()+"("+input_data.options.x_description+").";
+                        text = text + (output_data.solution.routes[0][i]).toString()+"("+input_data.options.x_description+") per financial period.";
                     } else{
                         text = text + (output_data.solution.routes[0][i]).toString()+"("+input_data.options.x_description+")" + " - ";
                     } 
@@ -108,7 +108,7 @@
                 for (j=0; j<(output_data.solution.routes).length; j++){
                     for (i=0; i<input_data.options.y; i++){
                         if (i== input_data.options.y - 1){
-                            text = text + (output_data.solution.routes[0][i]).toString()+"("+input_data.options.x_description+")";
+                            text = text + (output_data.solution.routes[0][i]).toString()+"("+input_data.options.x_description+") per financial period";
                         } else{
                             text = text + (output_data.solution.routes[0][i]).toString()+"("+input_data.options.x_description+")" + " - ";
                         }
@@ -307,8 +307,8 @@
 
             </div>
             <div class="col-9">
+                <h2>{{title|safe }}</h2>
                 <div id="input-content">
-                    <p>Objective Function</p>
                     <div class="input-group mb-3">
                         <span class="input-group-text" style="background-color: #b3cfff;">Problem Type: Investment Planning</span>
                     </div>
