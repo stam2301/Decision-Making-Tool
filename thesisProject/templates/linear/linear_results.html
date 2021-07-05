@@ -99,7 +99,7 @@
                 var text_area = $("<p/>").html(text);
                 $("#results").append(text_area);
             } else {
-                var text = "There is optimal solution for your objective function."
+                var text = "There is at least one optimal solution for your objective function."
                 var text_area = $("<p/>").html(text);
                 $("#results").append(text_area);
                 var text = "Optimal solution is "
@@ -123,19 +123,20 @@
                 var text_area = $("<p/>").html(text);
                 $("#results").append(text_area);
                 if (output_data.alternate == 1){
-                    var text = "There is an alternate solution for your objective function!"
+                    var text = "There is at least one alternate solution for your objective function!"
                     var text_area = $("<p/>").html(text);
                     $("#results").append(text_area);
                 }
             }
         });
-
+        
+        //iterations
         $(document).ready(function(){
             for (const iteration in output_data.iterations) {
                 var table_body = $("<table/>", {
                     class: "table table-bordered"
                 });
-                var p = $("<p/>").text("Iteration:"+iteration);
+                var p = $("<p/>").text("Iteration: "+iteration);
                 $("#simplex-tables").append(p);
                 table_length = 2 + output_data.iterations[iteration].simplex_ind.length;
                 table_height = 3 + input_data.activities.length;

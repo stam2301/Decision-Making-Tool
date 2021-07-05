@@ -20,5 +20,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('dectree/', include('dectree.urls')),
     path('linear/', include('linear.urls')),
+    path('dynamic/', include('dynamic.urls')),
     path('', include('mainApp.urls')),
 ]

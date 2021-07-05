@@ -1,0 +1,924 @@
+{% extends "mainApp/base.html" %}
+{% load static %}
+
+{% block title %}Linear Programming {% endblock %}
+
+{% block head %}
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <link rel="stylesheet" href="{% static 'linear/css/linear_create.css' %}">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" type="text/css">
+    <title> Dynamic Programming </title>
+    <script type="text/javascript">
+        var meth_id = {{ method_id|safe }};
+        title = "{{ input_title| safe}}";
+        type = "{{ input_type|safe }}";
+        options = {{ input_options|safe }};
+        var data = [];
+        data = {{ input_data|safe }};
+        var x = 0;
+        var y = 0;
+        var n = 0;
+
+        function render(){
+            $("#title").val(title);
+            $("#type").val(type);
+
+            if(type == "invest"){
+                render_invest_options();
+                render_table_data();
+            } else if(type == "production"){
+                render_production_options();
+                render_table_data();
+            } else if(type == "store"){
+                render_store_options();
+                render_store_data();
+            }
+        }
+
+        function render_store_options(){
+            $("#run").empty();
+            $("#data").empty();
+            $("#storage-options").append($("<p/>").html("Options"));
+            
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("Production Cost Function:"));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("C<sub>x</sub> = ("));
+            div.append($("<input/>", {
+                type: "number",
+                id: "a",
+                class: "form-control",
+                value: options.production_cost[0]
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("+ ν &#215;"));
+            div.append($("<input/>", {
+                type: "number",
+                id: "b",
+                class: "form-control",
+                value: options.production_cost[1]
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(") &#215; x + ("));
+            div.append($("<input/>", {
+                type: "number",
+                id: "c",
+                class: "form-control",
+                value: options.production_cost[2]
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("+ ν &#215;"));
+            div.append($("<input/>", {
+                type: "number",
+                id: "d",
+                class: "form-control",
+                value: options.production_cost[3]
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(")"));
+            $("#storage-options").append(div);
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("Storage Cost Function:"));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("C<sub>a</sub> = ("));
+            div.append($("<input/>", {
+                type: "number",
+                id: "e",
+                class: "form-control",
+                value: options.storage_cost[0]
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("+ ν &#215;"));
+            div.append($("<input/>", {
+                type: "number",
+                id: "f",
+                class: "form-control",
+                value: options.storage_cost[1]
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(") &#215; a + ("));
+            div.append($("<input/>", {
+                type: "number",
+                id: "g",
+                class: "form-control",
+                value: options.storage_cost[2]
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("+ ν &#215;"));
+            div.append($("<input/>", {
+                type: "number",
+                id: "h",
+                class: "form-control",
+                value: options.storage_cost[3]
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(")"));
+            $("#storage-options").append(div);
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("Set number of periods"));
+            div.append($("<input/>", {
+                type: "number",
+                step: "1",
+                min: "1",
+                id: "no-periods",
+                value: options.periods
+            }));
+            div.append($("<button/>",{
+                type: "button",
+                class: "btn btn-info",
+                onClick: "set_storage_data();"
+            }).html("Set Options"));
+            $("#storage-options").append(div);
+            $("#storage-options").append($("<p/>").html("ν: Period, x: Production amount, a: Storage amount"));
+        }
+
+        function render_invest_options(){
+            $("#options").append($("<p/>").html("Options"));
+            var table_body = $("<table/>", {
+                class: "table"
+            }) ;
+            var row = $("<tr/>");
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "text",
+                class: "form-control",
+                id: "y-axis-description",
+                placeholder: "Type of Financial Periods",
+                value: options.y_description
+            });
+            row.append(item.append(input));
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "number",
+                class: "form-control",
+                step: "1",
+                min: "1",
+                id: "y-axis",
+                placeholder: "No. Financial Periods",
+                value: options.y
+            });
+            row.append(item.append(input));
+            table_body.append(row);
+            var row = $("<tr/>");
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "text",
+                class: "form-control",
+                id: "x-axis-description",
+                placeholder: "Type of Financial Units",
+                value: options.x_description
+            });
+            row.append(item.append(input));
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "number",
+                class: "form-control",
+                step: "1",
+                min: "1",
+                id: "x-axis",
+                placeholder: "No. Financial Units",
+                value: options.x
+            });
+            table_body.append(row.append(item.append(input)));
+            $("#options").append(table_body);
+            var item = $("<button/>",{
+                type: "button",
+                class: "btn btn-info",
+                id: "invest-set",
+                onClick: "set_data_table();"
+            }).html("Set Options");
+            $("#options").append(item);
+        }
+        function render_production_options(){
+            $("#options").append($("<p/>").html("Options"));
+            var table_body = $("<table/>", {
+                class: "table"
+            }) ;
+            var row = $("<tr/>");
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "text",
+                class: "form-control",
+                id: "y-axis-description",
+                placeholder: "Type of Production Stations",
+                value: options.y_description
+            });
+            row.append(item.append(input));
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "number",
+                class: "form-control",
+                step: "1",
+                min: "1",
+                id: "y-axis",
+                placeholder: "No. Production Stations",
+                value: options.y
+            });
+            row.append(item.append(input));
+            table_body.append(row);
+            var row = $("<tr/>");
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "text",
+                class: "form-control",
+                id: "x-axis-description",
+                placeholder: "Type of Production Enhancement",
+                value: options.x_description
+            });
+            row.append(item.append(input));
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "number",
+                class: "form-control",
+                step: "1",
+                min: "1",
+                id: "x-axis",
+                placeholder: "No. Enhancement Units",
+                value: options.x
+            });
+            table_body.append(row.append(item.append(input)));
+            $("#options").append(table_body);
+            var item = $("<button/>",{
+                type: "button",
+                class: "btn btn-info",
+                id: "invest-set",
+                onClick: "set_data_table();"
+            }).html("Set Options");
+            $("#options").append(item);
+        }
+        function render_store_data(){
+            $("#run").empty();
+            $("#data").empty();
+            if (($("#a").val()).length == 0 || ($("#b").val()).length == 0 || ($("#c").val()).length == 0 || ($("#d").val()).length == 0 || ($("#e").val()).length == 0 || ($("#f").val()).length == 0 || ($("#g").val()).length == 0 || ($("#h").val()).length == 0 || ($("#no-periods").val()).length == 0  ){
+                alert("Please fill all the option fields!");
+                return;
+            }
+            var table_body = $("<table/>", {
+                class: "table",
+                id: "data-table"
+            });
+            var caption = $("<p/>").html("Insert your data here");
+            $("#data").append(caption);
+            n = Number($("#no-periods").val());
+            var row = $("<tr/>");
+            row.append($("<th/>").html("Period"));
+            row.append($("<th/>").html("Demand"));
+            row.append($("<th/>").html("Production Capacity"));
+            row.append($("<th/>").html("Storage Capacity"));
+            table_body.append(row);
+
+            for (var j = 1; j<n+1; j++){
+                var row = $("<tr/>");
+                for (var i = 0; i<4; i++){
+                    if (i==0){
+                        row.append($("<th/>").html(j.toString()));
+                    }else {
+                        var item = $("<td/>");
+                        var input = $("<input/>", {
+                            type: "number",
+                            class: "form-control",
+                            id: "X"+(i).toString()+"Y"+(j).toString(),
+                            value: data[j-1][i-1]
+                        });
+                        item.append(input);
+                        row.append(item);
+                    }
+                }
+                table_body.append(row);
+            }
+            $("#data").append(table_body);
+            var run = $("<button/>", {
+                id: "run-method",
+                type: "button",
+                class: "btn btn-success",
+                onClick: "get_data_output();"
+            }).html("Run Optimization");
+            $("#run").append(run);
+        }
+
+        function render_table_data(){
+            $("#run").empty();
+            $("#data").empty();
+
+            var table_body = $("<table/>", {
+                class: "table",
+                id: "data-table"
+            });
+            var caption = $("<p/>").html("Insert your data here");
+            $("#data").append(caption);
+            x = 3+options.x;
+            y = 2+options.y;
+            for (var j = 0; j<y; j++){
+                var row = $("<tr/>");
+                for (var i = 0; i<x; i++){
+                    if (i < 2 && j < 2){
+                        var item = $("<th/>");
+                        row.append(item);
+                    } else if (i>1 && j==1){
+                        var item = $("<th/>").html((i-2).toString());
+                        row.append(item);
+                    } else if (i==1 && j > 1){
+                        var item = $("<th/>").html((j-1).toString());
+                        row.append(item);
+                    }else if(j==0 && i == 2){
+                        var item = $("<th/>", {
+                            colspan: (y-2).toString()
+                        }).html($("#x-axis-description").val());
+                        
+                        row.append(item);
+                    }else if(j==2 && i==0){
+                        var item = $("<th/>", {
+                            rowspan: (x-2).toString()
+                        });
+                        var span = $("<span/>", {
+                            style: "writing-mode: vertical-lr; -ms-writing-mode: tb-rl; transform: rotate(180deg);"
+                        }).html($("#y-axis-description").val());
+                        item.append(span);
+                        row.append(item);
+                    }else if((j==0 && i>2) ||  (i==0 && j>2)){
+                        continue;
+                    }else {
+                        var item = $("<td/>");
+                        var input = $("<input/>", {
+                            type: "number",
+                            class: "form-control",
+                            id: "X"+(i-2).toString()+"Y"+(j-2).toString(),
+                            value: data[j-2][i-2]
+                        });
+                        item.append(input);
+                        row.append(item);
+                    }          
+                }
+                table_body.append(row);
+            }
+            x = x - 3;
+            y = y - 2;
+            $("#data").append(table_body);
+            var run = $("<button/>", {
+                id: "run-method",
+                type: "button",
+                class: "btn btn-success",
+                onClick: "get_data_output();"
+            }).html("Run Optimization");
+            $("#run").append(run);
+        }
+
+        $(document).ready(function() {
+           render();
+        });
+
+        $(document).ready(function(){
+            $("#fill").click(function(){
+                $("#options").empty();
+                $("#storage-options").empty();
+                $("#data").empty();
+                $("#run").empty();
+                type = $("#type").val();
+                if (type == "route"){
+
+                } else if (type == "invest"){
+                    create_invest_options();
+                } else if (type == "production"){
+                    create_production_options();
+                } else if (type == "store"){
+                    create_storage_options();
+                }
+            });
+        });
+
+        function create_invest_options(){
+            $("#options").append($("<p/>").html("Options"));
+            var table_body = $("<table/>", {
+                class: "table"
+            }) ;
+            var row = $("<tr/>");
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "text",
+                class: "form-control",
+                id: "y-axis-description",
+                placeholder: "Type of Financial Periods"
+            });
+            row.append(item.append(input));
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "number",
+                class: "form-control",
+                step: "1",
+                min: "1",
+                id: "y-axis",
+                placeholder: "No. Financial Periods"
+            });
+            row.append(item.append(input));
+            table_body.append(row);
+            var row = $("<tr/>");
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "text",
+                class: "form-control",
+                id: "x-axis-description",
+                placeholder: "Type of Financial Units"
+            });
+            row.append(item.append(input));
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "number",
+                class: "form-control",
+                step: "1",
+                min: "1",
+                id: "x-axis",
+                placeholder: "No. Financial Units"
+            });
+            table_body.append(row.append(item.append(input)));
+            $("#options").append(table_body);
+            var item = $("<button/>",{
+                type: "button",
+                class: "btn btn-info",
+                id: "invest-set",
+                onClick: "set_data_table();"
+            }).html("Set Options");
+            $("#options").append(item);
+        }
+        function create_production_options(){
+            $("#options").append($("<p/>").html("Options"));
+            var table_body = $("<table/>", {
+                class: "table"
+            }) ;
+            var row = $("<tr/>");
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "text",
+                class: "form-control",
+                id: "y-axis-description",
+                placeholder: "Type of Production Stations"
+            });
+            row.append(item.append(input));
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "number",
+                class: "form-control",
+                step: "1",
+                min: "1",
+                id: "y-axis",
+                placeholder: "No. Production Stations"
+            });
+            row.append(item.append(input));
+            table_body.append(row);
+            var row = $("<tr/>");
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "text",
+                class: "form-control",
+                id: "x-axis-description",
+                placeholder: "Type of Production Enhancement"
+            });
+            row.append(item.append(input));
+            var item = $("<td/>");
+            var input = $("<input/>", {
+                type: "number",
+                class: "form-control",
+                step: "1",
+                min: "1",
+                id: "x-axis",
+                placeholder: "No. Enhancement Units"
+            });
+            table_body.append(row.append(item.append(input)));
+            $("#options").append(table_body);
+            var item = $("<button/>",{
+                type: "button",
+                class: "btn btn-info",
+                id: "invest-set",
+                onClick: "set_data_table();"
+            }).html("Set Options");
+            $("#options").append(item);
+        }
+
+        function create_storage_options(){
+            $("#run").empty();
+            $("#data").empty();
+            $("#storage-options").append($("<p/>").html("Options"));
+            
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("Production Cost Function:"));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("C<sub>x</sub> = ("));
+            div.append($("<input/>", {
+                type: "number",
+                id: "a",
+                class: "form-control"
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("+ ν &#215;"));
+            div.append($("<input/>", {
+                type: "number",
+                id: "b",
+                class: "form-control"
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(") &#215; x + ("));
+            div.append($("<input/>", {
+                type: "number",
+                id: "c",
+                class: "form-control"
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("+ ν &#215;"));
+            div.append($("<input/>", {
+                type: "number",
+                id: "d",
+                class: "form-control"
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(")"));
+            $("#storage-options").append(div);
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("Storage Cost Function:"));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("C<sub>a</sub> = ("));
+            div.append($("<input/>", {
+                type: "number",
+                id: "e",
+                class: "form-control"
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("+ ν &#215;"));
+            div.append($("<input/>", {
+                type: "number",
+                id: "f",
+                class: "form-control"
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(") &#215; a + ("));
+            div.append($("<input/>", {
+                type: "number",
+                id: "g",
+                class: "form-control"
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("+ ν &#215;"));
+            div.append($("<input/>", {
+                type: "number",
+                id: "h",
+                class: "form-control"
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(")"));
+            $("#storage-options").append(div);
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("Set number of periods"));
+            div.append($("<input/>", {
+                type: "number",
+                step: "1",
+                min: "1",
+                id: "no-periods"
+            }));
+            div.append($("<button/>",{
+                type: "button",
+                class: "btn btn-info",
+                onClick: "set_storage_data();"
+            }).html("Set Options"));
+            $("#storage-options").append(div);
+            $("#storage-options").append($("<p/>").html("ν: Period, x: Production amount, a: Storage amount")); 
+        }
+
+        function set_storage_data(){
+            $("#run").empty();
+            $("#data").empty();
+            if (($("#a").val()).length == 0 || ($("#b").val()).length == 0 || ($("#c").val()).length == 0 || ($("#d").val()).length == 0 || ($("#e").val()).length == 0 || ($("#f").val()).length == 0 || ($("#g").val()).length == 0 || ($("#h").val()).length == 0 || ($("#no-periods").val()).length == 0  ){
+                alert("Please fill all the option fields!");
+                return;
+            }
+            var table_body = $("<table/>", {
+                class: "table",
+                id: "data-table"
+            });
+            var caption = $("<p/>").html("Insert your data here");
+            $("#data").append(caption);
+            n = Number($("#no-periods").val());
+            var row = $("<tr/>");
+            row.append($("<th/>").html("Period"));
+            row.append($("<th/>").html("Demand"));
+            row.append($("<th/>").html("Production Capacity"));
+            row.append($("<th/>").html("Storage Capacity"));
+            table_body.append(row);
+
+            for (var j = 1; j<n+1; j++){
+                var row = $("<tr/>");
+                for (var i = 0; i<4; i++){
+                    if (i==0){
+                        row.append($("<th/>").html(j.toString()));
+                    }else {
+                        var item = $("<td/>");
+                        var input = $("<input/>", {
+                            type: "number",
+                            class: "form-control",
+                            id: "X"+(i).toString()+"Y"+(j).toString()
+                        });
+                        item.append(input);
+                        row.append(item);
+                    }
+                }
+                table_body.append(row);
+            }
+            $("#data").append(table_body);
+            var run = $("<button/>", {
+                id: "run-method",
+                type: "button",
+                class: "btn btn-success",
+                onClick: "get_data_output();"
+            }).html("Run Optimization");
+            $("#run").append(run);
+        }
+
+        function set_data_table(){
+            $("#run").empty();
+            $("#data").empty();
+            if (($("#x-axis").val()).length == 0 || ($("#y-axis").val()).length == 0|| ($("#x-axis-description").val()).length == 0 || ($("#y-axis-description").val()).length == 0){
+                alert("Please fill all the option fields!");
+                return;
+            }
+            var table_body = $("<table/>", {
+                class: "table",
+                id: "data-table"
+            });
+            var caption = $("<p/>").html("Insert your data here");
+            $("#data").append(caption);
+            x = 3+Number($("#x-axis").val());
+            y = 2+Number($("#y-axis").val());
+            for (var j = 0; j<y; j++){
+                var row = $("<tr/>");
+                for (var i = 0; i<x; i++){
+                    if (i < 2 && j < 2){
+                        var item = $("<th/>");
+                        row.append(item);
+                    } else if (i>1 && j==1){
+                        var item = $("<th/>").html((i-2).toString());
+                        row.append(item);
+                    } else if (i==1 && j > 1){
+                        var item = $("<th/>").html((j-1).toString());
+                        row.append(item);
+                    }else if(j==0 && i == 2){
+                        var item = $("<th/>", {
+                            colspan: (y-2).toString()
+                        }).html($("#x-axis-description").val());
+                        
+                        row.append(item);
+                    }else if(j==2 && i==0){
+                        var item = $("<th/>", {
+                            rowspan: (x-2).toString()
+                        });
+                        var span = $("<span/>", {
+                            style: "writing-mode: vertical-lr; -ms-writing-mode: tb-rl; transform: rotate(180deg);"
+                        }).html($("#y-axis-description").val());
+                        item.append(span);
+                        row.append(item);
+                    }else if((j==0 && i>2) ||  (i==0 && j>2)){
+                        continue;
+                    }else {
+                        var item = $("<td/>");
+                        var input = $("<input/>", {
+                            type: "number",
+                            class: "form-control",
+                            id: "X"+(i-2).toString()+"Y"+(j-2).toString()
+                        });
+                        item.append(input);
+                        row.append(item);
+                    }          
+                }
+                table_body.append(row);
+            }
+            x = x - 3;
+            y = y - 2;
+            $("#data").append(table_body);
+            var run = $("<button/>", {
+                id: "run-method",
+                type: "button",
+                class: "btn btn-success",
+                onClick: "get_data_output();"
+            }).html("Run Optimization");
+            $("#run").append(run);      
+        }
+        function collect_options(){
+            temp = {};
+            temp.x = x;
+            temp.y = y;
+            temp.x_description =$("#x-axis-description").val();
+            temp.y_description =$("#y-axis-description").val();
+            return temp;
+        }
+
+        function collect_storage_options(){
+            temp = {};
+            temp.production_cost = [];
+            temp.production_cost.push(parseFloat($("#a").val()));
+            temp.production_cost.push(parseFloat($("#b").val()));
+            temp.production_cost.push(parseFloat($("#c").val()));
+            temp.production_cost.push(parseFloat($("#d").val()));
+            temp.storage_cost = [];
+            temp.storage_cost.push(parseFloat($("#e").val()));
+            temp.storage_cost.push(parseFloat($("#f").val()));
+            temp.storage_cost.push(parseFloat($("#g").val()));
+            temp.storage_cost.push(parseFloat($("#h").val()));
+            temp.periods = n;
+            return temp;
+        }
+
+        function collect_table_data(){
+            temp_arr = [];
+            flag = 0;
+            for (j=0; j<y; j++){
+                temp = [];
+                for(i=0; i<x+1; i++){
+                    if (!$("#X"+i.toString()+"Y"+j.toString()).val().length){
+                        flag = 1;
+                        break;
+                    } else{
+                        temp.push(parseFloat($("#X"+i.toString()+"Y"+j.toString()).val()));
+                    }
+                }
+                temp_arr.push(temp);
+            }
+            if (flag == 1){
+                temp_arr = [];
+                return temp_arr;
+            } else {
+                return temp_arr;
+            }
+        }
+
+        function collect_storage_data(){
+            temp_arr =[];
+            flag =0;
+            for(j=1; j<n+1; j++){
+                temp = [];
+                for(i=1; i<4; i++){
+                    if (!$("#X"+i.toString()+"Y"+j.toString()).val().length){
+                        flag = 1;
+                        break;
+                    } else{
+                        temp.push(parseFloat($("#X"+i.toString()+"Y"+j.toString()).val()));
+                    }
+                }
+                temp_arr.push(temp);
+            }
+            if (flag == 1){
+                temp_arr = [];
+                return temp_arr;
+            } else {
+                return temp_arr;
+            }
+        }
+
+        function get_data_output(){
+            var output_data = {};
+            output_data.title = $("#title").val();
+            output_data.type = type;
+            if (type == "route"){
+
+            } else if (type == "invest"){
+                output_data.options = collect_options();
+                output_data.data = collect_table_data();
+                if (!output_data.data.length){
+                    alert("Fill all the fields in the data table!");
+                    return;
+                }
+            } else if (type == "production"){
+                output_data.options = collect_options();
+                output_data.data = collect_table_data();
+                if (!output_data.data.length){
+                    alert("Fill all the fields in the data table!");
+                    return;
+                }
+            } else if (type == "store"){
+                output_data.options = collect_storage_options();
+                output_data.data = collect_storage_data();
+                if (!output_data.data.length){
+                    alert("Fill all the fields in the data table!");
+                    return;
+                }
+            }
+            output_data.id = Number(meth_id);
+            ajax_post(output_data);
+        }
+
+        function ajax_post(out_data){
+            $.ajax({
+                type: "POST",
+                dataType: "json",
+                data: {csrfmiddlewaretoken: "{{ csrf_token }}",
+                        data: JSON.stringify(out_data)},
+                url: "/dynamic/ajax/calculate",
+                success: function(response){
+                    document.forms[0].submit();
+                },
+            })
+        }
+
+    </script>
+{% endblock %}
+
+{% block body %}
+    <body>
+        <h2>Create your dataset</h2>
+        <br>
+        <div class="row">    
+            <div class="col-1"></div>
+            <div class="col-10"> 
+                <div class="input-group mb-3" id="info-group">
+                    <input type="text" class="form-control" id="title" placeholder="Enter Title">
+                    <span class= "input-group-text">Select Problem Type:</span>
+                    <select id="type" class="custom-select" >
+                        <option value="route">Optimal Route</option>
+                        <option value="invest">Investment Programming</option>
+                        <option value="production">Production Planning</option>
+                        <option value="store">Production and Store Planning</option>
+                    </select>
+                    <button type="button" class="btn btn-info" id="fill">Fill Dataset</button>
+                    <div class="input-group-append" id="run">
+                      </div>
+                </div>
+            </div>
+            <div class="col-1"></div>  
+        </div>
+        <br>
+        <br>
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-6">
+                <div id="options">
+
+                </div>
+            </div>
+            <div class="col-3"></div>
+
+        </div>
+        <div class="row">
+            <div class="col-3"></div>
+            <div class="col-6">
+                <div id="storage-options">
+
+                </div>
+            </div>
+            <div class="col-3"></div>
+
+        </div>
+        <br>
+        <br>
+        <div class="row">
+            <div class="col-1"></div> 
+            <div class="col-10">
+                <div id="data">
+                    
+                </div>
+            </div>
+            <div class="col-1"></div>
+        </div>
+        <form id="submit_form" enctype="multipart/form-data" method="POST">
+            {% csrf_token %}
+        </form>
+    </body>
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "mainApp/base.html" %}
+{% load static %}
+
+{% block title %}Linear Programming {% endblock %}
+
+{% block head %}
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title> Linear Programming </title>
+    <script type="text/javascript">
+        
+    </script>
+{% endblock %}
+
+{% block body %}
+    <body>
+        {% load bootstrap4 %}
+        <h3>Upload your JSON file</h3>
+
+        <div class="container">
+            <form enctype="multipart/form-data" method="POST">
+                {% csrf_token %}
+                {% bootstrap_form form %}
+                <p>{{ form.fieldname.errors.as_text }}</p>
+                <input type="submit" class="btn btn-primary" name="manage" value="Inspect Data">
+                <input type="submit" class="btn btn-primary" name="run" value="Run Method">
+            </form>
+            
+        </div>
+    </body>
+{% endblock %}

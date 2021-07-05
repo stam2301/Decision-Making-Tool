@@ -2,8 +2,6 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 import os, json, copy
-from matplotlib.pyplot import plot_date
-from numpy import number
 from .forms import upload_file_form
 from mainApp.models import Method
 from .utilities.linear_algo import linear_prog_main

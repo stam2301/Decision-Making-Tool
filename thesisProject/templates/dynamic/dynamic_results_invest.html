@@ -1,0 +1,394 @@
+{% extends "mainApp/base.html" %}
+{% load static %}
+
+{% block title %}Dynamic Programming{% endblock %}
+
+{% block head %}
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title> Dynamic Programming </title>
+    <script type="text/javascript">
+        var input_data = {{ input|safe }};
+        var output_data = {{ output|safe }};
+
+        //Options
+        $(document).ready(function(){
+            var table_body = $("<table/>", {
+                class: "table"
+            });
+            var row = $("<tr/>");
+            var item = $("<th/>", {
+                scope: "col"
+            }).html(input_data.options.y_description+" (Financial Periods)");
+            row.append(item);
+            var item = $("<td/>").html(input_data.options.y);
+            row.append(item);
+            table_body.append(row);
+            var row = $("<tr/>");
+            var item = $("<th/>", {
+                scope: "col"
+            }).html(input_data.options.x_description + " (Financial Units)");
+            row.append(item);
+            var item = $("<td/>").html(input_data.options.x);
+            row.append(item);
+            table_body.append(row);
+            $("#options").append(table_body);
+        });
+
+        //input data
+        $(document).ready(function(){
+            var table_body = $("<table/>", {
+                class: "table",
+                id: "data-table"
+            });
+
+            var x = 3+input_data.options.x;
+            var y = 2+input_data.options.y;
+
+            for (var j = 0; j<y; j++){
+                var row = $("<tr/>");
+                for (var i = 0; i<x; i++){
+                    if (i < 2 && j < 2){
+                        var item = $("<th/>");
+                        row.append(item);
+                    } else if(i>1 && j==1){
+                        var item = $("<th/>").html((i-2).toString());
+                        row.append(item);
+                    } else if(i==1 && j > 1){
+                        var item = $("<th/>").html((j-1).toString());
+                        row.append(item);
+                    } else if(j==0 && i == 2){
+                        var item = $("<th/>", {
+                            colspan: (y-2).toString()
+                        }).html(input_data.options.x_description);
+                        row.append(item);
+                    } else if(j==2 && i==0){
+                        var item = $("<th/>", {
+                            rowspan: (x-2).toString()
+                        });
+                        var span = $("<span/>", {
+                            style: "writing-mode: vertical-lr; -ms-writing-mode: tb-rl; transform: rotate(180deg);"
+                        }).html(input_data.options.y_description);
+                        item.append(span);
+                        row.append(item);
+                    } else if((j==0 && i>2) ||  (i==0 && j>2)){
+                        continue;
+                    } else{
+                        var item = $("<td/>").html(input_data.data[j-2][i-2]);
+                        row.append(item);
+                    }
+                }
+                table_body.append(row);
+            }
+            $("#input").append(table_body);
+        });
+        //results
+        $(document).ready(function(){
+            if((output_data.solution.routes).length == 1){
+
+                var text = "There is one optimal investment planning.";
+                var text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+                text = "";
+                for (i=0; i<input_data.options.y; i++){
+                    if (i== input_data.options.y - 1){
+                        text = text + (output_data.solution.routes[0][i]).toString()+"("+input_data.options.x_description+").";
+                    } else{
+                        text = text + (output_data.solution.routes[0][i]).toString()+"("+input_data.options.x_description+")" + " - ";
+                    } 
+                }
+                text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+                text = "The profit from this planning is "+ (output_data.solution.f_max).toString() + ".";
+                text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+            } else {
+                var text = "There are "+ (output_data.solution.routes).length + "optimal investment plannings.";
+                text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+                for (j=0; j<(output_data.solution.routes).length; j++){
+                    for (i=0; i<input_data.options.y; i++){
+                        if (i== input_data.options.y - 1){
+                            text = text + (output_data.solution.routes[0][i]).toString()+"("+input_data.options.x_description+")";
+                        } else{
+                            text = text + (output_data.solution.routes[0][i]).toString()+"("+input_data.options.x_description+")" + " - ";
+                        }
+                    }
+                    if (j==(output_data.solution.routes).length - 1){
+                        text = text +".";
+                    } else{
+                        text = text + ", "
+                    }
+                }
+                text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+                text = "The profit from these plannings is "+ (output_data.solution.f_max).toString() + ".";
+                text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+            }
+        });
+
+        //iterations
+        $(document).ready(function(){
+            for (const iteration in output_data.iterations){
+                var table_body = $("<table/>", {
+                    class: "table table-bordered"
+                });
+                var p = $("<p/>").text("Iteration: "+iteration);
+                $("#tables").append(p);
+                if (iteration == 1){
+                    table_length = 2 + input_data.options.x;
+                    table_height = 3;
+                    var row = $("<tr/>");
+                    var item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("S<sub>"+iteration+"</sub>");
+                    row.append(item);
+                    for (var i =0; i<table_length-1; i++){
+                        item = $("<th/>", {
+                            scope: "col",
+                            class: "text-center",
+                            style: "color:#4287f5;"
+                        }).text(output_data.iterations[iteration].x_max[i]);
+                        row.append(item);
+                    }
+                    table_body.append(row);
+                    row = $("<tr/>");
+                    item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("F<sub>"+iteration+"</sub><sup>*</sup>(S<sub>"+iteration+"</sub>)");
+                    row.append(item);
+                    for (var i =0; i<table_length-1; i++){
+                        item = $("<td/>", {
+                            class: "text-center"
+                        }).text(output_data.iterations[iteration].f_max[i]);
+                        row.append(item);
+                    }
+                    table_body.append(row);
+                    row = $("<tr/>");
+                    item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("x<sub>"+iteration+"</sub><sup>*</sup>");
+                    row.append(item);
+                    for (var i =0; i<table_length-1; i++){
+                        item = $("<td/>", {
+                            class: "text-center"
+                        }).text(output_data.iterations[iteration].x_max[i]);
+                        row.append(item);
+                    }
+                    table_body.append(row);
+                } else if (iteration == input_data.options.y){
+                    table_length = 4 + input_data.options.x;
+                    table_height = 2 + input_data.options.x;
+                    var row = $("<tr/>");
+                    var item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("S<sub>"+iteration+"</sub> &bsol; x<sub>"+iteration+"</sub>");
+                    row.append(item);
+                    for(i=0; i<3 + input_data.options.x; i++){
+                        if(i==2 + input_data.options.x){
+                            item = $("<th/>", {
+                                scope: "col",
+                                class: "text-center"
+                            }).html("x<sub>"+iteration+"</sub><sup>*</sup>");
+                            row.append(item);
+                        }else if(i==1 + input_data.options.x){
+                            item = $("<th/>", {
+                                scope: "col",
+                                class: "text-center"
+                            }).html("F<sub>"+iteration+"</sub><sup>*</sup>(S<sub>"+iteration+"</sub>)");
+                            row.append(item);
+                        }else{
+                            item = $("<th/>", {
+                                scope: "col",
+                                class: "text-center",
+                                style: "color:#4287f5;"
+                            }).text(i.toString());
+                            row.append(item);
+                        }
+                    }
+                    table_body.append(row);
+                    row = $("<tr/>");
+                    item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html(input_data.options.x);
+                    row.append(item);
+                    for(i=0; i<1 + input_data.options.x; i++){
+                        item = $("<td/>", {
+                                class: "text-center"
+                            }).text(output_data.iterations[iteration].table[i]);
+                            row.append(item);
+                    }
+                    item = $("<td/>", {
+                        class: "text-center"
+                    }).html(output_data.iterations[iteration].f_max);
+                    row.append(item);
+                    item = $("<td/>", {
+                        class: "text-center"
+                    }).html((output_data.iterations[iteration].x_max).join(','));
+                    row.append(item);
+
+                    table_body.append(row);
+
+                } else {
+                    table_length = 4 + input_data.options.x;
+                    table_height = 2;
+
+                    var row = $("<tr/>");
+                    var item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("S<sub>"+iteration+"</sub> &bsol; x<sub>"+iteration+"</sub>");
+                    row.append(item);
+                    for(i=0; i<1+input_data.options.x; i++){
+                        item = $("<th/>", {
+                            scope: "col",
+                            class: "text-center",
+                            style: "color:#4287f5;"
+                        }).text(i.toString());
+                        row.append(item);
+                    }
+                    item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("F<sub>"+iteration+"</sub><sup>*</sup>(S<sub>"+iteration+"</sub>)");
+                    row.append(item);
+                    item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("x<sub>"+iteration+"</sub><sup>*</sup>");
+                    row.append(item);
+                    table_body.append(row);
+                    for (j=0; j<1+input_data.options.x; j++){
+                        row = $("<tr/>");
+                        for(i=0; i<4+input_data.options.x; i++){
+                            if(i==0){
+                                item = $("<th/>", {
+                                    scope: "col",
+                                    class: "text-center"
+                                }).html(j.toString());
+                                row.append(item);
+                            }else if(i==(2+input_data.options.x)){
+                                item = $("<td/>", {
+                                    class: "text-center"
+                                }).text(output_data.iterations[iteration].f_max[j]);
+                                row.append(item);
+                            }else if(i==(3+input_data.options.x)){
+                                item = $("<td/>", {
+                                    class: "text-center"
+                                }).text((output_data.iterations[iteration].x_max[j]).join(','));
+                                row.append(item);
+                            }else{
+                                item = $("<td/>", {
+                                    class: "text-center"
+                                }).text(output_data.iterations[iteration].table[j][i-1]);
+                                row.append(item);
+                            }
+                        }
+                        table_body.append(row);
+                    }
+                }
+                $("#tables").append(table_body);
+            }
+        });
+
+    </script>
+{% endblock %}
+
+
+{% block body %}
+    <body>
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
+                <div id="input-content">
+                    <p>Objective Function</p>
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" style="background-color: #b3cfff;">Problem Type: Investment Planning</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-1">
+                <form id="submit_form" enctype="multipart/form-data" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-primary" name="inspect" value="Manage Data">
+                    <br>
+                    <br>
+                    <input type="submit" class="btn btn-primary" name="new" value="New Input">
+                </form>
+
+            </div>
+            <div class="col-1">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-4">
+                <h4>Options</h4>
+                <div id="options">
+
+                </div>
+            </div>
+            <div class="col-7">
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
+                <h4>Input Data</h4>
+                <div id="input">
+
+                </div>
+            </div>
+            <div class="col-2">
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
+                <h4>Optimal Solution</h4>
+                <div id="results">
+
+                </div>
+            </div>
+            <div class="col-2">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
+                <h4>Iterations</h4>
+                <div id="tables">
+                    
+
+                </div>
+            </div>
+            <div class="col-2">
+
+            </div>
+        </div>
+    </body>
+
+{% endblock %}
