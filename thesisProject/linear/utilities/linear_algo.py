@@ -74,4 +74,5 @@ def linear_prog_main(input):
     output['message'] = opt.message
     output['values'] = (opt.x).tolist()
     output['names'] = data['objective']['descriptions']
+    output['z'] = data['objective']['values'][0]*output['values'][0]  +data['objective']['values'][1]*output['values'][1]
     return output

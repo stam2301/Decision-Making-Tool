@@ -138,7 +138,9 @@ def results(request, method_id):
             plot_data = generate_plots_main(input_data, data)
             labels = plot_data['labels']
             plots = plot_data['plots']
-            return render(request, 'linear/linear_results_am.html', context={"plots_data": plots, "plot_labels": labels, "axis_descriptions": input_data["objective"]["descriptions"]})
+            output = method.output_file
+            del output['success']
+            return render(request, 'linear/linear_results_am.html', context={"plots_data": plots, "plot_labels": labels, "axis_descriptions": input_data["objective"]["descriptions"], "output": output, "input": method.input_file})
         else:
             return render(request, 'linear/linear_results.html', context={"output": method.output_file, "input": method.input_file})
     elif request.method == 'POST':

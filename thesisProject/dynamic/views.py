@@ -18,15 +18,25 @@ def upload_form(request):
         if 'run' in request.POST:
             input_form = upload_file_form(request.POST, request.FILES)
             if input_form.is_valid():
+                new_method = Method()
+                new_method.title = request.POST.get('title')
+                new_method.method_type = 'Dynamic Programming'
+                json_file = request.FILES['upload_file']
+                json_input_data = json_file.read()
+                data = json.loads(json_input_data)
                 if request.POST.get('type') == 'route':
                     print("HEY")
                     return render(request, 'linear/linear_upload.html',{'form':input_form})
                 elif request.POST.get('type') == 'invest':
-                    return render(request, 'linear/linear_upload.html',{'form':input_form})
+                    outfile = invest_algo_main(data)
                 elif request.POST.get('type') == 'production':
                     return render(request, 'linear/linear_upload.html',{'form':input_form})
+                new_method.output_file = outfile
+                new_method.input_file = json.loads(json_input_data)
+                new_method.save()
             else:
                 return render(request, 'linear/linear_upload.html',{'form':input_form})
+            return HttpResponseRedirect(reverse('dynamic:results', args=(new_method.methodID,)))
 
         elif 'manage' in request.POST:
             input_form = upload_file_form(request.POST, request.FILES)
