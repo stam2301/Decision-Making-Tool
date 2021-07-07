@@ -77,7 +77,6 @@ def ajax_create_and_calculate(request):
     if request.is_ajax and request.method == "POST":
         request_getdata = request.POST.get('data', None)
         data = json.loads(request_getdata)
-        print(data)
         new_method = Method()
         new_method.title = data['title']
         del data['title']
@@ -85,12 +84,10 @@ def ajax_create_and_calculate(request):
         new_method.input_file = copy.deepcopy(data)
         if data['type'] == "store":
             outfile = store_algo_main(data)
-            print("store")
         elif data['type'] == "invest":
             outfile = invest_algo_main(data)
         elif data['type'] == "production":
             outfile = production_algo_main(data)
-            print("production")
         new_method.output_file = outfile
         new_method.save()
         return JsonResponse({"method_id": new_method.methodID}, status =200)
@@ -106,12 +103,10 @@ def ajax_calculate(request):
         method.input_file = copy.deepcopy(data)
         if data['type'] == "store":
             outfile = store_algo_main(data)
-            print("store")
         elif data['type'] == "invest":
             outfile = invest_algo_main(data)
         elif data['type'] == "production":
             outfile = production_algo_main(data)
-            print("production")
         method.output_file = outfile
         method.save()
         return JsonResponse({"method_id": method.methodID}, status =200)

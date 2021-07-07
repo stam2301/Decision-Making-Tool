@@ -103,5 +103,4 @@ def invest_algo_main(input):
         i += 1
     output['solution']['f_max'] = f_max
     output['solution']['routes'] = f_route
-    print(output)
     return output
