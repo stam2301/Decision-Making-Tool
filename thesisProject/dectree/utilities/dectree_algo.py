@@ -32,13 +32,12 @@ def handle_research(research, dec_root, id, nodes, edges, level):
 
         chanceToDecision['researches'] = []
         decision['chanceToDecision'] = chanceToDecision.copy()
-        
         for dec in decision['chanceToDecision']['decisions']:
             d = dict({})
             d['describe'] = dec['describe']
-            d['profit/loss'] = dec['value']
+            d['profit/loss'] = dec['decisionToDecision']['value']
             decision['chanceToDecision']['leafs'].append(d.copy())
-        
+        decision['chanceToDecision']['decisions'] = []
         for chan in decision['chanceToDecision']['chances']:
             for deci in chan['decisionToChance']['decisions']:
                 l = dict({})
@@ -55,7 +54,6 @@ def handle_research(research, dec_root, id, nodes, edges, level):
                 j += 1
         
         decisions.append(copy.deepcopy(decision)) 
-
     research_chance['decisionToChance']['decisions'] = decisions
 
     id+=1
@@ -73,7 +71,7 @@ def handle_research(research, dec_root, id, nodes, edges, level):
         max_value = research_chance['decisionToChance']['value'] + research_chance['profit/loss']
 
     nodes.append(create_node(research_chance['decisionToChance']['id'], str(round(research_chance['decisionToChance']['value'], 2)), 'research', level).copy())
-    edges.append(create_edge(dec_root['id'], research_chance['decisionToChance']['id'], research_chance['describe']))
+    edges.append(create_edge(dec_root['id'], research_chance['decisionToChance']['id'], research_chance['describe'] +" profit/loss:" + str(research_chance['profit/loss'])))
 
     research_return=dict({})
     research_return['id'] = id
@@ -98,13 +96,12 @@ def create_edge(fath_id, child_id, describe):
 
 def handle_decision (decision_root, id, nodes, edges, level):
     max_value =  -2.2250738585072014e-308
-
     for decision in decision_root['decisions']:
         id+=1
         decision['decisionToDecision']['id'] = id
         id = handle_decision(decision['decisionToDecision'], decision['decisionToDecision']['id'], nodes, edges, (level+1))
         nodes.append(create_node(decision['decisionToDecision']['id'], str(round(decision['decisionToDecision']['value'], 2)), 'decision', level).copy())
-        edges.append(create_edge(decision_root['id'], decision['decisionToDecision']['id'], decision['describe']))
+        edges.append(create_edge(decision_root['id'], decision['decisionToDecision']['id'], decision['describe'] + " profit/loss:" + str(decision['profit/loss'])))
         if (max_value < decision['decisionToDecision']['value'] + decision['profit/loss']):
             max_value = decision['decisionToDecision']['value'] + decision['profit/loss']
     
@@ -124,15 +121,15 @@ def handle_decision (decision_root, id, nodes, edges, level):
             max_value = chance['decisionToChance']['value'] + chance['profit/loss']
 
         nodes.append(create_node(chance['decisionToChance']['id'], str(round(chance['decisionToChance']['value'], 2)), 'chance', level).copy())
-        edges.append(create_edge(decision_root['id'], chance['decisionToChance']['id'], chance['describe']))
+        edges.append(create_edge(decision_root['id'], chance['decisionToChance']['id'], chance['describe'] + " profit/loss:" + str(chance['profit/loss'])))
 
     for leaf in decision_root['leafs']:
         id+=1
-        leaf['decisionToLeaf']['id'] = id
-        nodes.append(create_node(leaf['decisionToLeaf']['id'], str(round(leaf['decisionToLeaf']['profit/loss'], 2)), 'leaf', (level+1)).copy())
-        edges.append(create_edge(decision_root['id'], leaf['decisionToLeaf']['id'], leaf['describe']).copy())
-        if (max_value < leaf['decisionToLeaf']['profit/loss'] + leaf['profit/loss']):
-            max_value = leaf['decisionToLeaf']['profit/loss'] + leaf['profit/loss']
+        leaf['id'] = id
+        nodes.append(create_node(leaf['id'], str(round(leaf['profit/loss'],2)), 'leaf', (level+1)).copy())
+        edges.append(create_edge(decision_root['id'], leaf['id'], leaf['describe']).copy())
+        if (max_value < leaf['profit/loss']):
+            max_value = leaf['profit/loss']
     
     while((len(decision_root['researches']))>0):
         research = copy.deepcopy(decision_root['researches'][0])
@@ -156,7 +153,7 @@ def handle_decision (decision_root, id, nodes, edges, level):
             chance['selected'] = False
     
     for leaf in decision_root['leafs']:
-        if (max_value == leaf['decisionToLeaf']['profit/loss'] + leaf['profit/loss']):
+        if (max_value == leaf['profit/loss'] + leaf['profit/loss']):
             leaf['selected'] = True
         else:
             leaf['selected'] = False
@@ -173,15 +170,15 @@ def handle_chance_bayes (chance_root, id, nodes, edges, level):
         id+=1
         decision['chanceToDecision']['id'] = id
         id = handle_decision(decision['chanceToDecision'], decision['chanceToDecision']['id'], nodes, edges, (level+1))
-        nodes.append(create_node(decision['chanceToDecision']['id'], str(round(decision['chanceToDecision']['value'], 2)), 'decision', level).copy())
+        nodes.append(create_node(decision['chanceToDecision']['id'], str(round(decision['chanceToDecision']['value'],2)), 'decision', level).copy())
         edges.append(create_edge(chance_root['id'], decision['chanceToDecision']['id'], decision['describe']+": "+str(decision['probability']*100)+chr(37)).copy())
         value = value + decision['probability'] * decision['chanceToDecision']['value']
     
     for leaf in chance_root['leafs']:
         id+=1
         leaf['chanceToLeaf']['id'] = id
-        nodes.append(create_node(leaf['chanceToLeaf']['id'], str(round(leaf['chanceToLeaf']['profit/loss'], 2)), 'leaf', (level+1)).copy())
-        edges.append(create_edge(chance_root['id'], leaf['chanceToLeaf']['id'], leaf['describe']+": "+str(leaf['probability']*100)+chr(37)).copy())
+        nodes.append(create_node(leaf['chanceToLeaf']['id'], str(round(leaf['chanceToLeaf']['profit/loss'],2)), 'leaf', (level+1)).copy())
+        edges.append(create_edge(chance_root['id'], leaf['chanceToLeaf']['id'], leaf['describe']+": "+str(round(leaf['probability']*100, 2))+chr(37)).copy())
         value = value + leaf['probability'] * leaf['chanceToLeaf']['profit/loss']
     
     chance_root['value'] = value
@@ -203,7 +200,7 @@ def handle_chance_maximin (chance_root, id, nodes, edges, level):
         id+=1
         leaf['chanceToLeaf']['id'] = id
         nodes.append(create_node(leaf['chanceToLeaf']['id'], str(round(leaf['chanceToLeaf']['profit/loss'], 2)), 'leaf', (level+1)).copy())
-        edges.append(create_edge(chance_root['id'], leaf['chanceToLeaf']['id'], leaf['describe']+": "+str(leaf['probability']*100)+chr(37)).copy())
+        edges.append(create_edge(chance_root['id'], leaf['chanceToLeaf']['id'], leaf['describe']+": "+str(round(leaf['probability']*100, 2))+chr(37)).copy())
         if (min_value > leaf['chanceToLeaf']['profit/loss']):
             min_value = leaf['chanceToLeaf']['profit/loss']
 
@@ -217,7 +214,7 @@ def handle_chance_maximax (chance_root, id, nodes, edges, level):
         id+=1
         decision['chanceToDecision']['id'] = id
         id = handle_decision(decision['chanceToDecision'], decision['chanceToDecision']['id'], nodes, edges, (level+1))
-        nodes.append(create_node(decision['chanceToDecision']['id'], str(round(decision['chanceToDecision']['value'], 2)), 'decision', level).copy())
+        nodes.append(create_node(decision['chanceToDecision']['id'], str(round(round(decision['chanceToDecision']['value'], 2), 2)), 'decision', level).copy())
         edges.append(create_edge(chance_root['id'], decision['chanceToDecision']['id'], decision['describe']+": "+str(decision['probability']*100)+chr(37)).copy())
         if (max_value < decision['chanceToDecision']['value']):
             max_value = decision['chanceToDecision']['value']
@@ -225,8 +222,8 @@ def handle_chance_maximax (chance_root, id, nodes, edges, level):
     for leaf in chance_root['leafs']:
         id+=1
         leaf['chanceToLeaf']['id'] = id
-        nodes.append(create_node(leaf['chanceToLeaf']['id'], str(round(leaf['chanceToLeaf']['profit/loss'], 2)), 'leaf', (level+1)).copy())
-        edges.append(create_edge(chance_root['id'], leaf['chanceToLeaf']['id'], leaf['describe']+": "+str(leaf['probability']*100)+chr(37)).copy())
+        nodes.append(create_node(leaf['chanceToLeaf']['id'], str(round(round(leaf['chanceToLeaf']['profit/loss'], 2),2)), 'leaf', (level+1)).copy())
+        edges.append(create_edge(chance_root['id'], leaf['chanceToLeaf']['id'], leaf['describe']+": "+str(round(leaf['probability']*100, 2))+chr(37)).copy())
         if (max_value < leaf['chanceToLeaf']['profit/loss']):
             max_value = leaf['chanceToLeaf']['profit/loss']
     

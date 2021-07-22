@@ -1,0 +1,316 @@
+{% extends "mainApp/base.html" %}
+{% load static %}
+
+{% block title %}Dynamic Programming{% endblock %}
+
+{% block head %}
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <link rel="stylesheet" href="{% static 'dectree/css/dectree_network.css' %}">
+    <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
+    <title> Dynamic Programming </title>
+    <script type="text/javascript">
+        var input_data = {{ input|safe }};
+        var output_data = {{ output|safe }};
+
+        var nodes = null;
+        var edges = null;
+        var network = null;
+
+        function draw(){
+            var nodes = output_data.input.nodes;
+            var edges = output_data.input.edges
+            var mynetwork = document.getElementById('mynetwork');
+            var container = document.getElementById('mynetwork');
+
+            var data = {
+                nodes: nodes,
+                edges: edges
+            };
+            var options = {
+                edges:{
+                    arrows: 'to',
+                    color: '#7C7C7C',
+                },
+                groups:{
+                    start: {
+                        shape: 'circle',
+                        color: '#2bff67'
+                    },
+                    end: {
+                        shape: 'circle',
+                        color: '#e62222'
+                    },
+                    node: {
+                        shape: 'circle',
+                        color: '#c9c9c9'
+                    }
+                },
+                physics: {
+                        enabled: true,
+                        barnesHut: { 
+                            gravitationalConstant: -1700,
+                            centralGravity: 0.4,
+                            springLength: 46,
+                            springConstant: 0.032,
+                            damping: 0.115}
+                        
+                        },
+                    layout: {
+                        hierarchical: {
+                            direction: "RL"
+                        }
+                    }
+            };
+            network = new vis.Network(container, data, options);
+        }
+        $(document).ready(function(){
+            if((output_data.solution.routes).length == 1){
+            var text = "There is one optimal route.";
+            var text_area = $("<p/>").html(text);
+            $("#results").append(text_area);
+            text = "";
+            for (i=0; i<(output_data.solution.routes[0]).length; i++){
+                if (i== (output_data.solution.routes[0]).length - 1){
+                    text = text + (output_data.solution.routes[0][i]).toString()+".";
+                } else{
+                    text = text + (output_data.solution.routes[0][i]).toString() + " - ";
+                } 
+            }
+            text_area = $("<p/>").html(text);
+            $("#results").append(text_area);
+            text = "Minimum distance is "+ (output_data.solution.f_min).toString() + ".";
+            text_area = $("<p/>").html(text);
+            $("#results").append(text_area);
+            } else {
+            var text = "There are "+ (output_data.solution.routes).length + " optimal routes.";
+            text_area = $("<p/>").html(text);
+            $("#results").append(text_area);
+            text = "";
+            for (j=0; j<(output_data.solution.routes).length; j++){
+                for (i=0; i<(output_data.solution.routes[j]).length; i++){
+                    if (i== (output_data.solution.routes[j]).length - 1){
+                        text = text + (output_data.solution.routes[j][i]).toString();
+                    } else{
+                        text = text + (output_data.solution.routes[j][i]).toString() + " - ";
+                    }
+                }
+                if (j==(output_data.solution.routes).length - 1){
+                    text = text +".";
+                } else{
+                    text = text + ", "
+                }
+            }
+            text_area = $("<p/>").html(text);
+            $("#results").append(text_area);
+            text = "Minimum distance is "+ (output_data.solution.f_min).toString() + ".";
+            text_area = $("<p/>").html(text);
+            $("#results").append(text_area);
+            }
+        });
+
+        //iterations
+        $(document).ready(function(){
+            for (const iteration in output_data.iterations){
+                var table_body = $("<table/>", {
+                    class: "table table-bordered"
+                });
+                var p = $("<p/>").text("Iteration: "+iteration);
+                $("#tables").append(p);
+                if (iteration == 1){
+                    var row = $("<tr/>");
+                    var item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("S<sub>"+iteration+"</sub>");
+                    row.append(item);
+                    for (var i =0; i<(output_data.iterations[iteration].s).length; i++){
+                        item = $("<th/>", {
+                            scope: "col",
+                            class: "text-center",
+                            style: "color:#4287f5;"
+                        }).text(output_data.iterations[iteration].s[i]);
+                        row.append(item);
+                    }
+                    table_body.append(row);
+                    row = $("<tr/>");
+                    item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("F<sub>"+iteration+"</sub><sup>*</sup>(S<sub>"+iteration+"</sub>)");
+                    row.append(item);
+                    for (var i =0; i<(output_data.iterations[iteration].f_min).length; i++){
+                        item = $("<td/>", {
+                            class: "text-center"
+                        }).text(output_data.iterations[iteration].f_min[i]);
+                        row.append(item);
+                    }
+                    table_body.append(row);
+                    row = $("<tr/>");
+                    item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("x<sub>"+iteration+"</sub><sup>*</sup>");
+                    row.append(item);
+                    for (var i =0; i<(output_data.iterations[iteration].x_min).length; i++){
+                        item = $("<td/>", {
+                            class: "text-center"
+                        }).text(output_data.iterations[iteration].x_min[i]);
+                        row.append(item);
+                    }
+                    table_body.append(row);
+                } else{
+                    table_length = 3 + (output_data.iterations[iteration].cur_nodes).length;
+                    table_height = 1 + (output_data.iterations[iteration].s_nodes).length;
+                    for(var j=0; j<table_height; j++){
+                        var row = $("<tr/>");
+                        for(var i=0; i<table_length; i++){
+                            if(i==0 && j==0){
+                                var item = $("<th/>", {
+                                    scope: "col",
+                                    class: "text-center"
+                                }).html("S<sub>"+iteration+"</sub> &bsol; x<sub>"+iteration+"</sub>");
+                                row.append(item);
+                            } else if (j==0 && i>0 && i<1+(output_data.iterations[iteration].cur_nodes).length){
+                                var item = $("<th/>", {
+                                    scope: "col",
+                                    class: "text-center",
+                                    style: "color:#4287f5;"
+                                }).html(output_data.iterations[iteration].cur_nodes[i-1]);
+                                row.append(item);
+                            } else if (j==0 && i==1+(output_data.iterations[iteration].cur_nodes).length){
+                                item = $("<th/>", {
+                                    scope: "col",
+                                    class: "text-center"
+                                }).html("F<sub>"+iteration+"</sub><sup>*</sup>(S<sub>"+iteration+"</sub>)");
+                                row.append(item);
+                            } else if (j==0 && i==2+(output_data.iterations[iteration].cur_nodes).length){
+                                item = $("<th/>", {
+                                    scope: "col",
+                                    class: "text-center"
+                                }).html("x<sub>"+iteration+"</sub><sup>*</sup>");
+                                row.append(item);
+                            } else if (j>0 && i==0){
+                                var item = $("<th/>", {
+                                    scope: "col",
+                                    class: "text-center"
+                                }).html(output_data.iterations[iteration].s_nodes[j-1]);
+                                row.append(item);
+                            } else if (j>0 && i>0 && i<1+(output_data.iterations[iteration].cur_nodes).length){
+                                var item = $("<td/>", {
+                                    scope: "col",
+                                    class: "text-center"
+                                }).html(output_data.iterations[iteration].table[j-1][i-1]);
+                                row.append(item);
+                            } else if (j>0 && i== 1+(output_data.iterations[iteration].cur_nodes).length){
+                                var item = $("<td/>", {
+                                    scope: "col",
+                                    class: "text-center"
+                                }).html(output_data.iterations[iteration].f_min[j-1]);
+                                row.append(item);
+                            } else if(j>0 && i== 2+(output_data.iterations[iteration].cur_nodes).length){
+                                text = "";
+                                for(k=0; k<(output_data.iterations[iteration].min_points[j-1]).length; k++){
+                                    if(k==((output_data.iterations[iteration].min_points[j-1]).length)-1){
+                                        text = text + (output_data.iterations[iteration].min_points[j-1][k]).toString();
+                                    } else{
+                                        text = text +(output_data.iterations[iteration].min_points[j-1][k]).toString()+",";
+                                    }
+                                }
+                                var item = $("<td/>", {
+                                    scope: "col",
+                                    class: "text-center"
+                                }).html(text);
+                                row.append(item);
+                            }
+                        }
+                        table_body.append(row);
+                    }
+                }
+
+
+                $("#tables").append(table_body);
+            }
+        });
+
+    
+</script>
+{% endblock %}
+
+
+{% block body %}
+    <body onload="draw()">
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
+                <h2>{{title|safe }}</h2>
+                <div id="input-content">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" style="background-color: #b3cfff;">Problem Type: Optimal Route</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-1">
+                <form id="submit_form" enctype="multipart/form-data" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-primary" name="inspect" value="Manage Data">
+                    <br>
+                    <br>
+                    <input type="submit" class="btn btn-primary" name="new" value="New Input">
+                </form>
+
+            </div>
+            <div class="col-1">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
+                <h4>Input Data</h4>
+                <div id="mynetwork">
+
+                </div>
+            </div>
+            <div class="col-2">
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
+                <h4>Optimal Solution</h4>
+                <div id="results">
+
+                </div>
+            </div>
+            <div class="col-2">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
+                <h4>Iterations</h4>
+                <div id="tables">
+                    
+
+                </div>
+            </div>
+            <div class="col-2">
+
+            </div>
+        </div>
+    </body>
+
+{% endblock %}

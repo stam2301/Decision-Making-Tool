@@ -5,23 +5,29 @@
 
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <link rel="stylesheet" href="{% static 'linear/css/linear_create.css' %}">
+    <link rel="stylesheet" href="{% static 'dynamic/css/dynamic_create.css' %}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
     <title> Dynamic Programming </title>
     <script type="text/javascript">
         var x = 0;
         var y = 0;
         var n = 0;
+        var id = 1;
+        var edge_id = 0;
+        var network = null;
         var type= "";
         $(document).ready(function(){
             $("#fill").click(function(){
                 $("#options").empty();
                 $("#storage-options").empty();
                 $("#data").empty();
+                document.getElementById("network").style.display = "none";
                 $("#run").empty();
                 type = $("#type").val();
                 if (type == "route"){
-
+                    create_route();
                 } else if (type == "invest"){
                     create_invest_options();
                 } else if (type == "production"){
@@ -31,6 +37,196 @@
                 }
             });
         });
+
+        function create_route(){
+            document.getElementById("network").style.display = "block";
+            id = 1;
+            edge_id = 1;
+            var input_nodes = [
+                {
+                    id:1,
+                    group:"start",
+                    label:"1",
+                    level: 0},
+                ];
+            var input_edges = [];
+            function destroy() {
+                if (network !== null) {
+                    network.destroy();
+                    network = null;
+                }
+            }
+
+            var nodes = new vis.DataSet(input_nodes);
+            var edges = new vis.DataSet(input_edges);
+            
+            var container = document.getElementById('network');
+
+            var data = {
+                nodes: nodes,
+                edges: edges
+            };
+            var options = {
+                edges:{
+                    arrows: 'to',
+                    color: '#7C7C7C',
+                },
+                groups:{
+                    start: {
+                        shape: 'circle',
+                        color: '#2bff67'
+                    },
+                    end: {
+                        shape: 'circle',
+                        color: '#e62222'
+                    },
+                    node: {
+                        shape: 'circle',
+                        color: '#c9c9c9'
+                    }
+                },
+                interaction:{keyboard:false},
+                manipulation: {
+                    addNode: function(data, callback){
+                        document.getElementById("node-operation").innerText = "Add Node";
+                        editNode(data, clearNodePopUp, callback);
+                    },
+                    editNode: function(data, callback){
+                        document.getElementById("node-operation".innerText) = "Edit Node";
+                        editNode(data, cancelNodeEdit, callback);
+                    },
+                    addEdge: function(data, callback){
+                        document.getElementById("edge-operation").innerText = "Add Edge";
+                        editEdgeWithoutDrag(data, callback);
+                    },
+                    editEdge:{
+                        editWithoutDrag: function(data, callback){
+                            document.getElementById("edge-operation").innerText = "Edit Edge";
+                            editEdgeWithoutDrag(data, callback);
+                        }
+                    },
+                },
+            };
+            network = new vis.Network(container, data, options);
+
+            var run = $("<button/>", {
+                id: "run-method",
+                type: "button",
+                class: "btn btn-success",
+                onClick: "get_data_output();"
+            }).html("Run Optimization");
+            $("#run").append(run);
+        }
+
+        function editNode(data, cancelAction, callback){
+            if(data.id in network.body.nodes){
+                document.getElementById("node-type").style.display = "none";
+                if(data.group == "start"){
+                    document.getElementById("node-type").value = "start";
+                    $("#node-type").change();
+                    document.getElementById("node-saveButton").onclick = saveEditNodeData.bind(this, data, callback);
+                    document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
+                    document.getElementById("node-popUp").style.display = "block";
+                } else if(data.group == "node"){
+                    document.getElementById("node-type").value = "node";
+                    $("#node-type").change();
+                    document.getElementById("node-saveButton").onclick = saveEditNodeData.bind(this, data, callback);
+                    document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
+                    document.getElementById("node-popUp").style.display = "block";
+                } else{
+                    document.getElementById("node-type").value = "end";
+                    $("#node-type").change();
+                    document.getElementById("node-saveButton").onclick = saveEditNodeData.bind(this, data, callback);
+                    document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
+                    document.getElementById("node-popUp").style.display = "block";
+                }
+            } else{
+                document.getElementById("node-saveButton").onclick = saveNodeData.bind(this, data, callback);
+                document.getElementById("node-cancelButton").onclick = cancelAction.bind(this, callback);
+                document.getElementById("node-popUp").style.display = "block";
+            }
+        }
+        function clearNodePopUp() {
+            document.getElementById("node-saveButton").onclick = null;
+            document.getElementById("node-cancelButton").onclick = null;
+            document.getElementById("node-popUp").style.display = "none";
+        }
+        function clearEditNodePopUp() {
+            document.getElementById("node-saveButton").onclick = null;
+            document.getElementById("node-cancelButton").onclick = null;
+            document.getElementById("node-popUp").style.display = "none";
+        }
+        function cancelNodeEdit(callback) {
+            clearEditNodePopUp();
+            document.getElementById("node-type").style.display = "block";
+            callback(null);
+        }
+        function saveEditNodeData(data, callback){
+            data.group = document.getElementById("node-type").value;
+            clearNodePopUp();
+            callback(data);
+            document.getElementById("node-type").style.display = "block";
+        }
+        function saveNodeData(data, callback){
+            data.id = ++id;
+            data.group = document.getElementById("node-type").value;
+            data.label = data.id.toString();
+            clearNodePopUp();
+            callback(data);
+        }
+        function editEdgeWithoutDrag(data, callback){
+            if (data.id in network.body.edges){
+                document.getElementById("edge-label").value = data.label;
+                document.getElementById("edge-saveButton").onclick = saveEditEdgeData.bind(this, data, callback);
+                document.getElementById("edge-cancelButton").onclick = cancelEdgeEdit.bind(this, callback);
+                document.getElementById("edge-popUp").style.display = "block";
+            } else{
+                document.getElementById("edge-label").value = "";
+                document.getElementById("edge-saveButton").onclick = saveEdgeData.bind(this, data, callback);
+                document.getElementById("edge-cancelButton").onclick = cancelEdgeEdit.bind(this, callback);
+                document.getElementById("edge-popUp").style.display = "block";
+            }
+        }
+        function clearEdgePopUp() {
+            document.getElementById("edge-saveButton").onclick = null;
+            document.getElementById("edge-cancelButton").onclick = null;
+            document.getElementById("edge-popUp").style.display = "none";
+        }
+        function cancelEdgeEdit(callback) {
+            clearEdgePopUp();
+            callback(null);
+        }
+        function saveEditEdgeData(data, callback){
+            data.label = document.getElementById("edge-label").value;
+            clearEdgePopUp();
+            callback(data);
+        }
+        function saveEdgeData(data, callback){
+            data.id = ++edge_id;
+            data.label = document.getElementById("edge-label").value;
+            clearEdgePopUp();
+            callback(data);
+        }
+        $(document).ready(function(){
+            $("#edit-node-type").change(function(){
+                var nodeType = $(this).attr("value");
+            })
+        });
+        $(document).ready(function(){
+            $("#node-type").change(function(){
+                $(this).find("option:selected").each(function(){
+                    var optionValue = $(this).attr("value");
+                    if(optionValue){
+                        $(".input").not("." + optionValue).hide();
+                        $("." + optionValue).show();
+                    } else{
+                        $(".box").hide();
+                    }
+                });
+            }).change();
+        });
+
+
 
         function create_invest_options(){
             $("#options").append($("<p/>").html("Options"));
@@ -74,59 +270,6 @@
                 min: "1",
                 id: "x-axis",
                 placeholder: "No. Financial Units"
-            });
-            table_body.append(row.append(item.append(input)));
-            $("#options").append(table_body);
-            var item = $("<button/>",{
-                type: "button",
-                class: "btn btn-info",
-                id: "invest-set",
-                onClick: "set_data_table();"
-            }).html("Set Options");
-            $("#options").append(item);
-        }
-        function create_production_options(){
-            $("#options").append($("<p/>").html("Options"));
-            var table_body = $("<table/>", {
-                class: "table"
-            }) ;
-            var row = $("<tr/>");
-            var item = $("<td/>");
-            var input = $("<input/>", {
-                type: "text",
-                class: "form-control",
-                id: "y-axis-description",
-                placeholder: "Type of Production Stations"
-            });
-            row.append(item.append(input));
-            var item = $("<td/>");
-            var input = $("<input/>", {
-                type: "number",
-                class: "form-control",
-                step: "1",
-                min: "1",
-                id: "y-axis",
-                placeholder: "No. Production Stations"
-            });
-            row.append(item.append(input));
-            table_body.append(row);
-            var row = $("<tr/>");
-            var item = $("<td/>");
-            var input = $("<input/>", {
-                type: "text",
-                class: "form-control",
-                id: "x-axis-description",
-                placeholder: "Type of Production Enhancement"
-            });
-            row.append(item.append(input));
-            var item = $("<td/>");
-            var input = $("<input/>", {
-                type: "number",
-                class: "form-control",
-                step: "1",
-                min: "1",
-                id: "x-axis",
-                placeholder: "No. Enhancement Units"
             });
             table_body.append(row.append(item.append(input)));
             $("#options").append(table_body);
@@ -227,6 +370,37 @@
             div.append($("<span/>", {
                 class: "input-group-text"
             }).html(")"));
+            $("#storage-options").append(div);
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("Production Batch"));
+            div.append($("<input/>", {
+                type: "number",
+                step: "1",
+                min: "1",
+                id: "production-batch"
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("Storage Batch"));
+            div.append($("<input/>", {
+                type: "number",
+                step: "1",
+                min: "1",
+                id: "storage-batch"
+            }));
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html("Start Stock"));
+            div.append($("<input/>", {
+                type: "number",
+                step: "1",
+                min: "1",
+                id: "start-stock"
+            }));
             $("#storage-options").append(div);
             var div = $("<div/>", {
                 class: "input-group mb-3"
@@ -387,6 +561,9 @@
             temp.storage_cost.push(parseFloat($("#g").val()));
             temp.storage_cost.push(parseFloat($("#h").val()));
             temp.periods = n;
+            temp.prod_batch = parseInt($("#production-batch").val());
+            temp.store_batch = parseInt($("#storage-batch").val());
+            temp.start_stock = parseInt($("#start-stock").val());
             return temp;
         }
 
@@ -435,21 +612,39 @@
                 return temp_arr;
             }
         }
+        function collect_route(){
+            var output = {};
+            var network_nodes = Object.keys(network.getPositions());
+            var network_edges = Object.keys(network.body.edges);
+            var output_nodes = [];
+            var output_edges = [];
+            network_nodes.forEach(element => {
+                var temp = {};
+                temp.id = network.body.nodes[element].options.id;
+                temp.group = network.body.nodes[element].options.group;
+                temp.label = network.body.nodes[element].options.label;
+                output_nodes.push(Object.assign({}, temp));
+            });
+            network_edges.forEach(element => {
+                var temp = {};
+                temp.id = network.body.edges[element].options.id;
+                temp.from = network.body.edges[element].options.from;
+                temp.to = network.body.edges[element].options.to;
+                temp.label = network.body.edges[element].options.label;
+                output_edges.push(Object.assign({}, temp));
+            });
+            output.nodes = output_nodes;
+            output.edges = output_edges;
+            return output;
+        }
 
         function get_data_output(){
             var output_data = {};
             output_data.title = $("#title").val();
             output_data.type = type;
             if (type == "route"){
-
+                output_data.data = collect_route();
             } else if (type == "invest"){
-                output_data.options = collect_options();
-                output_data.data = collect_table_data();
-                if (!output_data.data.length){
-                    alert("Fill all the fields in the data table!");
-                    return;
-                }
-            } else if (type == "production"){
                 output_data.options = collect_options();
                 output_data.data = collect_table_data();
                 if (!output_data.data.length){
@@ -464,6 +659,7 @@
                     return;
                 }
             }
+            console.log(output_data);
             ajax_post(output_data);
         }
 
@@ -488,6 +684,22 @@
     <body>
         <h2>Create your dataset</h2>
         <br>
+        <div id="node-popUp">
+            <span id="node-operation">node</span> <br>
+            <select name="node-type" id="node-type">
+                <option value="node" selected="selected">node</option>
+                <option value="start">start</option>
+                <option value="end">terminal</option>
+            </select>
+            <input type="button" class="btn btn-secondary" value="save" id="node-saveButton">
+            <input type="button" class="btn btn-secondary" value="cancel" id="node-cancelButton">
+        </div>
+        <div id="edge-popUp">
+            <span id="edge-operation">edge</span> <br>
+            <input type="number" class="form-control" placeholder="distance" id="edge-label" min="0">
+            <input type="button" class="btn btn-secondary" value="save" id="edge-saveButton">
+            <input type="button" class="btn btn-secondary" value="cancel" id="edge-cancelButton">
+        </div>
         <div class="row">    
             <div class="col-1"></div>
             <div class="col-10"> 
@@ -497,7 +709,6 @@
                     <select id="type" class="custom-select" >
                         <option value="route">Optimal Route</option>
                         <option value="invest">Investment Programming</option>
-                        <option value="production">Production Planning</option>
                         <option value="store">Production and Store Planning</option>
                     </select>
                     <button type="button" class="btn btn-info" id="fill">Fill Dataset</button>
@@ -536,6 +747,13 @@
             <div class="col-10">
                 <div id="data">
                     
+                </div>
+                <div id="network">
+                    <div class="vis-network">
+                        <div class="vis-manipulation"></div>
+                        <div class="vis-edit-mode"></div>
+                        <button class="vis-close"></button>
+                    </div>
                 </div>
             </div>
             <div class="col-1"></div>

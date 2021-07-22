@@ -2,10 +2,10 @@ from django import forms
 from django.core.validators import FileExtensionValidator
 from django.forms import widgets
 
+
 DYNAMIC_PROGRAMMING_OPTIONS = [
     ('route', 'Optimal route'),
     ('invest', 'Investment Planning'),
-    ('production', 'Production Planning'),
     ('store', 'Production and Store Planning')
 ]
 

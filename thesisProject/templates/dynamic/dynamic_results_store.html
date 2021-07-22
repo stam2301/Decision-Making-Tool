@@ -1,0 +1,331 @@
+{% extends "mainApp/base.html" %}
+{% load static %}
+
+{% block title %}Dynamic Programming{% endblock %}
+
+{% block head %}
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title> Dynamic Programming </title>
+    <script type="text/javascript">
+        var input_data = {{ input|safe }};
+        var output_data = {{ output|safe }};
+
+        //options
+        $(document).ready(function(){
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
+            text = "Production Cost Function: C<sub>x</sub>= (";
+            text = text + (input_data.options.production_cost[0]).toString() + "+ ν&#215;" + (input_data.options.production_cost[1]).toString() + ") &#215; x +";
+            text = text + "(" + (input_data.options.production_cost[2]).toString() + "+ ν&#215;" + (input_data.options.production_cost[3]).toString() + ")";
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(text));
+            $("#options").append(div);
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
+            text = "Storage Cost Function: C<sub>x</sub>= (";
+            text = text + (input_data.options.storage_cost[0]).toString() + "+ ν&#215;" + (input_data.options.storage_cost[1]).toString() + ") &#215; a +";
+            text = text + "(" + (input_data.options.storage_cost[2]).toString() + "+ ν&#215;" + (input_data.options.storage_cost[3]).toString() + ")";
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(text));
+            $("#options").append(div);
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
+            text = "Production Batch: " + (input_data.options.prod_batch).toString();
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(text));
+            text = "Storage Batch: " + (input_data.options.store_batch).toString();
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(text));
+            text = "Start Stock: " + (input_data.options.start_stock).toString();
+            div.append($("<span/>", {
+                class: "input-group-text"
+            }).html(text));
+            $("#options").append(div);
+        });
+
+        //input data
+        $(document).ready(function(){
+            var table_body = $("<table/>", {
+                class: "table"
+            });
+            var row = $("<tr/>");
+            var item = $("<th/>", {
+                scope: "col"
+            }).html("Period");
+            row.append(item);
+            for (i=0; i<input_data.options.periods; i++){
+                item = $("<td/>").html((i+1).toString());
+                row.append(item);
+            }
+            table_body.append(row);
+            var row = $("<tr/>");
+            var item = $("<th/>", {
+                scope: "col"
+            }).html("Demand");
+            row.append(item);
+            for (i=0; i<input_data.options.periods; i++){
+                item = $("<td/>").html(input_data.data[i][0]);
+                row.append(item);
+            }
+            table_body.append(row);
+            $("#input").append(table_body);
+        });
+
+        //results
+        $(document).ready(function(){
+            if((output_data.solution.routes).length == 1){
+
+                var text = "There is one optimal production planning.";
+                var text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+                text = "";
+                for (i=0; i<input_data.options.periods; i++){
+                    if (i== input_data.options.periods - 1){
+                        text = text + (output_data.solution.routes[0][i]).toString()+" per period.";
+                    } else{
+                        text = text + (output_data.solution.routes[0][i]).toString()+" - ";
+                    } 
+                }
+                text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+                text = "The profit from this planning is "+ (output_data.solution.f_min).toString() + ".";
+                text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+            } else {
+                var text = "There are "+ (output_data.solution.routes).length + "optimal production plannings.";
+                text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+                for (j=0; j<(output_data.solution.routes).length; j++){
+                    for (i=0; i<input_data.options.periods; i++){
+                        if (i== input_data.options.periods - 1){
+                            text = text + (output_data.solution.routes[0][i]).toString()+" per financial period";
+                        } else{
+                            text = text + (output_data.solution.routes[0][i]).toString()+" - ";
+                        }
+                    }
+                    if (j==(output_data.solution.routes).length - 1){
+                        text = text +".";
+                    } else{
+                        text = text + ", "
+                    }
+                }
+                text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+                text = "The profit from these plannings is "+ (output_data.solution.f_min).toString() + ".";
+                text_area = $("<p/>").html(text);
+                $("#results").append(text_area);
+            }
+        });
+
+        //iterations
+        $(document).ready(function(){
+            for (const iteration in output_data.iterations){
+                var table_body = $("<table/>", {
+                    class: "table table-bordered"
+                });
+                var text = "Iteration: "+iteration+", Demand: "+input_data.data[iteration-1][0]
+                if (iteration ==input_data.options.periods){
+                    text = text + ", Start Stock: "+ input_data.options.start_stock;
+                }
+                var p = $("<p/>").text(text);
+                $("#tables").append(p);
+                if(iteration == 1){
+                    var row = $("<tr/>");
+                    var item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("S<sub>"+iteration+"</sub>");
+                    row.append(item);
+                    for (var i = 0; i<(output_data.iterations[iteration].s_nodes).length; i++){
+                        item = $("<td/>").html(output_data.iterations[iteration].s_nodes[i]);
+                        row.append(item);
+                    }
+                    table_body.append(row);
+                    row = $("<tr/>");
+                    item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("x<sub>"+iteration+"</sub><sup>*</sup>");
+                    row.append(item);
+                    for (var i = 0; i<(output_data.iterations[iteration].x_nodes).length;i++){
+                        item = $("<td/>").html(output_data.iterations[iteration].x_nodes[i]);
+                        row.append(item);
+                    }
+                    table_body.append(row);
+                    row = $("<tr/>");
+                    item = $("<th/>", {
+                        scope: "col",
+                        class: "text-center"
+                    }).html("F<sub>"+iteration+"</sub><sup>*</sup>(S<sub>1</sub>)");
+                    row.append(item);
+                    for (var i = 0; i<(output_data.iterations[iteration].f_nodes).length;i++){
+                        item = $("<td/>").html(output_data.iterations[iteration].f_nodes[i]);
+                        row.append(item);
+                    }
+                    table_body.append(row);
+                } else{
+                    table_length = 3 + (output_data.iterations[iteration].x_nodes).length;
+                    table_height = 1 + (output_data.iterations[iteration].s_nodes).length;
+                    for (j=0; j<table_height; j++){
+                        var row = $("<tr/>");
+                        for(i=0; i<table_length; i++){
+                            if (i==0 && j==0){
+                                var item = $("<th/>", {
+                                    scope: "col",
+                                    class: "text-center"
+                                }).html("S<sub>"+iteration+"</sub> &bsol; x<sub>"+iteration+"</sub>");
+                            } else if (j==0 && i>0 && i<table_length-2){
+                                var item = $("<th/>", {
+                                    scope: "col",
+                                    class: "text-center",
+                                    style: "color:#4287f5;"
+                                }).html((output_data.iterations[iteration].x_nodes[i-1]).toString());
+                            } else if(j == 0 && i==table_length-2){
+                                var item = $("<th/>", {
+                                    scope: "col",
+                                    class: "text-center"
+                                }).html("F<sub>"+iteration+"</sub><sup>*</sup>(S<sub>1</sub>)");
+                            } else if(j==0 && i==table_length-1){
+                                var item = $("<th/>", {
+                                    scope: "col",
+                                    class: "text-center"
+                                }).html("x<sub>"+iteration+"</sub><sup>*</sup>");
+                            } else if(i==0 && j>0){
+                                var item = $("<th/>", {
+                                    scope: "col",
+                                    class: "text-center"
+                                }).html((output_data.iterations[iteration].s_nodes[j-1]).toString());
+                            } else if(j>0 && i>0 && i<table_length-2){
+                                var item = $("<td/>", {
+                                    class: "text-center"
+                                }).html(output_data.iterations[iteration].table[j-1][i-1]);
+                            } else if(j > 0 && i==table_length-2){
+                                var item = $("<td/>", {
+                                    class: "text-center"
+                                }).html(output_data.iterations[iteration].f_nodes[j-1]);
+                            } else if (j > 0 && i==table_length-1){
+                                text = "";
+                                for (k=0; k<(output_data.iterations[iteration].x_min[j-1]).length; k++){
+                                    if (k==(output_data.iterations[iteration].x_min[j-1]).length -1){
+                                        text = text+(output_data.iterations[iteration].x_min[j-1][k]).toString();
+                                    } else{
+                                        text = text +(output_data.iterations[iteration].x_min[j-1][k]).toString()+",";
+                                    }
+                                }
+                                var item = $("<td/>", {
+                                    class: "text-center"
+                                }).html(text);
+                            }
+                            console.log("j:"+j.toString()+", i:"+i.toString());
+                            row.append(item);
+                        }
+                        table_body.append(row);
+                    }
+                }
+
+                $("#tables").append(table_body);
+            }
+        });
+    </script>
+{% endblock %}
+
+
+{% block body %}
+    <body>
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
+                <h2>{{title|safe }}</h2>
+                <div id="input-content">
+                    <div class="input-group mb-3">
+                        <span class="input-group-text" style="background-color: #b3cfff;">Problem Type: Production and Storage Planning</span>
+                    </div>
+                </div>
+            </div>
+            <div class="col-1">
+                <form id="submit_form" enctype="multipart/form-data" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" class="btn btn-primary" name="inspect" value="Manage Data">
+                    <br>
+                    <br>
+                    <input type="submit" class="btn btn-primary" name="new" value="New Input">
+                </form>
+
+            </div>
+            <div class="col-1">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-7">
+                <h4>Options</h4>
+                <div id="options">
+
+                </div>
+            </div>
+            <div class="col-4">
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-7">
+                <h4>Input Data</h4>
+                <div id="input">
+
+                </div>
+            </div>
+            <div class="col-4">
+
+            </div>
+
+        </div>
+
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
+                <h4>Optimal Solution</h4>
+                <div id="results">
+
+                </div>
+            </div>
+            <div class="col-2">
+
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-1">
+
+            </div>
+            <div class="col-9">
+                <h4>Iterations</h4>
+                <div id="tables">
+                    
+
+                </div>
+            </div>
+            <div class="col-2">
+
+            </div>
+        </div>
+    </body>
+
+{% endblock %}

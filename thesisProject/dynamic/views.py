@@ -5,8 +5,8 @@ import os, json, copy
 from mainApp.models import Method
 from .forms import upload_file_form
 from .utilities.store_algo import store_algo_main
-from .utilities.production_algo import production_algo_main
 from .utilities.invest_algo import invest_algo_main
+from .utilities.route_algo import route_algo_main
 
 
 def dynamic_index(request):
@@ -23,16 +23,17 @@ def upload_form(request):
                 new_method.method_type = 'Dynamic Programming'
                 json_file = request.FILES['upload_file']
                 json_input_data = json_file.read()
+                new_method.input_file = json.loads(json_input_data)
                 data = json.loads(json_input_data)
                 if request.POST.get('type') == 'route':
-                    print("HEY")
-                    return render(request, 'linear/linear_upload.html',{'form':input_form})
+                    new_method.input_file['options'] = dict({})
+                    new_method.input_file['type'] = "route"
+                    outfile = route_algo_main(data)
                 elif request.POST.get('type') == 'invest':
                     outfile = invest_algo_main(data)
                 elif request.POST.get('type') == 'production':
                     return render(request, 'linear/linear_upload.html',{'form':input_form})
                 new_method.output_file = outfile
-                new_method.input_file = json.loads(json_input_data)
                 new_method.save()
             else:
                 return render(request, 'linear/linear_upload.html',{'form':input_form})
@@ -46,7 +47,14 @@ def upload_form(request):
                 new_method.method_type = 'Dynamic Programming'
                 json_file = request.FILES['upload_file']
                 json_input_data = json_file.read()
-                new_method.input_file = json.loads(json_input_data)
+                data = json.loads(json_input_data)
+                if request.POST.get('type') == 'route':
+                    print(data)
+                    data['options'] = dict({})
+                    data['type'] = "route"
+                    for item in data['data']['nodes']:
+                        item['label'] = str(item['id'])
+                new_method.input_file = data
                 new_method.output_file = dict({})
                 new_method.save()
             else:
@@ -82,12 +90,14 @@ def ajax_create_and_calculate(request):
         del data['title']
         new_method.method_type = "Dynamic Programming"
         new_method.input_file = copy.deepcopy(data)
+        if data['type'] == "route":
+            new_method.input_file['options'] = dict({})
         if data['type'] == "store":
             outfile = store_algo_main(data)
         elif data['type'] == "invest":
             outfile = invest_algo_main(data)
-        elif data['type'] == "production":
-            outfile = production_algo_main(data)
+        elif data['type'] == "route":
+            outfile = route_algo_main(data)
         new_method.output_file = outfile
         new_method.save()
         return JsonResponse({"method_id": new_method.methodID}, status =200)
@@ -101,12 +111,14 @@ def ajax_calculate(request):
         method.title = data['title']
         del data['title']
         method.input_file = copy.deepcopy(data)
+        if data['type'] == "route":
+            method.input_file['options'] = dict({})
         if data['type'] == "store":
             outfile = store_algo_main(data)
         elif data['type'] == "invest":
             outfile = invest_algo_main(data)
-        elif data['type'] == "production":
-            outfile = production_algo_main(data)
+        elif data['type'] == "route":
+            outfile = route_algo_main(data)
         method.output_file = outfile
         method.save()
         return JsonResponse({"method_id": method.methodID}, status =200)
@@ -118,6 +130,10 @@ def results(request, method_id):
         output = method.output_file
         if input['type'] == "invest":
             return render(request, 'dynamic/dynamic_results_invest.html', context={"input": input, "output": output, "title":method.title})
+        elif input['type'] == "route":
+            return render(request, 'dynamic/dynamic_results_route.html', context={"input": input, "output": output, "title":method.title})
+        elif input['type'] == "store":
+            return render(request, 'dynamic/dynamic_results_store.html', context={"input": input, "output": output, "title":method.title})
     elif request.method == 'POST':
         if 'new' in request.POST:
             return HttpResponseRedirect(reverse('dynamic:dynamic_index'))

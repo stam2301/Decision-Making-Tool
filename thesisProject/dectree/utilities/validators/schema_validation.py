@@ -1,145 +1,155 @@
 import django
 from django.core.validators import BaseValidator
 import jsonschema
+import json
 
 
 schema = {
 	"$schema": "http://json-schema.org/draft-07/schema#",
-
-	"definitions": {
+	"definitions":{
 		"startNode":{
 			"type": "object",
 			"properties": {
 				"id": {"type": "integer"},
 				"level": {"type": "integer"},
-				"group": {"type": "string",
+				"label": {
+					"type": "string",
+					"enum": ["start"]},
+				"group": {
+					"type": "string",
 					"enum": ["startNode"]},
-				"label": {"type": "string",
-					"enum": ["start"]}
-			},
-			"required": ["id", "level", "group", "label"]
+				"criterion":{
+					"type": "string",
+					"enum": ["BAYES", "MAXIMIN", "MAXIMAX"]
+				},
+				"title":{
+					"type": "string",
+					"enum": ["BAYES", "MAXIMIN", "MAXIMAX"]
+				}
+			}
 		},
-		"decisionNode":{
+		"decision":{
 			"type": "object",
 			"properties": {
 				"id": {"type": "integer"},
 				"level": {"type": "integer"},
-				"group": {"type": "string",
+				"label": {"type": "string"},
+				"group": {
+					"type": "string",
 					"enum": ["decision"]},
-				"label": {"type": "string"}	
-			},
-			"required": ["id", "level", "group", "label"]
+				"criterion":{
+					"type": "string",
+					"enum": ["BAYES", "MAXIMIN", "MAXIMAX"]
+				},
+				"title":{
+					"type": "string",
+					"enum": ["BAYES", "MAXIMIN", "MAXIMAX"]
+				}
+			}
 		},
 		"chance":{
 			"type": "object",
 			"properties": {
 				"id": {"type": "integer"},
 				"level": {"type": "integer"},
-				"group": {"type": "string",
+				"group": {
+					"type": "string",
 					"enum": ["chance"]},
-				"label": {"type": "string",
-					"enum": ["BAYES", "MAXIMIN", "MAXIMAX"]},
-				"title": {"type": "string"}
-			},
-			"required": ["id", "level", "group", "label", "title"]
+				"label": {"type": "string"},
+				"cost": {"type": "number"}
+			}
 		},
 		"leaf":{
 			"type": "object",
 			"properties": {
 				"id": {"type": "integer"},
 				"level": {"type": "integer"},
-				"group": {"type": "string",
+				"group": {
+					"type": "string",
 					"enum": ["leaf"]},
-				"label": {"type": "string"}
-			},
-			"required": ["id", "level", "group", "label"]
+				"label": {"type": "string"},
+				"cost": {"type": "number"}
+			}
 		},
 		"research":{
 			"type": "object",
 			"properties": {
-				"id":{"type": "integer"},
+				"id": {"type": "integer"},
 				"level": {"type": "integer"},
-				"group": {"type": "string",
+				"crowd": {"type": "integer"},
+				"cost": {"type": "number"},
+				"group": {
+					"type": "string",
 					"enum": ["research"]},
 				"label": {"type": "string"},
-				"crowd": {"type": "integer"}
-			},
-			"required": ["id", "level", "group", "label", "crowd"]
-		},
-		"edge":{
-			"type": "object",
-			"properties": {
-				"id": {"type": "integer"},
-				"from": {"type": "integer"},
-				"to": {"type": "integer"},
-				"label": {"type": "string"}
-			},
-			"required": ["id", "from", "to"]
-		},
-		"chanceEdge":{
-			"type": "object",
-			"properties": {
-				"id": {"type": "integer"},
-				"from": {"type": "integer"},
-				"to": {"type": "integer"},
-				"label": {"type": "string",
-					"pattern": "^((U+0030)-(U+002E)-[0-9]{3})"}
-			},
-			"required": ["id", "from", "to", "label"]
-		},
-		"researchEdge":{
-			"type": "object",
-			"properties": {
-				"id": {"type": "integer"},
-				"from": {"type": "integer"},
-				"to": {"type": "integer"},
-				"label": {"type": "string"},
-				"situation_table": {"type": "array",
-					"items": {"type": "object",
-						"properties": {
-							"description": {"type": "string"},
-							"situation": {"type": "number"}
-						},
-						"required": ["description", "situation"]}},
-				"research_table": {"type": "array",
+				"chance_table": {
+					"type": "array",
 					"items": {
 						"type": "object",
 						"properties": {
-							"description": {"type": "string"},
-							"forecast": {"type": "array",
-								"items": {"type": "number"}}
-						},
-						"required": ["forecast"]
-					}}
-			},
-			"required": ["id", "from", "to", "situation_table", "research_table"]
-		}
-	},
-	"nodes":{
-		"type": "array",
-		"items": {
-			"AnyOf": [
-				{"$ref": "#/definitions/startNode"},
-				{"$ref": "#/definitions/decision"},
-				{"$ref": "#/definitions/chance"},
-				{"$ref": "#/definitions/leaf"},
-				{"$ref": "#/definitions/research"}]
+							"chance": {"type": "number"},
+							"description":{"type": "string"}
+						}
+					}
+				},
+				"research_table":{
+					"type": "array",
+					"items": {
+						"type": "object",
+						"properties": {
+							"forecast": {
+								"type": "array",
+								"items": {"type": "number"}
+							},
+							"description": {"type": "string"}
+						}
+					}
+				}
 			}
-	},
-	"edges": {
-		"type": "array",
-		"items": {
-			"AnyOf": [
-				{"$ref": "#/definitions/edge"},
-				{"$ref": "#/definitions/chanceEdge"},
-				{"$ref": "#/definitions/researchEdge"}]
 		}
-	}
+	},
+	"type": "object",
+	"properties":{
+		"nodes": {
+			"type": "array",
+			"items": [
+				{
+					"AnyOf":[
+					{"$ref": "#/definitions/startNode"},
+					{"$ref": "#/definitions/decision"},
+					{"$ref": "#/definitions/chance"},
+					{"$ref": "#/definitions/leaf"},
+					{"$ref": "#/definitions/research"},
+					]
+				}]
+		},
+		"edges": {
+			"type": "array",
+			"items": {
+					"type": "object",
+					"properties": {
+						"id": {"type": "integer"},
+						"to": {"type": "integer"},
+						"from": {"type": "integer"},
+						"label": {"type": "string"}
+					},
+					"required": [
+						"id",
+			            "to",
+			            "from",
+			            "label"
+					]
+			}
+		}
+	},
+	"required": [
+		"nodes",
+		"edges"
+	]
 }
-
 class JSONSchemaValidator(BaseValidator):
-	def compare(self, input, schema):
+	def compare(self, value, schema):
 		try:
-			jsonschema.validate(input.read(), schema)
+			jsonschema.validate(value, schema)
 		except jsonschema.exceptions.ValidationError:
-			raise django.core.exceptions.ValidationError('%(value)s failed JSON schema check', params={'value': input})
+			raise django.core.exceptions.ValidationError('%(value)s failed JSON schema check', params={'value': value})

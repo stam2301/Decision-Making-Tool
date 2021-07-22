@@ -66,8 +66,7 @@ def tree_construct (current_node, rem_edges, from_node, nodes):
                 
 
     elif nodes[from_node]['group'] == "decision":
-        
-        current_node['criterion'] == nodes[from_node]['criterion']
+        current_node['criterion'] = nodes[from_node]['criterion']
         current_node['leafs'] = list([])
         current_node['chances'] = list([])
         current_node['decisions'] = list([])
