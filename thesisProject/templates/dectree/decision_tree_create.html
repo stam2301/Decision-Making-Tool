@@ -6,7 +6,7 @@
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <title> Decision Tree </title>
-    <link rel="stylesheet" href="{% static 'dectree/css/dectree_create_network.css' %}">
+    <link rel="stylesheet" href="{% static 'dectree/css/dectree_create.css' %}">
     <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
     <script type="text/javascript">
@@ -71,11 +71,11 @@
                 interaction: {keyboard:false},
                 manipulation: {
                     addNode: function(data, callback){
-                        document.getElementById("node-operation").innerText = "Add Node";
+                        document.getElementById("node-operation").innerText = "Προσθήκη Κόμβου";
                         editNode(data,clearNodePopUp, callback);
                     },
                     editNode: function(data, callback){
-                        document.getElementById("node-operation").innerText = "Edit Node";
+                        document.getElementById("node-operation").innerText = "Επεξεργασία Κόμβου";
                         editNode(data,cancelNodeEdit, callback);
 
                     },
@@ -86,32 +86,32 @@
                             return;
                         }
                         if (data.from == data.to) {
-                            alert("You are not able to connect a node to itself!");
+                            alert("Δεν επιτρέπεται να ενώσετε έναν κόμβο με τον εαυτό του!");
                             callback(null);
                             return;
                         } else if (network.body.nodes[data.to].options.group == "leaf" && network.body.nodes[data.from].options.group == "leaf"){
-                            alert("You are not able to create a connection between leaf nodes");
+                            alert("Δεν μπορείτε να δημιουργήσετε ακμή μεταξύ δύο κόμβων φύλλων!");
                             callback(null);
                             return;
                         } else if (network.body.nodes[data.to].options.group == "chance" && network.body.nodes[data.from].options.group == "chance"){
-                            alert("You are not able to create a connection between chance nodes");
+                            alert("Δεν μπορείτε να δημιουργήσετε ακμή μεταξύ δύο κόμβων ευκαιρίας!");
                             callback(null);
                             return;
                         } else if (network.body.nodes[data.to].options.group == "research" && network.body.nodes[data.from].options.group == "research"){
-                            alert("You are not able to create a connection between chance nodes");
+                            alert("Δεν μπορείτε να δημιουργήσετε ακμή μεταξύ δύο κόμβων μελέτης!");
                             callback(null);
                             return;
                         } else if ((network.body.nodes[data.to].options.group == "research" && (network.body.nodes[data.from].options.group == "chance" || network.body.nodes[data.from].options.group == "leaf" || network.body.nodes[data.from].options.group == "research"))){
-                            alert("You are not able to perform a research to a leaf, chance or research node!");
+                            alert("Ένας κόμβος μελέτης μπορεί να ενωθεί μόνο με κόμβο απόφασης!");
                             callback(null);
                             return;
                         }
-                        document.getElementById("edge-operation").innerText = "Add Edge";
+                        document.getElementById("edge-operation").innerText = "Προσθήκη Ακμής";
                         editEdgeWithoutDrag(data, callback);
                     },
                     editEdge:{
                         editWithoutDrag: function(data, callback){
-                            document.getElementById("edge-operation").innerText = "Edit Edge";
+                            document.getElementById("edge-operation").innerText = "Επεξεργασία Ακμής";
                             editEdgeWithoutDrag(data, callback);
                         }
                     },
@@ -300,9 +300,9 @@
                 // filling in the popup DOM elements
                 if (data.id in network.body.edges){
                     document.getElementById("edge-label").value = data.label;
-                    document.getElementById("edge-label").placeholder = "description";
+                    document.getElementById("edge-label").placeholder = "Περιγραφή";
                     if (((network.body.nodes[data.to].options.group == "chance") && (network.body.nodes[data.to].options.level < network.body.nodes[data.from].options.level))||((network.body.nodes[data.from].options.group == "chance" )&&(network.body.nodes[data.to].options.level > network.body.nodes[data.from].options.level))){
-                        document.getElementById("edge-label").placeholder = "ex. 0.46:label";
+                        document.getElementById("edge-label").placeholder = "Παράδειγμα 0.46:Περιγραφή";
                     } else if (network.body.nodes[data.to].options.group == "research") {
                         //αριθμός αποτελεσμάτων έρευνας
                         var rows = network.body.nodes[data.to].options.crowd;
@@ -317,9 +317,9 @@
 
                 } else {
                     document.getElementById("edge-label").value = "";
-                    document.getElementById("edge-label").placeholder = "description";
+                    document.getElementById("edge-label").placeholder = "Περιγραφή";
                     if (((network.body.nodes[data.to].options.group == "chance") && (network.body.nodes[data.to].options.level < network.body.nodes[data.from].options.level))||((network.body.nodes[data.from].options.group == "chance" )&&(network.body.nodes[data.to].options.level > network.body.nodes[data.from].options.level))){
-                        document.getElementById("edge-label").placeholder = "ex. 0.46:label";
+                        document.getElementById("edge-label").placeholder = "Παράδειγμα 0.46:Περιγραφή";
                     } else if (network.body.nodes[data.to].options.group == "research") {
                         //αριθμός αποτελεσμάτων έρευνας
                         var rows = network.body.nodes[data.to].options.crowd;
@@ -351,7 +351,7 @@
             function saveEditEdgeData(data, callback) {
                 var edge_name = document.getElementById("edge-label").value;
                 if ((((network.body.nodes[data.to].options.group == "chance") && (network.body.nodes[data.to].options.level < network.body.nodes[data.from].options.level))||((network.body.nodes[data.from].options.group == "chance" )&&(network.body.nodes[data.to].options.level > network.body.nodes[data.from].options.level))) && (!check_edge_chance(edge_name))) {
-                    alert("Your edge data are invalid! \n ex. 0.46:Description");
+                    alert("Τα δεδομένα της ακμής δεν είναι έγκυρα! \n Παράδειγμα: 0.46:Περιγραφή");
                     clearEdgePopUp();
                     callback(null);
                     return;
@@ -380,7 +380,7 @@
                 if (typeof data.from === "object") data.from = data.from.id;
                 var edge_name = document.getElementById("edge-label").value;
                 if ((((network.body.nodes[data.to].options.group == "chance") && (network.body.nodes[data.to].options.level < network.body.nodes[data.from].options.level))||((network.body.nodes[data.from].options.group == "chance" )&&(network.body.nodes[data.to].options.level > network.body.nodes[data.from].options.level))) && (!check_edge_chance(edge_name))) {
-                    alert("Your edge data are invalid! \n ex. 0.46:Description");
+                    alert("Τα δεδομένα της ακμής δεν είναι έγκυρα! \n Παράδειγμα: 0.46:Περιγραφή");
                     clearEdgePopUp();
                     callback(null);
                     return;
@@ -675,74 +675,114 @@
 {% endblock %}
 
 {% block body %}
-<body>
-    <h2>Create your Decision Tree</h2>
-    <input type="text" class="form-control" id="tree_title" placeholder="Tree Title" class="col-8">
-    <br>
+    <div class="card card-nav-tabs text-center card-white">
+        <div class="card-header">
+            <h3 class="card-title">Δέντρα Αποφάσεων - Δημιουργία</h3>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="card card-nav-tabs text-center">
+                        <input type="text" class="form-control" id="tree_title" placeholder="Τίτλος">
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-nav-tabs text-center">
+                        <button class="btn btn-lg btn-warning" id="reset" onclick="init();">Επαναφορά</button>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card card-nav-tabs text-center">
+                        <button class="btn btn-lg btn-success" id="send_data">Εκτέλεση</button>
+                    </div>
+                </div>
+            </div>
+            <br>
+            <br>
+            <div class="row">
+                <div id="mynetwork" class="col-12" style="align-items: center;">
+                    <div class="vis-network">
+                        <div class="vis-manipulation"></div>
+                        <div class="vis-edit-mode"></div>
+                        <button class="vis-close"></button>
+                    </div>
+                </div>
+                <form id="submit_form" enctype="multipart/form-data" method="POST">
+                    {% csrf_token %}
+                </form>
+            </div>
+        </div>
+    </div>
+    
+
     <div id="node-popUp">
-        <span id="node-operation">node</span> <br>
-            <select name="node-type" id="node-type">
-                <option value="leaf" selected="selected">leaf</option>
-                <option value="chance">chance</option>
-                <option value="decision">decision</option>
-                <option value="research">research</option>
+        <span id="node-operation">node</span> 
+        <br>
+        <br>
+            <select name="node-type" class="form-control" id="node-type">
+                <option value="leaf" selected="selected">φύλλο</option>
+                <option value="chance">ευκαιρία</option>
+                <option value="decision">απόφαση</option>
+                <option value="research">μελέτη</option>
                 <option hidden value="start"></option>
             </select>
             <div class="decision input">
-                <select name="decision-type-input" id="decision-type-input">
+                <br>
+                <br>
+                <select name="decision-type-input" class="form-control" id="decision-type-input">
                     <option value="BAYES">BAYES</option>
                     <option value="MAXIMIN">MAXIMIN</option>
                     <option value="MAXIMAX">MAXIMAX</option>   
                 </select>
-                <input type="number" class="form-control" step="0.001" placeholder="cost" aria-label="cost" aria-describedby="basic-describeby" id="decision-cost-input">
+                <br>
+                <br>
+                <input type="number" class="form-control" step="0.001" placeholder="Κόστος/Κέρδος" aria-label="cost" aria-describedby="basic-describeby" id="decision-cost-input">
             </div>
             <div class="chance input">
-                <input type="number" class="form-control" step="0.001" placeholder="cost" aria-label="cost" aria-describedby="basic-describeby" id="chance-cost-input">
+                <br>
+                <br>
+                <input type="number" class="form-control" step="0.001" placeholder="Κέρδος/Κόστος" aria-label="cost" aria-describedby="basic-describeby" id="chance-cost-input">
             </div>
             <div class="leaf input">
-                <input type="number" class="form-control" step="0.001" placeholder="cost" aria-label="cost" aria-describedby="basic-describeby" id="leaf-cost-input">
+                <br>
+                <br>
+                <input type="number" class="form-control" step="0.001" placeholder="Κέρδος/Κόστος" aria-label="cost" aria-describedby="basic-describeby" id="leaf-cost-input">
             </div>
             <div class="research input">
-                <input type="number" class="form-control" step="0.001" placeholder="Research Cost" aria-label="cost" aria-describedby="basic-describeby" id="research-cost-input">
-                <input type="number" class="form-control" min="1" max="10" placeholder="Number of results" aria-label="cost" aria-describedby="basic-describeby" id="research-number-input">    
+                <br>
+                <br>
+                <input type="number" class="form-control" step="0.001" placeholder="Κόστος Μελέτης" aria-label="cost" aria-describedby="basic-describeby" id="research-cost-input">
+                <br>
+                <br>
+                <input type="number" class="form-control" min="1" max="10" placeholder="Αριθμός Αποτελεσμάτων Μελέτης" aria-label="cost" aria-describedby="basic-describeby" id="research-number-input">    
             </div>
             <div class="start input">
-                <select name="start-type-input" id="start-type-input">
+                <select name="start-type-input" class="form-control" id="start-type-input">
                     <option value="BAYES">BAYES</option>
                     <option value="MAXIMIN">MAXIMIN</option>
                     <option value="MAXIMAX">MAXIMAX</option>   
                 </select>
             </div>
-            <input type="button" class="btn btn-secondary" value="save" id="node-saveButton">
-            <input type="button" class="btn btn-secondary" value="cancel" id="node-cancelButton">
+            <div>
+                <button class="btn btn-lg btn-success" id="node-saveButton" >Αποθήκευση</button>
+                <button class="btn btn-lg btn-warning" id="node-cancelButton" >Ακύρωση</button>
+                
+                
+            </div>
+            
     </div>
     <div id="edge-popUp">
-        <span id="edge-operation">edge</span> <br>
-            <input type="text" class="form-control" placeholder="description" id="edge-label">
+        <span id="edge-operation">edge</span> 
+        <br>
+        <br>
+            <input type="text" class="form-control" placeholder="Περιγραφή" id="edge-label">
+            <br>
             <div id="research-table"></div>
-        <input type="button" class="btn btn-secondary" value="save" id="edge-saveButton">
-        <input type="button" class="btn btn-secondary" value="cancel" id="edge-cancelButton">
-    </div>
-    <br>
-    <div class="row">
-        <div id="mynetwork" class="col-8">
-            <div class="vis-network">
-                <div class="vis-manipulation"></div>
-                <div class="vis-edit-mode"></div>
-                <button class="vis-close"></button>
-            </div>
-        </div>
-        <div class="col-4">
-            <button class="btn btn-lg btn-primary" id="send_data">Calculate Tree</button>
             <br>
             <br>
-            <button class="btn btn-lg btn-primary" id="reset" onclick="init();">Reset</button>
-        </div>
-        <form id="submit_form" enctype="multipart/form-data" method="POST">
-            {% csrf_token %}
-        </form>
+            <button class="btn btn-lg btn-success" id="edge-saveButton" >Αποθήκευση</button>
+            <button class="btn btn-lg btn-warning" id="edge-cancelButton" >Ακύρωση</button>
     </div>
-</body>
     
 
 {% endblock %}

@@ -11,9 +11,25 @@
 {% endblock %}
 
 {% block body %}
-    
-<h1> Decision Tree Application</h1>
-    <a href="{% url 'dectree:dectree_upload' %}" class="btn btn-lg btn-primary">Upload JSON File</a>
-    <a href="{% url 'dectree:create_tree' %}" class="btn btn-lg btn-primary">Create Your Tree</a>
+
+<div class="card card-nav-tabs text-center card-white">
+    <div class="card-header">
+        <h3 class="card-title">Δέντρα Αποφάσεων</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="card card-nav-tabs text-center">
+                    <a href="{% url 'dectree:dectree_upload' %}" class="btn btn-primary">Ανέβασμα Αρχείο JSON</a>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card card-nav-tabs text-center">
+                    <a href="{% url 'dectree:create_tree' %}" class="btn  btn-primary">Δημιουργία Δέντρου</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 {% endblock %}

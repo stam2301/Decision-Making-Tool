@@ -1,17 +1,52 @@
 {% load static %}
 <!DOCTYPE html>
 <html>
+    {% load static %}
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
-        <title>{% block title %}Polyprismatic Application in Decision Making Systems{% endblock %}</title>
+        <link rel="apple-touch-icon" sizes="76x76" href="{% static 'assets/img/apple-icon.png' %}">
+        <link rel="icon" type="image/png" href="{% static 'assets/img/favicon.png'    %}">
+        <title>Συστήματα Αποφάσεων - {% block title %} {% endblock %}</title>
         <link rel="stylesheet" type="text/css" href="{% static 'mainApp/css/main.css' %}">
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.perfect-scrollbar/0.6.7/js/min/perfect-scrollbar.jquery.min.js"></script>
+        <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+        <!-- Nucleo Icons -->
+        <link href="{% static 'assets/css/nucleo-icons.css' %}" rel="stylesheet" />
+        <!-- CSS Files -->
+        <link href="{% static 'assets/css/black-dashboard.css' %}" rel="stylesheet" />
+        
+        
         {% block head %}{% endblock %}
     </head>
-    {% block body %} {% endblock %}
+    <body class="white-content">
+      <div class="wrapper">
+
+        {% include 'includes/sidebar.html' %}
     
+        <div class="main-panel white-content" >
     
+          
     
+          <div class="content">
+    
+            {% block body %}{% endblock body %}
+    
+          </div>
+    
+          {% include 'includes/footer.html' %}
+    
+        </div>
+        
+      </div>
+    
+      {% include 'includes/scripts.html' %}
+    
+      {% include 'includes/scripts-sidebar.html' %}
+      
+            
+      
+      </body>
 </html>

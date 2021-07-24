@@ -64,7 +64,7 @@ def results(request, method_id):
         data = method.output_file
         db_edges = data['edges']
         db_nodes = data['nodes']
-        return render(request, 'dectree/decision_tree_results.html', context={"db_nodes": db_nodes, "db_edges":db_edges})
+        return render(request, 'dectree/decision_tree_results.html', context={"db_nodes": db_nodes, "db_edges":db_edges, "title":method.title})
     elif request.method == 'POST':
         if 'new' in request.POST:
             return HttpResponseRedirect(reverse('dectree:dectree_index'))

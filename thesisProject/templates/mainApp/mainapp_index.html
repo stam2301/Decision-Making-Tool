@@ -11,27 +11,36 @@
 {% endblock %}
 
 {% block body %}
-    <body>    
-        <h1> Main Application</h1>
-        <div class="row">
-            <div class="col-2">
+        <div class="card card-nav-tabs text-center">
+            <div class="card-header">
+                <h3 class="card-title">Εφαρμογές</h3>
             </div>
-            <div class="col-2">
-                <a href="{% url 'dectree:dectree_index' %}" class="btn btn-lg btn-primary">Decision Tree Application</a>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card card-nav-tabs text-center">
+                            <h4 class="card-header card-header-info">Δέντρα Αποφάσεων</h4>
+                            <p class="card-text">Σε αυτή την εφαρμογή μπορείτε να λύσετε προβλήματα Δέντρων Αποφάσεων</p>
+                            <a href="{% url 'dectree:dectree_index' %}" class="btn btn-primary">Είσοδος</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-nav-tabs text-center">
+                            <h4 class="card-header card-header-info">Δυναμικός Προγραμματισμός</h4>
+                            <p class="card-text">Σε αυτή την εφαρμογή μπορείτε να λύσετε προβλήματα Δυναμικού Προγραμματισμού</p>
+                            <a href="{% url 'dynamic:dynamic_index' %}" class="btn btn-primary">Είσοδος</a>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card card-nav-tabs text-center">
+                            <h4 class="card-header card-header-info">Γραμμικός Προγραμματισμός</h4>
+                            <p class="card-text">Σε αυτή την εφαρμογή μπορείτε να λύσετε προβλήματα Γραμμικού Προγραμματισμού</p>
+                            <a href="{% url 'linear:linear_index' %}" class="btn btn-primary">Είσοδος</a>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="col-1"> 
-            </div>
-            <div class="col-2">
-                <a href="{% url 'linear:linear_index' %}" class="btn btn-lg btn-primary">Linear Programming Application</a>
-            </div>
-            <div class="col-1">
-            </div>
-            <div class="col-2">
-                <a href="{% url 'dynamic:dynamic_index' %}" class="btn btn-lg btn-primary">Dynamic Programming Application</a>
-            </div>
-            <div class="col-2">
-            </div>   
         </div>
         
-    </body>
+        
 {% endblock %}

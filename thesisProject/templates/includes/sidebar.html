@@ -1,0 +1,34 @@
+
+
+    <div class="sidebar">
+      <div class="sidebar-wrapper">
+        <div class="logo">
+          <a
+             href="{% url 'mainapp:mainapp_index' %}" class="simple-text logo-normal text-center">
+            ΜΕΝΟΥ
+          </a>
+        </div>
+
+        <ul class="nav">
+          <li>
+            <a href="{% url 'mainapp:mainapp_index' %}">
+              <i class="tim-icons icon-chart-pie-36"></i>
+              <p>Εφαρμογές</p>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'mainapp:mainapp_index' %}">
+              <i class="fas fa-info"></i>
+              <p>Πληροφορίες</p>
+            </a>
+          </li>
+          <li>
+            <a href="{% url 'mainapp:mainapp_index' %}">
+              <i class="tim-icons icon-chart-pie-36 icon-notes"></i>
+              <p>Οδηγίες</p>
+            </a>
+          </li>        
+        </ul>
+        
+      </div>
+    </div>
