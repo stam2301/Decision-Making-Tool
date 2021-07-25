@@ -108,6 +108,7 @@ def ajax_calculate(request):
         data = json.loads(request_getdata)
         method = Method.objects.get(methodID=data['id'])
         del data['id']
+        print(data)
         method.title = data['title']
         del data['title']
         method.input_file = copy.deepcopy(data)

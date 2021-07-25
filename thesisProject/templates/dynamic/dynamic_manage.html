@@ -81,20 +81,20 @@
                 interaction:{keyboard:false},
                 manipulation: {
                     addNode: function(data, callback){
-                        document.getElementById("node-operation").innerText = "Add Node";
+                        document.getElementById("node-operation").innerText = "Προσθήκη Κόμβου";
                         editNode(data, clearNodePopUp, callback);
                     },
                     editNode: function(data, callback){
-                        document.getElementById("node-operation".innerText) = "Edit Node";
+                        document.getElementById("node-operation").innerText = "Επεξεργασία Κόμβου";
                         editNode(data, cancelNodeEdit, callback);
                     },
                     addEdge: function(data, callback){
-                        document.getElementById("edge-operation").innerText = "Add Edge";
+                        document.getElementById("edge-operation").innerText = "Προσθήκη Ακμής";
                         editEdgeWithoutDrag(data, callback);
                     },
                     editEdge:{
                         editWithoutDrag: function(data, callback){
-                            document.getElementById("edge-operation").innerText = "Edit Edge";
+                            document.getElementById("edge-operation").innerText = "Επεξεργασία Ακμής";
                             editEdgeWithoutDrag(data, callback);
                         }
                     },
@@ -107,7 +107,7 @@
                 type: "button",
                 class: "btn btn-success",
                 onClick: "get_data_output();"
-            }).html("Run Optimization");
+            }).html("Εκτέλεση");
             $("#run").append(run);
         
         }
@@ -230,14 +230,16 @@
         function render_store_options(){
             $("#run").empty();
             $("#data").empty();
-            $("#storage-options").append($("<p/>").html("Options"));
-            
+            var form = $("<form/>");
+            var row = $("<div/>", {
+                class: "row",
+            });
             var div = $("<div/>", {
                 class: "input-group mb-3"
             });
             div.append($("<span/>", {
                 class: "input-group-text"
-            }).html("Production Cost Function:"));
+            }).html("Συνάρτηση Κόστους Παραγωγής:"));
             div.append($("<span/>", {
                 class: "input-group-text"
             }).html("C<sub>x</sub> = ("));
@@ -277,13 +279,16 @@
             div.append($("<span/>", {
                 class: "input-group-text"
             }).html(")"));
-            $("#storage-options").append(div);
+            form.append((row.append(div)));
+            var row = $("<div/>", {
+                class: "row",
+            });
             var div = $("<div/>", {
                 class: "input-group mb-3"
             });
             div.append($("<span/>", {
                 class: "input-group-text"
-            }).html("Storage Cost Function:"));
+            }).html("Συνάρτηση Κόστους Αποθήκευσης:"));
             div.append($("<span/>", {
                 class: "input-group-text"
             }).html("C<sub>a</sub> = ("));
@@ -323,13 +328,16 @@
             div.append($("<span/>", {
                 class: "input-group-text"
             }).html(")"));
-            $("#storage-options").append(div);
+            form.append(row.append(div));
+            var row = $("<div/>", {
+                class: "row",
+            });
             var div = $("<div/>", {
                 class: "input-group mb-3"
             });
             div.append($("<span/>", {
                 class: "input-group-text"
-            }).html("Production Batch"));
+            }).html("Παρτίδα Παραγωγής"));
             div.append($("<input/>", {
                 type: "number",
                 step: "1",
@@ -339,7 +347,7 @@
             }));
             div.append($("<span/>", {
                 class: "input-group-text"
-            }).html("Storage Batch"));
+            }).html("Παρτίδα Αποθήκευσης"));
             div.append($("<input/>", {
                 type: "number",
                 step: "1",
@@ -347,9 +355,16 @@
                 id: "storage-batch",
                 value: options.store_batch
             }));
+            form.append(row.append(div));
+            var row = $("<div/>", {
+                class: "row",
+            });
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
             div.append($("<span/>", {
                 class: "input-group-text"
-            }).html("Start Stock"));
+            }).html("Αρχικό Απόθεμα"));
             div.append($("<input/>", {
                 type: "number",
                 step: "1",
@@ -357,13 +372,9 @@
                 id: "start-stock",
                 value: options.start_stock
             }));
-            $("#storage-options").append(div);
-            var div = $("<div/>", {
-                class: "input-group mb-3"
-            });
             div.append($("<span/>", {
                 class: "input-group-text"
-            }).html("Set number of periods"));
+            }).html("Αριθμός Περιόδων"));
             div.append($("<input/>", {
                 type: "number",
                 step: "1",
@@ -371,22 +382,32 @@
                 id: "no-periods",
                 value: options.periods
             }));
-            div.append($("<button/>",{
+            form.append(row.append(div));
+            var row = $("<div/>", {
+                class: "row",
+                style: "text-align: center;"
+            });
+            var col =  $("<div/>",{
+                class: "col"
+            });
+            col.append($("<button/>",{
                 type: "button",
-                class: "btn btn-info",
+                class: "btn btn-success",
                 onClick: "set_storage_data();"
-            }).html("Set Options"));
-            $("#storage-options").append(div);
-            $("#storage-options").append($("<p/>").html("ν: Period, x: Production amount, a: Storage amount"));
+            }).html("Ορισμός Επιλογών"));
+            form.append(row.append(col));
+            $("#storage-options").append(form);
+            $("#storage-options").append($("<p/>").html("ν: Περίοδος, x: Μέγεθος Παραγωγής, a: Μέγεθος Αποθήκευσης")); 
         }
 
         function render_invest_options(){
-            $("#options").append($("<p/>").html("Options"));
-            var table_body = $("<table/>", {
-                class: "table"
-            }) ;
-            var row = $("<tr/>");
-            var item = $("<td/>");
+            var form = $("<form/>");
+            var row = $("<div/>",{
+                class: "row"
+            });
+            var col =  $("<div/>",{
+                class: "col"
+            });
             var input = $("<input/>", {
                 type: "text",
                 class: "form-control",
@@ -394,8 +415,11 @@
                 placeholder: "Type of Financial Periods",
                 value: options.y_description
             });
-            row.append(item.append(input));
-            var item = $("<td/>");
+            col.append(input);
+            row.append(col);
+            var col =  $("<div/>",{
+                class: "col"
+            });
             var input = $("<input/>", {
                 type: "number",
                 class: "form-control",
@@ -405,10 +429,16 @@
                 placeholder: "No. Financial Periods",
                 value: options.y
             });
-            row.append(item.append(input));
-            table_body.append(row);
-            var row = $("<tr/>");
-            var item = $("<td/>");
+            col.append(input);
+            row.append(col);
+            form.append(row);
+            form.append($("<br/>"));
+            var row = $("<div/>",{
+                class: "row"
+            });
+            var col =  $("<div/>",{
+                class: "col"
+            });
             var input = $("<input/>", {
                 type: "text",
                 class: "form-control",
@@ -416,8 +446,11 @@
                 placeholder: "Type of Financial Units",
                 value: options.x_description
             });
-            row.append(item.append(input));
-            var item = $("<td/>");
+            col.append(input);
+            row.append(col);
+            var col =  $("<div/>",{
+                class: "col"
+            });
             var input = $("<input/>", {
                 type: "number",
                 class: "form-control",
@@ -427,15 +460,28 @@
                 placeholder: "No. Financial Units",
                 value: options.x
             });
-            table_body.append(row.append(item.append(input)));
-            $("#options").append(table_body);
-            var item = $("<button/>",{
-                type: "button",
-                class: "btn btn-info",
+            col.append(input);
+            row.append(col);
+            form.append(row);
+            form.append($("<br/>"));
+            form.append($("<br/>"));
+
+            var row = $("<div/>",{
+                class: "row",
+                style: "text-align: center;"
+            });
+            var col =  $("<div/>",{
+                class: "col"
+            });
+            var input = $("<button/>",{
+                class: "btn btn-success",
                 id: "invest-set",
                 onClick: "set_data_table();"
-            }).html("Set Options");
-            $("#options").append(item);
+            }).html("Ορισμός Επιλογών");
+            col.append(input);
+            row.append(col);
+            form.append(row);
+            $("#options").append(form);
         }
         function render_store_data(){
             $("#run").empty();
@@ -446,16 +492,15 @@
             }
             var table_body = $("<table/>", {
                 class: "table",
-                id: "data-table"
+                id: "data-table",
+                style: "width: 90%;"
             });
-            var caption = $("<p/>").html("Insert your data here");
-            $("#data").append(caption);
             n = Number($("#no-periods").val());
             var row = $("<tr/>");
-            row.append($("<th/>").html("Period"));
-            row.append($("<th/>").html("Demand"));
-            row.append($("<th/>").html("Production Capacity"));
-            row.append($("<th/>").html("Storage Capacity"));
+            row.append($("<th/>").html("Περίοδος"));
+            row.append($("<th/>").html("Ζήτηση"));
+            row.append($("<th/>").html("Δυνατότητα Παραγωγής"));
+            row.append($("<th/>").html("Δυνατότητα Αποθήκευσης"));
             table_body.append(row);
 
             for (var j = 1; j<n+1; j++){
@@ -483,7 +528,7 @@
                 type: "button",
                 class: "btn btn-success",
                 onClick: "get_data_output();"
-            }).html("Run Optimization");
+            }).html("Εκτέλεση");
             $("#run").append(run);
         }
 
@@ -493,10 +538,9 @@
 
             var table_body = $("<table/>", {
                 class: "table",
-                id: "data-table"
+                id: "data-table",
+                style: "width: 90%;"
             });
-            var caption = $("<p/>").html("Insert your data here");
-            $("#data").append(caption);
             x = 3+options.x;
             y = 2+options.y;
             for (var j = 0; j<y; j++){
@@ -550,7 +594,7 @@
                 type: "button",
                 class: "btn btn-success",
                 onClick: "get_data_output();"
-            }).html("Run Optimization");
+            }).html("Εκτέλεση");
             $("#run").append(run);
         }
 
@@ -628,20 +672,20 @@
                 interaction:{keyboard:false},
                 manipulation: {
                     addNode: function(data, callback){
-                        document.getElementById("node-operation").innerText = "Add Node";
+                        document.getElementById("node-operation").innerText = "Προσθήκη Κόμβου";
                         editNode(data, clearNodePopUp, callback);
                     },
                     editNode: function(data, callback){
-                        document.getElementById("node-operation".innerText) = "Edit Node";
+                        document.getElementById("node-operation".innerText) = "Επεξεργασία Κόμβου";
                         editNode(data, cancelNodeEdit, callback);
                     },
                     addEdge: function(data, callback){
-                        document.getElementById("edge-operation").innerText = "Add Edge";
+                        document.getElementById("edge-operation").innerText = "Προσθήκη Ακμής";
                         editEdgeWithoutDrag(data, callback);
                     },
                     editEdge:{
                         editWithoutDrag: function(data, callback){
-                            document.getElementById("edge-operation").innerText = "Edit Edge";
+                            document.getElementById("edge-operation").innerText = "Επεξεργασία Ακμής";
                             editEdgeWithoutDrag(data, callback);
                         }
                     },
@@ -654,75 +698,107 @@
                 type: "button",
                 class: "btn btn-success",
                 onClick: "get_data_output();"
-            }).html("Run Optimization");
+            }).html("Εκτέλεση");
             $("#run").append(run);
         }
 
         function create_invest_options(){
-            $("#options").append($("<p/>").html("Options"));
-            var table_body = $("<table/>", {
-                class: "table"
-            }) ;
-            var row = $("<tr/>");
-            var item = $("<td/>");
-            var input = $("<input/>", {
+            var form = $("<form/>");
+            var row = $("<div/>",{
+                class: "row"
+            });
+            var col =  $("<div/>",{
+                class: "col"
+            });
+            var input = input = $("<input/>", {
                 type: "text",
                 class: "form-control",
                 id: "y-axis-description",
-                placeholder: "Type of Financial Periods"
+                placeholder: "Τύπος Οικονομικών Περιόδων"
             });
-            row.append(item.append(input));
-            var item = $("<td/>");
+            col.append(input);
+            row.append(col);
+            var col =  $("<div/>",{
+                class: "col"
+            });
             var input = $("<input/>", {
                 type: "number",
                 class: "form-control",
                 step: "1",
                 min: "1",
                 id: "y-axis",
-                placeholder: "No. Financial Periods"
+                placeholder: "Αριθμός Οικονομικών Περιόδων"
             });
-            row.append(item.append(input));
-            table_body.append(row);
-            var row = $("<tr/>");
-            var item = $("<td/>");
+            col.append(input);
+            row.append(col);
+            form.append(row);
+            form.append($("<br/>"));
+            
+            var row = $("<div/>",{
+                class: "row"
+            });
+            var col =  $("<div/>",{
+                class: "col"
+            });
             var input = $("<input/>", {
                 type: "text",
                 class: "form-control",
                 id: "x-axis-description",
-                placeholder: "Type of Financial Units"
+                placeholder: "Τύπος Οικονομικών Μονάδων"
             });
-            row.append(item.append(input));
-            var item = $("<td/>");
+            col.append(input);
+            row.append(col);
+            var col =  $("<div/>",{
+                class: "col"
+            });
             var input = $("<input/>", {
                 type: "number",
                 class: "form-control",
                 step: "1",
                 min: "1",
                 id: "x-axis",
-                placeholder: "No. Financial Units"
+                placeholder: "Αριθμός Οικονομικών Μονάδων"
             });
-            table_body.append(row.append(item.append(input)));
-            $("#options").append(table_body);
-            var item = $("<button/>",{
-                type: "button",
-                class: "btn btn-info",
+            col.append(input);
+            row.append(col);
+            form.append(row);
+            form.append($("<br/>"));
+            form.append($("<br/>"));
+            
+            var row = $("<div/>",{
+                class: "row",
+                style: "text-align: center;"
+            });
+            var col =  $("<div/>",{
+                class: "col"
+            });
+            var input = $("<button/>",{
+                class: "btn btn-success",
                 id: "invest-set",
                 onClick: "set_data_table();"
-            }).html("Set Options");
-            $("#options").append(item);
+            }).html("Ορισμός Επιλογών");
+            col.append(input);
+            row.append(col);
+            form.append(row);
+            $("#options").append(form);
+
         }
 
         function create_storage_options(){
             $("#run").empty();
             $("#data").empty();
-            $("#storage-options").append($("<p/>").html("Options"));
-            
+            $("#storage-options").append($("<p/>").html("Επιλογές"));
+            var form = $("<form/>");
+            var row = $("<div/>", {
+                class: "row",
+            });
+
             var div = $("<div/>", {
-                class: "input-group mb-3"
+                class: "input-group mb-3",
             });
             div.append($("<span/>", {
                 class: "input-group-text"
-            }).html("Production Cost Function:"));
+            }).html("Συνάρτηση Κόστους Παραγωγής:"));
             div.append($("<span/>", {
                 class: "input-group-text"
             }).html("C<sub>x</sub> = ("));
@@ -758,13 +834,16 @@
             div.append($("<span/>", {
                 class: "input-group-text"
             }).html(")"));
-            $("#storage-options").append(div);
+            form.append((row.append(div)));
+            var row = $("<div/>", {
+                class: "row",
+            });
             var div = $("<div/>", {
                 class: "input-group mb-3"
             });
             div.append($("<span/>", {
                 class: "input-group-text"
-            }).html("Storage Cost Function:"));
+            }).html("Συνάρτηση Κόστους Αποθήκευσης:"));
             div.append($("<span/>", {
                 class: "input-group-text"
             }).html("C<sub>a</sub> = ("));
@@ -800,13 +879,16 @@
             div.append($("<span/>", {
                 class: "input-group-text"
             }).html(")"));
-            $("#storage-options").append(div);
+            form.append(row.append(div));
+            var row = $("<div/>", {
+                class: "row",
+            });
             var div = $("<div/>", {
                 class: "input-group mb-3"
             });
             div.append($("<span/>", {
                 class: "input-group-text"
-            }).html("Production Batch"));
+            }).html("Παρτίδα Παραγωγής"));
             div.append($("<input/>", {
                 type: "number",
                 step: "1",
@@ -815,42 +897,56 @@
             }));
             div.append($("<span/>", {
                 class: "input-group-text"
-            }).html("Storage Batch"));
+            }).html("Παρτίδα Παραγωγής"));
             div.append($("<input/>", {
                 type: "number",
                 step: "1",
                 min: "1",
                 id: "storage-batch"
             }));
+            
+            form.append(row.append(div));
+            var row = $("<div/>", {
+                class: "row",
+            });
+            var div = $("<div/>", {
+                class: "input-group mb-3"
+            });
             div.append($("<span/>", {
                 class: "input-group-text"
-            }).html("Start Stock"));
+            }).html("Αρχικό Απόθεμα"));
             div.append($("<input/>", {
                 type: "number",
                 step: "1",
                 min: "1",
                 id: "start-stock"
             }));
-            $("#storage-options").append(div);
-            var div = $("<div/>", {
-                class: "input-group mb-3"
-            });
             div.append($("<span/>", {
                 class: "input-group-text"
-            }).html("Set number of periods"));
+            }).html("Αριθμός Περιόδων"));
             div.append($("<input/>", {
                 type: "number",
                 step: "1",
                 min: "1",
                 id: "no-periods"
             }));
-            div.append($("<button/>",{
+            form.append(row.append(div));
+            var row = $("<div/>", {
+                class: "row",
+                style: "text-align: center;"
+            });
+            var col =  $("<div/>",{
+                class: "col"
+            });
+            
+            col.append($("<button/>",{
                 type: "button",
-                class: "btn btn-info",
+                class: "btn btn-success",
                 onClick: "set_storage_data();"
-            }).html("Set Options"));
-            $("#storage-options").append(div);
-            $("#storage-options").append($("<p/>").html("ν: Period, x: Production amount, a: Storage amount")); 
+            }).html("Ορισμός Επιλογών"));
+            form.append(row.append(col));
+            $("#storage-options").append(form);
+            $("#storage-options").append($("<p/>").html("ν: Περίοδος, x: Μέγεθος Παραγωγής, a: Μέγεθος Αποθήκευσης")); 
         }
 
         function set_storage_data(){
@@ -862,16 +958,15 @@
             }
             var table_body = $("<table/>", {
                 class: "table",
-                id: "data-table"
+                id: "data-table",
+                style: "width: 90%;"
             });
-            var caption = $("<p/>").html("Insert your data here");
-            $("#data").append(caption);
             n = Number($("#no-periods").val());
             var row = $("<tr/>");
-            row.append($("<th/>").html("Period"));
-            row.append($("<th/>").html("Demand"));
-            row.append($("<th/>").html("Production Capacity"));
-            row.append($("<th/>").html("Storage Capacity"));
+            row.append($("<th/>").html("Περίοδος"));
+            row.append($("<th/>").html("Ζήτηση"));
+            row.append($("<th/>").html("Δυνατότητα Παραγωγής"));
+            row.append($("<th/>").html("Δυνατότητα Αποθήκευσης"));
             table_body.append(row);
 
             for (var j = 1; j<n+1; j++){
@@ -898,7 +993,7 @@
                 type: "button",
                 class: "btn btn-success",
                 onClick: "get_data_output();"
-            }).html("Run Optimization");
+            }).html("Εκτέλεση");
             $("#run").append(run);
         }
 
@@ -911,10 +1006,9 @@
             }
             var table_body = $("<table/>", {
                 class: "table",
-                id: "data-table"
+                id: "data-table",
+                style: "width: 90%;"
             });
-            var caption = $("<p/>").html("Insert your data here");
-            $("#data").append(caption);
             x = 3+Number($("#x-axis").val());
             y = 2+Number($("#y-axis").val());
             for (var j = 0; j<y; j++){
@@ -967,7 +1061,7 @@
                 type: "button",
                 class: "btn btn-success",
                 onClick: "get_data_output();"
-            }).html("Run Optimization");
+            }).html("Εκτέλεση");
             $("#run").append(run);      
         }
         function collect_options(){
@@ -1119,86 +1213,90 @@
 {% endblock %}
 
 {% block body %}
-    <body>
-        <h2>Create your dataset</h2>
-        <br>
-        <div id="node-popUp">
-            <span id="node-operation">node</span> <br>
-            <select name="node-type" id="node-type">
-                <option value="node" selected="selected">node</option>
-                <option value="start">start</option>
-                <option value="end">terminal</option>
-            </select>
-            <input type="button" class="btn btn-secondary" value="save" id="node-saveButton">
-            <input type="button" class="btn btn-secondary" value="cancel" id="node-cancelButton">
-        </div>
-        <div id="edge-popUp">
-            <span id="edge-operation">edge</span> <br>
-            <input type="number" class="form-control" placeholder="distance" id="edge-label" min="0">
-            <input type="button" class="btn btn-secondary" value="save" id="edge-saveButton">
-            <input type="button" class="btn btn-secondary" value="cancel" id="edge-cancelButton">
-        </div>
-        <div class="row">    
-            <div class="col-1"></div>
-            <div class="col-10"> 
-                <div class="input-group mb-3" id="info-group">
-                    <input type="text" class="form-control" id="title" placeholder="Enter Title">
-                    <span class= "input-group-text">Select Problem Type:</span>
-                    <select id="type" class="custom-select" >
-                        <option value="route">Optimal Route</option>
-                        <option value="invest">Investment Programming</option>
-                        <option value="production">Production Planning</option>
-                        <option value="store">Production and Store Planning</option>
-                    </select>
-                    <button type="button" class="btn btn-info" id="fill">Fill Dataset</button>
-                    <div class="input-group-append" id="run">
-                      </div>
+<div class="card card-nav-tabs text-center card-white">
+    <div class="card-header">
+        <h3 class="card-title">Δυναμικός Προγραμματισμός - Επεξεργασία</h3>
+    </div>
+    <div class="card-body">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card card-nav-tabs text-center">
+                    <input type="text" class="form-control" id="title" value="{{ input_title | safe }}" placeholder="Τίτλος">
                 </div>
             </div>
-            <div class="col-1"></div>  
+            <div class="col-md-3">
+                <select id="type" class="form-control" >
+                    <option value="route">Βέλτιστη Διαδρομή</option>
+                    <option value="invest">Προγραμματισμός Επενδύσεων</option>
+                    <option value="store">Προγραμματισμός Παραγωγής και Αποθήκευσης</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <div class="card card-nav-tabs text-center">
+                    <button class="btn btn-success" type="button" id="fill">Συμπλήρωση</button>
+                </div>
+            </div>
+            <div class="col-md-3" id="run">
+
+            </div>
         </div>
         <br>
         <br>
         <div class="row">
-            <div class="col-3"></div>
-            <div class="col-6">
-                <div id="options">
-
-                </div>
-            </div>
-            <div class="col-3"></div>
-
+            <div class="col-md-2"></div>
+            <div class="col-md-8" id="options"></div>
+            <div class="col-md-2"></div>
         </div>
         <div class="row">
-            <div class="col-3"></div>
-            <div class="col-6">
-                <div id="storage-options">
-
-                </div>
-            </div>
-            <div class="col-3"></div>
+            <div class="col-md-2"></div>
+            <div class="col-md-8" id="storage-options" style="text-align: center;"></div>
+            <div class="col-md-2"></div>
 
         </div>
         <br>
         <br>
-        <div class="row">
-            <div class="col-1"></div> 
-            <div class="col-10">
-                <div id="data">
-                    
-                </div>
-                <div id="network">
-                    <div class="vis-network">
-                        <div class="vis-manipulation"></div>
-                        <div class="vis-edit-mode"></div>
-                        <button class="vis-close"></button>
-                    </div>
+        <div class="row" id="data">
+
+        </div>
+        <div class="row" >
+            <div id="network" class="col-12" style="align-items: center;">
+                <div class="vis-network">
+                    <div class="vis-manipulation"></div>
+                    <div class="vis-edit-mode"></div>
+                    <button class="vis-close"></button>
                 </div>
             </div>
-            <div class="col-1"></div>
         </div>
-        <form id="submit_form" enctype="multipart/form-data" method="POST">
-            {% csrf_token %}
-        </form>
-    </body>
+        
+    </div>
+</div>
+
+
+<form id="submit_form" enctype="multipart/form-data" method="POST">
+    {% csrf_token %}
+</form>
+<div id="node-popUp">
+    <span id="node-operation">node</span> 
+    <br>
+    <br>
+    <select name="node-type" class="form-control" id="node-type">
+        <option value="node" selected="selected">κόμβος</option>
+        <option value="start">εκκίνηση</option>
+        <option value="end">τερματισμός</option>
+    </select>
+    <div>
+        <button class="btn btn-lg btn-success" id="node-saveButton" >Αποθήκευση</button>
+        <button class="btn btn-lg btn-warning" id="node-cancelButton" >Ακύρωση</button>
+    </div>
+</div>
+<div id="edge-popUp">
+    <span id="edge-operation">edge</span> 
+    <br>
+    <br>
+    <input type="number" class="form-control" placeholder="απόσταση" id="edge-label" min="0">
+    <br>
+    <br>
+    <button class="btn btn-lg btn-success" id="edge-saveButton" >Αποθήκευση</button>
+    <button class="btn btn-lg btn-warning" id="edge-cancelButton" >Ακύρωση</button>
+</div>
 {% endblock %}
