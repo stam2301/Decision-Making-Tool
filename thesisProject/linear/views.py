@@ -97,7 +97,6 @@ def ajax_create_and_calculate(request):
         new_method.method_type = 'Linear Programming'
         new_method.input_file = copy.deepcopy(data)
         if data['number'] == 2:
-            #print(simplex_main(copy.deepcopy(data)))
             outfile = linear_prog_main(data)
             if (outfile['success'] == False):
                 return JsonResponse({"error": outfile['message']}, status=400)
@@ -118,7 +117,6 @@ def ajax_calculate(request):
         del data['title']
         method.input_file = copy.deepcopy(data)
         if data['number'] == 2:
-            #print(simplex_main(copy.deepcopy(data)))
             outfile = linear_prog_main(data)
             if (outfile['success'] == False):
                 return JsonResponse({"error": outfile['message']}, status=400)
@@ -140,9 +138,9 @@ def results(request, method_id):
             plots = plot_data['plots']
             output = method.output_file
             del output['success']
-            return render(request, 'linear/linear_results_am.html', context={"plots_data": plots, "plot_labels": labels, "axis_descriptions": input_data["objective"]["descriptions"], "output": output, "input": method.input_file})
+            return render(request, 'linear/linear_results_am.html', context={"plots_data": plots, "plot_labels": labels, "axis_descriptions": input_data["objective"]["descriptions"], "output": output, "input": method.input_file, "title": method.title})
         else:
-            return render(request, 'linear/linear_results.html', context={"output": method.output_file, "input": method.input_file})
+            return render(request, 'linear/linear_results.html', context={"output": method.output_file, "input": method.input_file, "title": method.title})
     elif request.method == 'POST':
         if 'new' in request.POST:
             return HttpResponseRedirect(reverse('linear:linear_index'))

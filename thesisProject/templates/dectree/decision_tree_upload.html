@@ -4,6 +4,16 @@
 {% block title %} Δέντρα Αποφάσεων {% endblock %}
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <script type="text/javascript">
+        $(document).ready(function(){
+            $("#id_upload_file").change(function(){
+                $("#file-name").val($("#id_upload_file").val().replace(/C:\\fakepath\\/i, ''));
+            });
+        });
+        $(document).ready(function(){
+            $("#file-name").val($("#id_upload_file").val().replace(/C:\\fakepath\\/i, ''));
+         });
+   </script>
 {% endblock %}
 {% block body %}
         <div class="card card-nav-tabs text-center card-white">
@@ -18,12 +28,26 @@
                         <br>
                         <input type="text" name="title" maxlength="50" class="form-control" placeholder="Δώστε έναν τίτλο" title="" required="" id="id_title">
                     </div>
-                    <div class="form-group">
-                        <label class="btn btn-default" for="id_upload_file">
-                            Διάλεξε Αρχείο <i class="fas fa-file-upload"></i> 
-                        </label>
-                        <input type="file" name="upload_file" class="form-control-file" title="" required="" id="id_upload_file">
-                        
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+        
+                        </div>
+                        <div class="form-group col-md-8">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label class="btn btn-success btn" for="id_upload_file">
+                                        Διάλεξε Αρχείο
+                                    </label>
+                                    <input type="file" name="upload_file" class="form-control-file" title="" required="" id="id_upload_file">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <input type="text" id="file-name" class="form-control" placeholder="Το αρχείο σας..." disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-2">
+        
+                        </div>
                     </div>
                     <p>{{ form.fieldname.errors.as_text }}</p>
                     <input type="submit" class="btn btn-primary" name="manage" value="Επεξεργασία">

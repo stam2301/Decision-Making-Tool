@@ -47,12 +47,12 @@
         }
 
         function render_route(){
-            document.getElementById("network").style.display = "block";
+            document.getElementById("mynetwork").style.display = "block";
             destroy();
             var nodes = new vis.DataSet(input_nodes);
             var edges = new vis.DataSet(input_edges);
 
-            var container = document.getElementById('network');
+            var container = document.getElementById('mynetwork');
 
             var data = {
                 nodes: nodes,
@@ -104,7 +104,7 @@
             var run = $("<button/>", {
                 id: "run-method",
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "get_data_output();"
             }).html("Εκτέλεση");
             $("#run").append(run);
@@ -391,7 +391,7 @@
             });
             col.append($("<button/>",{
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "set_storage_data();"
             }).html("Ορισμός Επιλογών"));
             form.append(row.append(col));
@@ -474,7 +474,7 @@
             });
             var input = $("<button/>",{
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 id: "invest-set",
                 onClick: "set_data_table();"
             }).html("Ορισμός Επιλογών");
@@ -526,7 +526,7 @@
             var run = $("<button/>", {
                 id: "run-method",
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "get_data_output();"
             }).html("Εκτέλεση");
             $("#run").append(run);
@@ -592,7 +592,7 @@
             var run = $("<button/>", {
                 id: "run-method",
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "get_data_output();"
             }).html("Εκτέλεση");
             $("#run").append(run);
@@ -606,7 +606,7 @@
             $("#fill").click(function(){
                 $("#options").empty();
                 $("#storage-options").empty();
-                document.getElementById("network").style.display = "none";
+                document.getElementById("mynetwork").style.display = "none";
                 $("#data").empty();
                 $("#run").empty();
                 type = $("#type").val();
@@ -623,7 +623,7 @@
         });
 
         function create_route(){
-            document.getElementById("network").style.display = "block";
+            document.getElementById("mynetwork").style.display = "block";
             id = 1;
             edge_id = 1;
             var input_nodes = [
@@ -644,7 +644,7 @@
             var nodes = new vis.DataSet(input_nodes);
             var edges = new vis.DataSet(input_edges);
             
-            var container = document.getElementById('network');
+            var container = document.getElementById('mynetwork');
 
             var data = {
                 nodes: nodes,
@@ -696,7 +696,7 @@
             var run = $("<button/>", {
                 id: "run-method",
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "get_data_output();"
             }).html("Εκτέλεση");
             $("#run").append(run);
@@ -774,7 +774,7 @@
             });
             var input = $("<button/>",{
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 id: "invest-set",
                 onClick: "set_data_table();"
             }).html("Ορισμός Επιλογών");
@@ -942,7 +942,7 @@
             
             col.append($("<button/>",{
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "set_storage_data();"
             }).html("Ορισμός Επιλογών"));
             form.append(row.append(col));
@@ -992,7 +992,7 @@
             var run = $("<button/>", {
                 id: "run-method",
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "get_data_output();"
             }).html("Εκτέλεση");
             $("#run").append(run);
@@ -1060,7 +1060,7 @@
             var run = $("<button/>", {
                 id: "run-method",
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "get_data_output();"
             }).html("Εκτέλεση");
             $("#run").append(run);      
@@ -1232,12 +1232,13 @@
                     <option value="store">Προγραμματισμός Παραγωγής και Αποθήκευσης</option>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2"></div>
+            <div class="col-md-2">
                 <div class="card card-nav-tabs text-center">
-                    <button class="btn btn-success" type="button" id="fill">Συμπλήρωση</button>
+                    <button class="btn btn-success btn-sm" type="button" id="fill">Συμπλήρωση</button>
                 </div>
             </div>
-            <div class="col-md-3" id="run">
+            <div class="col-md-2" id="run">
 
             </div>
         </div>
@@ -1262,7 +1263,7 @@
             </div>
         </div>
         <div class="row" >
-            <div id="network" class="col-12" style="align-items: center;">
+            <div id="mynetwork" class="col-12" style="align-items: center;">
                 <div class="vis-network">
                     <div class="vis-manipulation"></div>
                     <div class="vis-edit-mode"></div>
@@ -1270,14 +1271,17 @@
                 </div>
             </div>
         </div>
+        <div class="row">
+            <form id="submit_form" enctype="multipart/form-data" method="POST">
+                {% csrf_token %}
+            </form>
+        </div>
         
     </div>
 </div>
 
 
-<form id="submit_form" enctype="multipart/form-data" method="POST">
-    {% csrf_token %}
-</form>
+
 <div id="node-popUp">
     <span id="node-operation">node</span> 
     <br>

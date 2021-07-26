@@ -1,13 +1,12 @@
 {% extends "mainApp/base.html" %}
 {% load static %}
 
-{% block title %}Linear Programming {% endblock %}
+{% block title %}Γραμμικός Προγραμματισμός{% endblock %}
 
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <link rel="stylesheet" href="{% static 'linear/css/linear_create.css' %}">
+    <link rel="stylesheet" href="{% static 'linear/css/linear_manage.css' %}">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" type="text/css">
-    <title> Linear Programming </title>
     <script type="text/javascript">
 
         var constraints = 0;
@@ -38,9 +37,9 @@
                         id: "run-method",
                         type: "button",
                         class: "run",
-                        class: "btn btn-success",
+                        class: "btn btn-success btn-sm",
                         onClick: "get_data_output();"
-                    }).html("Run Optimization");
+                    }).html("Εκτέλεση");
                     $("#run").append(run);
                     obj_table(n);
                 }          
@@ -52,7 +51,7 @@
                     class: "table",
                     id: "obj-table"
                 });
-            var p = $("<p/>").text("Objective Function");
+            var p = $("<p/>").text("Ορίστε Αντικειμενική Συνάρτηση");
             $("#objective-function").append(p);
             //κατασκευή objective function
             for (var j = 0; j < (n/10); j++ ){
@@ -77,7 +76,7 @@
                         type: "text",
                         class: "form-control",
                         id: "C"+(i+1).toString()+"description",
-                        placeholder: "Description"
+                        placeholder: "Περιγραφή"
                     });
                     item.append(input);
                     row.append(item);
@@ -110,7 +109,7 @@
         }
 
         function create_input_group(n){
-            var p = $("<p/>").text("Set Constraints");
+            var p = $("<p/>").text("Ορίστε Περιορισμούς");
             $("#constraints-table").append(p);
             var div = $("<div/>", {
                 class: "constraints, input-group mb-3"
@@ -121,12 +120,12 @@
             });
 
             var var_sel = $("<select/>", {
-                class: "custom-select",
+                class: "form-control",
                 id: "constraint-variable"+constraints.toString()
             });
             var option = $("<option/>", {
                 value: 0
-            }).html("Variable");
+            }).html("Μεταβλητή");
             var_sel.append(option);
             for (var i = 0; i < n ; i++) {
                 
@@ -139,12 +138,12 @@
             div.append(var_sel_prep);
             
             var var_sel = $("<select/>", {
-                class: "custom-select",
+                class: "form-control",
                 id: "constraint-operand"+constraints.toString()
             });
             var option = $("<option/>", {
                 value: 0
-            }).html("Operand");
+            }).html("Τελεστής");
             var_sel.append(option);
             var option = $("<option/>", {
                 value: 1
@@ -166,7 +165,7 @@
                         id: "constraint-value"+constraints.toString(),
                         step: "0.001",
                         class: "form-control",
-                        placeholder: "Value"
+                        placeholder: "Τιμή"
                     });
             div.append(input);
 
@@ -174,7 +173,7 @@
                 type: "button",
                 id: constraints.toString(),
                 class: "remove-constraint",
-                class: "btn btn-danger",
+                class: "btn btn-danger btn-sm",
                 onClick: "delete_constraint($(this))"
             }).html('<i class="fas fa-trash-alt"></i>');
             div.append(del);
@@ -183,7 +182,7 @@
             $("#constraints-table").append(div);
             var item = $("<button/>", { 
                 type: "button",
-                class: "btn btn-secondary",
+                class: "btn btn-secondary btn-sm",
                 id: "add-constraint",
                 onClick: "add_constraint("+n.toString()+");"
             }).html('<i class="fas fa-plus-circle"></i>');
@@ -204,12 +203,12 @@
             });
 
             var var_sel = $("<select/>", {
-                class: "custom-select",
+                class: "form-control",
                 id: "constraint-variable"+constraints.toString()
             });
             var option = $("<option/>", {
                 value: 0
-            }).html("Variable");
+            }).html("Μεταβλητή");
             var_sel.append(option);
             for (var i = 0; i < n ; i++) {
                 
@@ -222,12 +221,12 @@
             div.append(var_sel_prep);
             
             var var_sel = $("<select/>", {
-                class: "custom-select",
+                class: "form-control",
                 id: "constraint-operand"+constraints.toString()
             });
             var option = $("<option/>", {
                 value: 0
-            }).html("Operand");
+            }).html("Τελεστής");
             var_sel.append(option);
             var option = $("<option/>", {
                 value: 1
@@ -249,14 +248,14 @@
                         id: "constraint-value"+constraints.toString(),
                         step: "0.001",
                         class: "form-control",
-                        placeholder: "Value"
+                        placeholder: "Τιμή"
                     });
             div.append(input);
             
             var del = $("<button/>", {
                 id: constraints.toString(),
                 class: "remove-constraint",
-                class: "btn btn-danger",
+                class: "btn btn-danger btn-sm",
                 onClick: "delete_constraint($(this))"
             }).html('<i class="fas fa-trash-alt"></i>');
             div.append(del);
@@ -273,7 +272,7 @@
         }
         
         function create_activity_group(n){
-            var p = $("<p/>").text("Set Activities");
+            var p = $("<p/>").text("Ορίστε δραστηριότητες");
             $("#activity-table").append(p);
             var div = $("<div/>", {
                 class: "input-group mb-3"
@@ -301,12 +300,12 @@
                 }
             }
             var var_sel = $("<select/>", {
-                class: "custom-select",
+                class: "form-control",
                 id: activities.toString()+"activity-operand"
             });
             var option = $("<option/>", {
                 value: 0
-            }).html("Operand");
+            }).html("Τελεστής");
             var_sel.append(option);
             var option = $("<option/>", {
                 value: 1
@@ -335,7 +334,7 @@
             var del = $("<button/>", {
                 id: activities,
                 class: "remove-activity",
-                class: "btn btn-danger",
+                class: "btn btn-danger btn-sm",
                 onClick: "delete_activity($(this))"
             }).html('<i class="fas fa-trash-alt"></i>');
             div.append(del);
@@ -345,7 +344,7 @@
             //κατασκευή κουμπιού προσθήκης δραστηριότητας
             var item = $("<button/>", { 
                 type: "button",
-                class: "btn btn-secondary",
+                class: "btn btn-secondary btn-sm",
                 id: "add-activity",
                 onClick: "add_activity("+n.toString()+");"
             }).html('<i class="fas fa-plus-circle"></i>');
@@ -381,12 +380,12 @@
                 }
             }
             var var_sel = $("<select/>", {
-                class: "custom-select",
+                class: "form-control",
                 id: activities.toString()+"activity-operand"
             });
             var option = $("<option/>", {
                 value: 0
-            }).html("Operand");
+            }).html("Τελεστής");
             var_sel.append(option);
             var option = $("<option/>", {
                 value: 1
@@ -414,7 +413,7 @@
             var del = $("<button/>", {
                 id: activities,
                 class: "remove-activity",
-                class: "btn btn-danger",
+                class: "btn btn-danger btn-sm",
                 onClick: "delete_activity($(this))"
             }).html('<i class="fas fa-trash-alt"></i>');
             div.append(del);
@@ -574,46 +573,43 @@
 {% endblock %}
 
 {% block body %}
-    <body>
-        <h2>Create your dataset</h2>
-        <br>
+<div class="card card-nav-tabs text-center card-white">
+    <div class="card-header">
+        <h3 class="card-title">Γραμμικός Προγραμματισμός - Δημιουργία</h3>
+    </div>
+    <div class="card-body">
         <div class="row">
-            
-            <div class="col-1"> 
-
-            </div>
-            <div class="col-10"> 
-                <div class="input-group mb-3" id="info-group">
-                    <input type="text" class="form-control" id="title" placeholder="Enter Title">
-                    <span class= "input-group-text">Optimize:</span>
-                    <select id="opt-type" class="custom-select">
-                        <option value="1">minimize</option>
-                        <option value="2">maximize</option>
-                    </select>
-                    <span class= "input-group-text">No. of Decision Variables:</span>
-                    <input type="number" class="form-control" step="1" min="1" max="8" placeholder="2-8" id="no-dec-variables">
-                    <button type="button" class="btn btn-info" id="fill">Fill Dataset</button>
-                    <div class="input-group-append" id="run"> 
-                      </div>
+            <div class="col-md-3">
+                <div class="card card-nav-tabs text-center">
+                    <input type="text" class="form-control" id="title"  placeholder="Τίτλος">
                 </div>
             </div>
-            <div class="col-1"> 
+            <div class="col-md-3">
+                <select id="opt-type" class="form-control" >
+                    <option value="1">ελαχιστοποίηση</option>
+                    <option value="2">μεγιστοποίηση</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <input type="number" class="form-control" step="1" min="1" max="8" placeholder="2-8" id="no-dec-variables">
+            </div>
+            <div class="col-md-2">
+                <div class="card card-nav-tabs text-center">
+                    <button class="btn btn-success btn-sm" type="button" id="fill">Συμπλήρωση</button>
+                </div>
+            </div>
+            <div class="col-md-2" id="run">
 
             </div>
-
-
-            
         </div>
-        <br>
-        <br>
         <div class="row">
             
-            <div class="col-9">
+            <div class="col-8">
                 <div id="objective-function">
                     
                 </div>
             </div>
-            <div class="col-3">
+            <div class="col-4">
                 <div id="constraints-table">
                     
                 </div>
@@ -622,8 +618,6 @@
                 </div>
             </div>
         </div>
-        <br>
-        <br>
         <div class="row">
             <div class="col-1"> 
 
@@ -632,16 +626,6 @@
                 <div id="activity-table">
 
                 </div>
-            </div>
-            <div class="col-1"> 
-
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-1"> 
-
-            </div>
-            <div class="col-10"> 
                 <div id="act-button">
 
                 </div>
@@ -649,11 +633,8 @@
             <div class="col-1"> 
 
             </div>
-            
         </div>
-        <form id="submit_form" enctype="multipart/form-data" method="POST">
-            {% csrf_token %}
-        </form>
-    </body>
+    </div>
+</div>
 {% endblock %}
 

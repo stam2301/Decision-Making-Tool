@@ -24,7 +24,7 @@
                 $("#options").empty();
                 $("#storage-options").empty();
                 $("#data").empty();
-                document.getElementById("network").style.display = "none";
+                document.getElementById("mynetwork").style.display = "none";
                 $("#run").empty();
                 type = $("#type").val();
                 if (type == "route"){
@@ -40,7 +40,7 @@
         });
 
         function create_route(){
-            document.getElementById("network").style.display = "block";
+            document.getElementById("mynetwork").style.display = "block";
             id = 1;
             edge_id = 1;
             var input_nodes = [
@@ -61,7 +61,7 @@
             var nodes = new vis.DataSet(input_nodes);
             var edges = new vis.DataSet(input_edges);
             
-            var container = document.getElementById('network');
+            var container = document.getElementById('mynetwork');
 
             var data = {
                 nodes: nodes,
@@ -113,7 +113,7 @@
             var run = $("<button/>", {
                 id: "run-method",
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "get_data_output();"
             }).html("Εκτέλεση");
             $("#run").append(run);
@@ -301,7 +301,7 @@
             });
             var input = $("<button/>",{
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "set_data_table();"
             }).html("Ορισμός Επιλογών");
             col.append(input);
@@ -467,7 +467,7 @@
             
             col.append($("<button/>",{
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "set_storage_data();"
             }).html("Ορισμός Επιλογών"));
             form.append(row.append(col));
@@ -707,7 +707,6 @@
                     return;
                 }
             }
-            console.log(output_data);
             ajax_post(output_data);
         }
 
@@ -737,7 +736,7 @@
         <div class="row">
             <div class="col-md-3">
                 <div class="card card-nav-tabs text-center">
-                    <input type="text" class="form-control" id="title" value="{{ input_title | safe }}" placeholder="Τίτλος">
+                    <input type="text" class="form-control" id="title"  placeholder="Τίτλος">
                 </div>
             </div>
             <div class="col-md-3">
@@ -747,12 +746,13 @@
                     <option value="store">Προγραμματισμός Παραγωγής και Αποθήκευσης</option>
                 </select>
             </div>
-            <div class="col-md-3">
+            <div class="col-md-2"></div>
+            <div class="col-md-2">
                 <div class="card card-nav-tabs text-center">
-                    <button class="btn btn-success" type="button" id="fill">Συμπλήρωση</button>
+                    <button class="btn btn-success btn-sm" type="button" id="fill">Συμπλήρωση</button>
                 </div>
             </div>
-            <div class="col-md-3" id="run">
+            <div class="col-md-2" id="run">
 
             </div>
         </div>
@@ -773,22 +773,26 @@
             <div id="data" class="col-12"></div>
         </div>
         <div class="row" >
-            <div id="network" class="col-12">
+            <div id="mynetwork" class="col-12">
                 <div class="vis-network">
                     <div class="vis-manipulation"></div>
                     <div class="vis-edit-mode"></div>
                     <button class="vis-close"></button>
                 </div>
             </div>
+            
+        </div>
+        <div class="row">
+            <form id="submit_form" enctype="multipart/form-data" method="POST">
+                {% csrf_token %}
+            </form>
         </div>
         
     </div>
 </div>
 
 
-<form id="submit_form" enctype="multipart/form-data" method="POST">
-    {% csrf_token %}
-</form>
+
 <div id="node-popUp">
     <span id="node-operation">node</span> 
     <br>

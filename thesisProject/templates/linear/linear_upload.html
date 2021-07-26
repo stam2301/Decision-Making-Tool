@@ -1,30 +1,61 @@
 {% extends "mainApp/base.html" %}
 {% load static %}
 
-{% block title %}Linear Programming {% endblock %}
+{% block title %}Γραμμικός Προγραμματισμός{% endblock %}
 
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title> Linear Programming </title>
     <script type="text/javascript">
-        
+         $(document).ready(function(){
+             $("#id_upload_file").change(function(){
+                 $("#file-name").val($("#id_upload_file").val().replace(/C:\\fakepath\\/i, ''));
+             });
+         });
+         $(document).ready(function(){
+            $("#file-name").val($("#id_upload_file").val().replace(/C:\\fakepath\\/i, ''));
+         });
     </script>
 {% endblock %}
 
 {% block body %}
-    <body>
-        {% load bootstrap4 %}
-        <h3>Upload your JSON file</h3>
+<div class="card card-nav-tabs text-center card-white">
+    <div class="card-header">
+        <h3 class="card-title">Γραμμικός Προγραμματισμός - Ανέβασμα Αρχείου</h3>
+    </div>
+    <div class="card-body">
+        <form enctype="multipart/form-data" method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="id_title">Τίτλος</label>
+                <br>
+                <input type="text" name="title" maxlength="50" class="form-control" placeholder="Δώστε έναν τίτλο" title="" required="" id="id_title">
+            </div>
+            <div class="form-row">
+                <div class="form-group col-md-2">
 
-        <div class="container">
-            <form enctype="multipart/form-data" method="POST">
-                {% csrf_token %}
-                {% bootstrap_form form %}
-                <p>{{ form.fieldname.errors.as_text }}</p>
-                <input type="submit" class="btn btn-primary" name="manage" value="Inspect Data">
-                <input type="submit" class="btn btn-primary" name="run" value="Run Method">
-            </form>
-            
-        </div>
-    </body>
+                </div>
+                <div class="form-group col-md-8">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label class="btn btn-success btn" for="id_upload_file">
+                                Διάλεξε Αρχείο
+                            </label>
+                            <input type="file" name="upload_file" class="form-control-file" title="" required="" id="id_upload_file">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <input type="text" id="file-name" class="form-control" placeholder="Το αρχείο σας..." disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group col-md-2">
+
+                </div>
+            </div>
+            <p>{{ form.fieldname.errors.as_text }}</p>
+            <input type="submit" class="btn btn-primary" name="manage" value="Επεξεργασία">
+            <input type="submit" class="btn btn-primary" name="run" value="Εκτέλεση">
+        </form>
+
+    </div>
+</div>
 {% endblock %}

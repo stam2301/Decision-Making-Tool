@@ -64,7 +64,6 @@ def linear_prog_main(input):
         t = (min, max)
         bnd.append(t)
     
-    print(lhs_eq)
     if not lhs_eq:
         opt = linprog(c=obj, A_ub=lhs_ineq, b_ub=rhs_ineq, bounds=bnd, method="revised simplex")
     else:

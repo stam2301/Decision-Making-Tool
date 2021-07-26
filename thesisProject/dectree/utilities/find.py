@@ -3,9 +3,7 @@ import json, copy
 
 
 def find_researches(data):
-    #data = json.loads(input)
     researches = dict({})
-    #print(data)
     for item in data['nodes']:
         if item['group'] == "research":
             researches[item['id']] = dict({})

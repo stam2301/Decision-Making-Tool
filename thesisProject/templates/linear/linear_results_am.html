@@ -1,12 +1,11 @@
 {% extends "mainApp/base.html" %}
 {% load static %}
 
-{% block title %}Linear Programming{% endblock %}
+{% block title %}Γραμμικός Προγραμματισμός{% endblock %}
 
 {% block head %}
 
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title> Linear Programming </title>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.3.2/chart.min.js"></script>
     <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-zoom/1.0.1/chartjs-plugin-zoom.min.js"></script>
     <script type="text/javascript">
@@ -125,14 +124,8 @@
                 } else {
                     activity = activity + " " + input_data.activities[i][input_data.number+1].toString();
                 }
-                var list_item = $("<span/>", {
-                    class: "input-group-text"
-                }).html(activity);
-                var div = $("<div/>", {
-                    class: "input-group mb-3"
-                });
-                div.append(list_item);
-                $("#activities").append(div);
+                var p = $("<p/>").html(activity);
+                $("#activities").append(p);
             }
 
         });
@@ -142,14 +135,8 @@
                 for (item in input_data.constraints[constraint]){
                     if (input_data.constraints[constraint][item][0] == 2){
                         str="X" + constraint.toString() + " " + "&#8925;" + " " + input_data.constraints[constraint][item][1].toString();
-                        var list_item = $("<span/>", {
-                            class: "input-group-text"
-                        }).html(str);
-                        var div = $("<div/>", {
-                            class: "input-group mb-3"
-                        });
-                        div.append(list_item);
-                        $("#constraints").append(div);
+                        var p = $("<p/>").html(str);
+                        $("#constraints").append(p);
                     }
                 }
             }
@@ -157,7 +144,7 @@
 
         //results
         $(document).ready(function(){
-            var text = "Optimal solution is "
+            var text = "Η βέλτιστη λύση είναι "
             for (i=0; i<input_data.number - 1; i++){
                 text = text + (output_data.values[i].toFixed(4)).toString() + " ";
                 if (input_data.objective.descriptions[i] == NaN){
@@ -174,17 +161,19 @@
             }
             var text_area = $("<p/>").html(text);
             $("#results").append(text_area);
-            var text = "The optimal result is Z = " + output_data.z.toFixed(4).toString()+".";
+            var text = "Το αποτέλεσμα της βέλτιστης λύσης είναι Z = " + output_data.z.toFixed(4).toString()+".";
             var text_area = $("<p/>").html(text);
             $("#results").append(text_area);
             if (output_data.alternate == 1){
-                var text = "There is at least one alternate solution for your objective function!"
+                var text = "Υπάρχει τουλάχιστον μια εναλλακτική βέλτιστη λύση για την αντικειμενική συνάρτηση που θέσατε!"
                 var text_area = $("<p/>").html(text);
                 $("#results").append(text_area);
             }
         });
 
-
+        $(document).ready(function(){
+            draw();
+        });
         
 
     </script>
@@ -192,73 +181,62 @@
 {% endblock %}
 
 {% block body %}
-    <body onload="draw()">
-        <h1>HERE ARE THE RESULTS</h1>
+<div class="card card-nav-tabs text-center card-white">
+    <div class="card-header">
+        <h3 class="card-title">Γραμμικός Προγραμματισμός - Αποτέλεσμα</h3>
+    </div>
+    <div class="card-body">
         <div class="row">
-            <div class="col-2">
-
+            <div class="col-md-3">
+                <p>Τίτλος: {{ title | safe }}</p>
             </div>
-            <div class="col-8">
-                <p>Objective Function</p>
-                    <div class="input-group mb-3">
-                        <span class="input-group-text" id="objective-function" style="background-color: #b3cfff;"></span>
-                    </div>
+            <div class="col-md-3">
+                <p>Τύπος Προβλήματος: Γραφική Επίλυση</p>
             </div>
-            <div class="col-2">
+            <div class="col-md-6">
                 <form id="submit_form" enctype="multipart/form-data" method="POST">
-                    {% csrf_token %}
-                    <input type="submit" class="btn btn-primary" name="inspect" value="Manage Data">
-                    <br>
-                    <br>
-                    <input type="submit" class="btn btn-primary" name="new" value="New Input">
+                    <div class="row">
+                        {% csrf_token %}
+                        <div class="col">
+                            <input type="submit" class="btn btn-success" name="inspect" value="Επεξεργασία">
+                        </div>
+                        <div class="col">
+                            <input type="submit" class="btn btn-warning" name="new" value="Νέα Δεδομένα">
+                        </div>
+                    </div>
                 </form>
             </div>
-
         </div>
+        <br>
+        <br>
+        <h4 class="card-title">Δεδομένα Εισόδου</h4>
         <div class="row">
-            <div class="col-1">
-
+            <div class="col-12" >
+                <h5 class="card-title">Αντικειμενική Συνάρτηση</h5>
+                <p id="objective-function"></p>
             </div>
-            <div class="col-2">
-                <p>Constraints</p>
-                <div id="constraints">
-
-                </div>
-            </div>
-            <div class="col-1">
-
-            </div>
-            <div class="col-2">
-                <p>Activities</p>
-                <div id="activities">
-
-                </div>
-            </div>
-            <div class="col-3">
-                <h4>Optimal Solution</h4>
-                <div id="results">
-
-                </div>
-            </div>
-            <div class="col-1"></div>
-
-            <div class="col-2">
-
-            </div>
-
         </div>
+        <br>
         <div class="row">
-            <div class="col-3">
-
+            <div class="col-6" id="constraints">
+                <h5 class="card-title">Περιορισμοί</h5>
             </div>
-            <div class="col-6">
-                <canvas id="myChart"></canvas>
+            <div class="col-6" id="activities">
+                <h5 class="card-title">Δραστηριότητες</h5>
             </div>
-            <div class="col-3">
-
-            </div>
-
         </div>
-    </body>
-
+        <br>
+        <br>
+        <h4 class="card-title">Βέλτιστη Λύση</h4>
+        <div class="row" >
+            <div id="results" class="col-12"></div>
+        </div>
+        <br>
+        <br>
+        <h4 class="card-title">Γραφική Λύση</h4>
+        <div class="row">
+            <canvas id="myChart"></canvas>
+        </div>
+    </div>
+</div>
 {% endblock %}

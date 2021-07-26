@@ -19,7 +19,7 @@ def generate_plots_main(input, output):
         "x": output['values'][0],
         "y": output['values'][1]
     })
-    plot["label"] = "Optimal Solution"
+    plot["label"] = "Βέλτιστη Λύση"
     plot["backgroundColor"] = "rgb(0, 0, 0)"
     plot["borderColor"] = "rgb(0, 0, 0)"
     plot["radius"] = 4
@@ -92,8 +92,6 @@ def generate_plots_main(input, output):
     out['labels'] = labels
     out['plots'] = plots
     return out
-    #for key in plots:
-    #    print(activities[key])
 
         
     
