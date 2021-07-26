@@ -1,7 +1,7 @@
 {% extends "mainApp/base.html" %}
 {% load static %}
 
-{% block title %}Dynamic Programming {% endblock %}
+{% block title %}Δυναμικός Προγραμματισμός{% endblock %}
 
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -300,8 +300,8 @@
                 class: "col"
             });
             var input = $("<button/>",{
+                type: "button",
                 class: "btn btn-success",
-                id: "invest-set",
                 onClick: "set_data_table();"
             }).html("Ορισμός Επιλογών");
             col.append(input);
@@ -484,8 +484,7 @@
             }
             var table_body = $("<table/>", {
                 class: "table",
-                id: "data-table",
-                style: "width: 90%;"
+                id: "data-table"
             });
             n = Number($("#no-periods").val());
             var row = $("<tr/>");
@@ -533,7 +532,6 @@
             var table_body = $("<table/>", {
                 class: "table",
                 id: "data-table",
-                style: "width: 90%;"
             });
             x = 3+Number($("#x-axis").val());
             y = 2+Number($("#y-axis").val());
@@ -721,7 +719,7 @@
                         data: JSON.stringify(out_data)},
                 url: "/dynamic/ajax/create_and_calculate",
                 success: function(response){
-                    document.forms[0].submit();
+                    $("#submit_form").submit();
                 },
             })
         }
@@ -744,9 +742,9 @@
             </div>
             <div class="col-md-3">
                 <select id="type" class="form-control" >
-                    <option value="route">Optimal Route</option>
-                    <option value="invest">Investment Programming</option>
-                    <option value="store">Production and Store Planning</option>
+                    <option value="route">Βέλτιστη Διαδρομή</option>
+                    <option value="invest">Προγραμματισμός Επενδύσεων</option>
+                    <option value="store">Προγραμματισμός Παραγωγής και Αποθήκευσης</option>
                 </select>
             </div>
             <div class="col-md-3">
@@ -771,11 +769,11 @@
             <div class="col-md-2"></div>
 
         </div>
-        <div class="row" id="data">
-
+        <div class="row" style="align-items: center;" >
+            <div id="data" class="col-12"></div>
         </div>
         <div class="row" >
-            <div id="network" class="col-12" style="align-items: center;">
+            <div id="network" class="col-12">
                 <div class="vis-network">
                     <div class="vis-manipulation"></div>
                     <div class="vis-edit-mode"></div>

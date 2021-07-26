@@ -31,7 +31,9 @@ def upload_form(request):
                     outfile = route_algo_main(data)
                 elif request.POST.get('type') == 'invest':
                     outfile = invest_algo_main(data)
-                elif request.POST.get('type') == 'production':
+                elif request.POST.get('type') == 'store':
+                    outfile = store_algo_main(data)
+                else:
                     return render(request, 'linear/linear_upload.html',{'form':input_form})
                 new_method.output_file = outfile
                 new_method.save()
@@ -49,7 +51,6 @@ def upload_form(request):
                 json_input_data = json_file.read()
                 data = json.loads(json_input_data)
                 if request.POST.get('type') == 'route':
-                    print(data)
                     data['options'] = dict({})
                     data['type'] = "route"
                     for item in data['data']['nodes']:
@@ -108,7 +109,6 @@ def ajax_calculate(request):
         data = json.loads(request_getdata)
         method = Method.objects.get(methodID=data['id'])
         del data['id']
-        print(data)
         method.title = data['title']
         del data['title']
         method.input_file = copy.deepcopy(data)

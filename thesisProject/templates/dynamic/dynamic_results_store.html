@@ -1,52 +1,33 @@
 {% extends "mainApp/base.html" %}
 {% load static %}
 
-{% block title %}Dynamic Programming{% endblock %}
+{% block title %}Δυναμικός Προγραμματισμός{% endblock %}
 
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title> Dynamic Programming </title>
     <script type="text/javascript">
         var input_data = {{ input|safe }};
         var output_data = {{ output|safe }};
 
         //options
         $(document).ready(function(){
-            var div = $("<div/>", {
-                class: "input-group mb-3"
-            });
-            text = "Production Cost Function: C<sub>x</sub>= (";
+            var div = $("<p/>");
+            text = "Συνάρτηση Κόστους Παραγωγής: C<sub>x</sub>= (";
             text = text + (input_data.options.production_cost[0]).toString() + "+ ν&#215;" + (input_data.options.production_cost[1]).toString() + ") &#215; x +";
             text = text + "(" + (input_data.options.production_cost[2]).toString() + "+ ν&#215;" + (input_data.options.production_cost[3]).toString() + ")";
-            div.append($("<span/>", {
-                class: "input-group-text"
-            }).html(text));
+            div.append(text);
             $("#options").append(div);
-            var div = $("<div/>", {
-                class: "input-group mb-3"
-            });
-            text = "Storage Cost Function: C<sub>x</sub>= (";
+            var div = $("<p/>");
+            text = "Συνάρτηση Κόστους Αποθήκευσης: C<sub>x</sub>= (";
             text = text + (input_data.options.storage_cost[0]).toString() + "+ ν&#215;" + (input_data.options.storage_cost[1]).toString() + ") &#215; a +";
             text = text + "(" + (input_data.options.storage_cost[2]).toString() + "+ ν&#215;" + (input_data.options.storage_cost[3]).toString() + ")";
-            div.append($("<span/>", {
-                class: "input-group-text"
-            }).html(text));
+            div.append(text);
             $("#options").append(div);
-            var div = $("<div/>", {
-                class: "input-group mb-3"
-            });
-            text = "Production Batch: " + (input_data.options.prod_batch).toString();
-            div.append($("<span/>", {
-                class: "input-group-text"
-            }).html(text));
-            text = "Storage Batch: " + (input_data.options.store_batch).toString();
-            div.append($("<span/>", {
-                class: "input-group-text"
-            }).html(text));
-            text = "Start Stock: " + (input_data.options.start_stock).toString();
-            div.append($("<span/>", {
-                class: "input-group-text"
-            }).html(text));
+            var div = $("<p/>");
+            text = "Παρτίδα Παραγωγής: " + (input_data.options.prod_batch).toString()+", ";
+            text = text + "Παρτίδα Αποθήκευσης: " + (input_data.options.store_batch).toString()+", ";
+            text = text + "Αρχικό Απόθεμα: " + (input_data.options.start_stock).toString();
+            div.append(text);
             $("#options").append(div);
         });
 
@@ -58,7 +39,7 @@
             var row = $("<tr/>");
             var item = $("<th/>", {
                 scope: "col"
-            }).html("Period");
+            }).html("Περίοδος");
             row.append(item);
             for (i=0; i<input_data.options.periods; i++){
                 item = $("<td/>").html((i+1).toString());
@@ -68,7 +49,7 @@
             var row = $("<tr/>");
             var item = $("<th/>", {
                 scope: "col"
-            }).html("Demand");
+            }).html("Ζήτηση");
             row.append(item);
             for (i=0; i<input_data.options.periods; i++){
                 item = $("<td/>").html(input_data.data[i][0]);
@@ -82,30 +63,30 @@
         $(document).ready(function(){
             if((output_data.solution.routes).length == 1){
 
-                var text = "There is one optimal production planning.";
+                var text = "Υπάρχει μόνο ένα βέλτιστο πλάνο Προγραμματισμού Παραγωγής και Αποθήκευσης.";
                 var text_area = $("<p/>").html(text);
                 $("#results").append(text_area);
                 text = "";
                 for (i=0; i<input_data.options.periods; i++){
                     if (i== input_data.options.periods - 1){
-                        text = text + (output_data.solution.routes[0][i]).toString()+" per period.";
+                        text = text + (output_data.solution.routes[0][i]).toString()+" ανά περίοδο.";
                     } else{
                         text = text + (output_data.solution.routes[0][i]).toString()+" - ";
                     } 
                 }
                 text_area = $("<p/>").html(text);
                 $("#results").append(text_area);
-                text = "The profit from this planning is "+ (output_data.solution.f_min).toString() + ".";
+                text = "Το κέρδος από το παραπάνω πλάνο είναι "+ (output_data.solution.f_min).toString() + ".";
                 text_area = $("<p/>").html(text);
                 $("#results").append(text_area);
             } else {
-                var text = "There are "+ (output_data.solution.routes).length + "optimal production plannings.";
+                var text = "Υπάρχουν "+ (output_data.solution.routes).length + "βέλτιστα πλάνα Προγραμματισμού Παραγωγής και Αποθήκευσης.";
                 text_area = $("<p/>").html(text);
                 $("#results").append(text_area);
                 for (j=0; j<(output_data.solution.routes).length; j++){
                     for (i=0; i<input_data.options.periods; i++){
                         if (i== input_data.options.periods - 1){
-                            text = text + (output_data.solution.routes[0][i]).toString()+" per financial period";
+                            text = text + (output_data.solution.routes[0][i]).toString()+" ανά περίοδο";
                         } else{
                             text = text + (output_data.solution.routes[0][i]).toString()+" - ";
                         }
@@ -118,7 +99,7 @@
                 }
                 text_area = $("<p/>").html(text);
                 $("#results").append(text_area);
-                text = "The profit from these plannings is "+ (output_data.solution.f_min).toString() + ".";
+                text = "Το κέρδος από τα παραπάνω πλάνα είναι "+ (output_data.solution.f_min).toString() + ".";
                 text_area = $("<p/>").html(text);
                 $("#results").append(text_area);
             }
@@ -130,9 +111,9 @@
                 var table_body = $("<table/>", {
                     class: "table table-bordered"
                 });
-                var text = "Iteration: "+iteration+", Demand: "+input_data.data[iteration-1][0]
+                var text = "Επανάληψη: "+iteration+", Ζήτηση: "+input_data.data[iteration-1][0]
                 if (iteration ==input_data.options.periods){
-                    text = text + ", Start Stock: "+ input_data.options.start_stock;
+                    text = text + ", Αρχικό Απόθεμα: "+ input_data.options.start_stock;
                 }
                 var p = $("<p/>").text(text);
                 $("#tables").append(p);
@@ -223,7 +204,6 @@
                                     class: "text-center"
                                 }).html(text);
                             }
-                            console.log("j:"+j.toString()+", i:"+i.toString());
                             row.append(item);
                         }
                         table_body.append(row);
@@ -238,94 +218,56 @@
 
 
 {% block body %}
-    <body>
+<div class="card card-nav-tabs text-center card-white">
+    <div class="card-header">
+        <h3 class="card-title">Δυναμικός Προγραμματισμός - Αποτέλεσμα</h3>
+    </div>
+    <div class="card-body">
         <div class="row">
-            <div class="col-1">
-
+            <div class="col-md-3">
+                <p>Τίτλος: {{ title | safe }}</p>
             </div>
-            <div class="col-9">
-                <h2>{{title|safe }}</h2>
-                <div id="input-content">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text" style="background-color: #b3cfff;">Problem Type: Production and Storage Planning</span>
-                    </div>
-                </div>
+            <div class="col-md-3">
+                <p>Τύπος Προβλήματος: Προγραμματισμός Παραγωγής και Αποθήκευσης</p>
             </div>
-            <div class="col-1">
+            <div class="col-md-6">
                 <form id="submit_form" enctype="multipart/form-data" method="POST">
-                    {% csrf_token %}
-                    <input type="submit" class="btn btn-primary" name="inspect" value="Manage Data">
-                    <br>
-                    <br>
-                    <input type="submit" class="btn btn-primary" name="new" value="New Input">
+                    <div class="row">
+                        {% csrf_token %}
+                        <div class="col">
+                            <input type="submit" class="btn btn-success" name="inspect" value="Επεξεργασία">
+                        </div>
+                        <div class="col">
+                            <input type="submit" class="btn btn-warning" name="new" value="Νέα Δεδομένα">
+                        </div>
+                    </div>
                 </form>
-
-            </div>
-            <div class="col-1">
-
             </div>
         </div>
+        <br>
+        <br>
+        <h4 class="card-title">Επιλογές Εισόδου</h4>
         <div class="row">
-            <div class="col-1">
-
-            </div>
-            <div class="col-7">
-                <h4>Options</h4>
-                <div id="options">
-
-                </div>
-            </div>
-            <div class="col-4">
-
-            </div>
-
+            <div id="options" class="col-12" ></div>
         </div>
-
+        <br>
+        <br>
+        <h4 class="card-title">Δεδομένα Εισόδου</h4>
         <div class="row">
-            <div class="col-1">
-
-            </div>
-            <div class="col-7">
-                <h4>Input Data</h4>
-                <div id="input">
-
-                </div>
-            </div>
-            <div class="col-4">
-
-            </div>
-
+            <div id="input" class="col-12"></div>
         </div>
-
+        <br>
+        <br>
+        <h4 class="card-title">Βέλτιστη Λύση</h4>
+        <div class="row" >
+            <div id="results" class="col-12"></div>
+        </div>
+        <br>
+        <br>
+        <h4 class="card-title">Επαναλήψεις</h4>
         <div class="row">
-            <div class="col-1">
-
-            </div>
-            <div class="col-9">
-                <h4>Optimal Solution</h4>
-                <div id="results">
-
-                </div>
-            </div>
-            <div class="col-2">
-
-            </div>
+            <div id="tables" class="col-12"></div>
         </div>
-        <div class="row">
-            <div class="col-1">
-
-            </div>
-            <div class="col-9">
-                <h4>Iterations</h4>
-                <div id="tables">
-                    
-
-                </div>
-            </div>
-            <div class="col-2">
-
-            </div>
-        </div>
-    </body>
-
+    </div>
+</div>
 {% endblock %}

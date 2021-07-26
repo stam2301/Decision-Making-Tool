@@ -1,11 +1,10 @@
 {% extends "mainApp/base.html" %}
 {% load static %}
 
-{% block title %}Decision Tree Results{% endblock %}
+{% block title %}Δέντρα Αποφάσεων{% endblock %}
 
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <title>Network</title>
     <link rel="stylesheet" href="{% static 'dectree/css/dectree_network.css' %}">
     <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
@@ -91,19 +90,19 @@
     </div>
     <div class="card-body">
         <div class="row">
-            <div class="col-md-4">
-                <p> Τίτλος: {{ title | safe }}</p>
+            <div class="col-md-6">
+                <p>Τίτλος: {{ title | safe }}</p>
             </div>
-            <div class="col-md-8">
+            <div class="col-md-6">
                 <form id="submit_form" enctype="multipart/form-data" method="POST">
                     <div class="row">
                     
                         {% csrf_token %}
                         <div class="col">
-                            <input type="submit" class="btn btn-primary" name="inspect" value="Επεξεργασία">
+                            <input type="submit" class="btn btn-success" name="inspect" value="Επεξεργασία">
                         </div>
                         <div class="col">
-                            <input type="submit" class="btn btn-primary" name="new" value="Νέο Δέντρο">
+                            <input type="submit" class="btn btn-warning" name="new" value="Νέο Δέντρο">
                         </div>
                         
                         

@@ -1,14 +1,13 @@
 {% extends "mainApp/base.html" %}
 {% load static %}
 
-{% block title %}Dynamic Programming{% endblock %}
+{% block title %}Δυναμικός Προγραμματισμός{% endblock %}
 
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
-    <link rel="stylesheet" href="{% static 'dectree/css/dectree_network.css' %}">
     <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
-    <title> Dynamic Programming </title>
+    <link rel="stylesheet" href="{% static 'dynamic/css/dynamic_route_results.css' %}">
     <script type="text/javascript">
         var input_data = {{ input|safe }};
         var output_data = {{ output|safe }};
@@ -66,7 +65,7 @@
         }
         $(document).ready(function(){
             if((output_data.solution.routes).length == 1){
-            var text = "There is one optimal route.";
+            var text = "Υπάρχει μια μόνο βέλτιστη διαδρομή.";
             var text_area = $("<p/>").html(text);
             $("#results").append(text_area);
             text = "";
@@ -79,11 +78,11 @@
             }
             text_area = $("<p/>").html(text);
             $("#results").append(text_area);
-            text = "Minimum distance is "+ (output_data.solution.f_min).toString() + ".";
+            text = "Η ελάχιστη απόσταση είναι "+ (output_data.solution.f_min).toString() + ".";
             text_area = $("<p/>").html(text);
             $("#results").append(text_area);
             } else {
-            var text = "There are "+ (output_data.solution.routes).length + " optimal routes.";
+            var text = "Υπάρχουν "+ (output_data.solution.routes).length + " βέλτιστες διαδρομές.";
             text_area = $("<p/>").html(text);
             $("#results").append(text_area);
             text = "";
@@ -103,7 +102,7 @@
             }
             text_area = $("<p/>").html(text);
             $("#results").append(text_area);
-            text = "Minimum distance is "+ (output_data.solution.f_min).toString() + ".";
+            text = "Η ελάχιστη απόσταση είναι "+ (output_data.solution.f_min).toString() + ".";
             text_area = $("<p/>").html(text);
             $("#results").append(text_area);
             }
@@ -115,7 +114,7 @@
                 var table_body = $("<table/>", {
                     class: "table table-bordered"
                 });
-                var p = $("<p/>").text("Iteration: "+iteration);
+                var p = $("<p/>").text("Επανάληψη: "+iteration);
                 $("#tables").append(p);
                 if (iteration == 1){
                     var row = $("<tr/>");
@@ -230,87 +229,67 @@
 
 
                 $("#tables").append(table_body);
+                $("#tables").append($("<br/>"));
+                $("#tables").append($("<br/>"));
             }
         });
-
+        $(document).ready(function(){
+            draw();
+        })
     
 </script>
 {% endblock %}
 
 
 {% block body %}
-    <body onload="draw()">
+<div class="card card-nav-tabs text-center card-white">
+    <div class="card-header">
+        <h3 class="card-title">Δυναμικός Προγραμματισμός - Αποτέλεσμα</h3>
+    </div>
+    <div class="card-body">
         <div class="row">
-            <div class="col-1">
-
+            <div class="col-md-3">
+                <p>Τίτλος: {{ title | safe }}</p>
             </div>
-            <div class="col-9">
-                <h2>{{title|safe }}</h2>
-                <div id="input-content">
-                    <div class="input-group mb-3">
-                        <span class="input-group-text" style="background-color: #b3cfff;">Problem Type: Optimal Route</span>
-                    </div>
-                </div>
+            <div class="col-md-3">
+                <p>Τύπος Προβλήματος: Βέλτιστη Διαδρομή</p>
             </div>
-            <div class="col-1">
+            <div class="col-md-6">
                 <form id="submit_form" enctype="multipart/form-data" method="POST">
-                    {% csrf_token %}
-                    <input type="submit" class="btn btn-primary" name="inspect" value="Manage Data">
-                    <br>
-                    <br>
-                    <input type="submit" class="btn btn-primary" name="new" value="New Input">
-                </form>
-
-            </div>
-            <div class="col-1">
-
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-1">
-
-            </div>
-            <div class="col-9">
-                <h4>Input Data</h4>
-                <div id="mynetwork">
-
-                </div>
-            </div>
-            <div class="col-2">
-
-            </div>
-
-        </div>
-
-        <div class="row">
-            <div class="col-1">
-
-            </div>
-            <div class="col-9">
-                <h4>Optimal Solution</h4>
-                <div id="results">
-
-                </div>
-            </div>
-            <div class="col-2">
-
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-1">
-
-            </div>
-            <div class="col-9">
-                <h4>Iterations</h4>
-                <div id="tables">
+                    <div class="row">
                     
-
-                </div>
-            </div>
-            <div class="col-2">
-
+                        {% csrf_token %}
+                        <div class="col">
+                            <input type="submit" class="btn btn-success" name="inspect" value="Επεξεργασία">
+                        </div>
+                        <div class="col">
+                            <input type="submit" class="btn btn-warning" name="new" value="Νέα Δεδομένα">
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-    </body>
-
+        <br>
+        <br>
+        <h4 class="card-title">Γράφος Εισόδου</h4>
+        <div class="row" style="align-items: center;">
+            
+            <div id="mynetwork" class="col-12" style="align-items: center;">
+                <div class="vis network-frame" ></div>
+            </div>
+        </div>
+        <br>
+        <br>
+        <h4 class="card-title">Βέλτιστη Λύση</h4>
+        <div class="row" >
+            <div id="results" class="col-12"></div>
+        </div>
+        <br>
+        <br>
+        <h4 class="card-title">Επαναλήψεις</h4>
+        <div class="row">
+            <div id="tables" class="col-12"></div>
+        </div>
+    </div>
+</div>
 {% endblock %}

@@ -1,7 +1,7 @@
 {% extends "mainApp/base.html" %}
 {% load static %}
 
-{% block title %}Dynamic Programming {% endblock %}
+{% block title %}Δυναμικός Προγραμματισμός{% endblock %}
 
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
@@ -9,7 +9,6 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="https://visjs.github.io/vis-network/standalone/umd/vis-network.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/vis/4.21.0/vis-network.min.css" rel="stylesheet" type="text/css">
-    <title> Dynamic Programming </title>
     <script type="text/javascript">
         var meth_id = {{ method_id|safe }};
         title = "{{ input_title| safe}}";
@@ -474,6 +473,7 @@
                 class: "col"
             });
             var input = $("<button/>",{
+                type: "button",
                 class: "btn btn-success",
                 id: "invest-set",
                 onClick: "set_data_table();"
@@ -773,6 +773,7 @@
                 class: "col"
             });
             var input = $("<button/>",{
+                type: "button",
                 class: "btn btn-success",
                 id: "invest-set",
                 onClick: "set_data_table();"
@@ -1204,7 +1205,7 @@
                         data: JSON.stringify(out_data)},
                 url: "/dynamic/ajax/calculate",
                 success: function(response){
-                    document.forms[0].submit();
+                    $("#submit_form").submit();
                 },
             })
         }
@@ -1255,8 +1256,10 @@
         </div>
         <br>
         <br>
-        <div class="row" id="data">
+        <div class="row">
+            <div id="data">
 
+            </div>
         </div>
         <div class="row" >
             <div id="network" class="col-12" style="align-items: center;">
