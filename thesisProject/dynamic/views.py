@@ -3,11 +3,13 @@ from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 import os, json, copy
 from mainApp.models import Method
-from .forms import upload_file_form
 from .utilities.store_algo import store_algo_main
 from .utilities.invest_algo import invest_algo_main
 from .utilities.route_algo import route_algo_main
-
+import jsonschema
+from jsonschema import Draft7Validator
+from jsonschema.validators import validate
+from .utilities.validators.schema_validation import route_schema, invest_schema, store_schema
 
 def dynamic_index(request):
     if request.method == 'GET':
@@ -16,55 +18,16 @@ def dynamic_index(request):
 def upload_form(request):
     if request.method == 'POST':
         if 'run' in request.POST:
-            input_form = upload_file_form(request.POST, request.FILES)
-            if input_form.is_valid():
-                new_method = Method()
-                new_method.title = request.POST.get('title')
-                new_method.method_type = 'Dynamic Programming'
-                json_file = request.FILES['upload_file']
-                json_input_data = json_file.read()
-                new_method.input_file = json.loads(json_input_data)
-                data = json.loads(json_input_data)
-                if request.POST.get('type') == 'route':
-                    new_method.input_file['options'] = dict({})
-                    new_method.input_file['type'] = "route"
-                    outfile = route_algo_main(data)
-                elif request.POST.get('type') == 'invest':
-                    outfile = invest_algo_main(data)
-                elif request.POST.get('type') == 'store':
-                    outfile = store_algo_main(data)
-                else:
-                    return render(request, 'linear/linear_upload.html',{'form':input_form})
-                new_method.output_file = outfile
-                new_method.save()
-            else:
-                return render(request, 'linear/linear_upload.html',{'form':input_form})
+            new_method = Method.objects.latest('methodID')
             return HttpResponseRedirect(reverse('dynamic:results', args=(new_method.methodID,)))
-
+        
         elif 'manage' in request.POST:
-            input_form = upload_file_form(request.POST, request.FILES)
-            if input_form.is_valid():
-                new_method = Method()
-                new_method.title = request.POST.get('title')
-                new_method.method_type = 'Dynamic Programming'
-                json_file = request.FILES['upload_file']
-                json_input_data = json_file.read()
-                data = json.loads(json_input_data)
-                if request.POST.get('type') == 'route':
-                    data['options'] = dict({})
-                    data['type'] = "route"
-                    for item in data['data']['nodes']:
-                        item['label'] = str(item['id'])
-                new_method.input_file = data
-                new_method.output_file = dict({})
-                new_method.save()
-            else:
-                return render(request, 'linear/linear_upload.html',{'form':input_form})
+            new_method = Method.objects.latest('methodID')
             return HttpResponseRedirect(reverse('dynamic:manage', args=(new_method.methodID,)))
     
     elif request.method == 'GET':
-        form = upload_file_form()
-        return render(request, 'dynamic/dynamic_upload.html',{'form':form})
+        #form = upload_file_form()
+        return render(request, 'dynamic/dynamic_upload.html')
 
 def manage(request, method_id):
     if request.method == 'GET':
@@ -140,3 +103,77 @@ def results(request, method_id):
             return HttpResponseRedirect(reverse('dynamic:dynamic_index'))
         elif 'inspect' in request.POST:
             return HttpResponseRedirect(reverse('dynamic:manage', args=(method_id,)))
+
+def ajax_upload_manage(request):
+    if request.is_ajax and request.method == "POST":
+        print(request.POST)
+        file = request.FILES.get("file")
+        title = request.POST.get('title')
+        type = request.POST.get('type')
+        json_input_data = file.read()
+        data = json.loads(json_input_data)
+        if type == "route":
+            if Draft7Validator(route_schema).is_valid(data):
+                new_method = Method()
+                new_method.title = title
+                new_method.input_file = copy.deepcopy(data)
+                new_method.output_file = dict({})
+                new_method.save()
+                return JsonResponse({"method_id": new_method.methodID}, status =200)
+        elif type == "invest":
+            if Draft7Validator(invest_schema).is_valid(data):
+                new_method = Method()
+                new_method.title = title
+                new_method.input_file = copy.deepcopy(data)
+                new_method.output_file = dict({})
+                new_method.save()
+                return JsonResponse({"method_id": new_method.methodID}, status =200)    
+        elif type == "store":
+            if Draft7Validator(store_schema).is_valid(data):
+                new_method = Method()
+                new_method.title = title
+                new_method.input_file = copy.deepcopy(data)
+                new_method.output_file = dict({})
+                new_method.save()
+                return JsonResponse({"method_id": new_method.methodID}, status =200)
+        else:
+            return JsonResponse({"error": ""}, status=400)
+    else:
+            return JsonResponse({"error": ""}, status=400)
+
+def ajax_upload_run(request):
+    if request.is_ajax and request.method == "POST":
+        file = request.FILES.get("file")
+        title = request.POST.get('title')
+        type = request.POST.get('type')
+        json_input_data = file.read()
+        data = json.loads(json_input_data)
+        if type == "route":
+            if Draft7Validator(route_schema).is_valid(data):
+                new_method = Method()
+                new_method.title = title
+                data['options'] = dict({})
+                new_method.input_file = copy.deepcopy(data)
+                new_method.output_file = route_algo_main(data)
+                new_method.save()
+                return JsonResponse({"method_id": new_method.methodID}, status =200)
+        elif type == "invest":
+            if Draft7Validator(invest_schema).is_valid(data):
+                new_method = Method()
+                new_method.title = title
+                new_method.input_file = copy.deepcopy(data)
+                new_method.output_file = invest_algo_main(data)
+                new_method.save()
+                return JsonResponse({"method_id": new_method.methodID}, status =200)    
+        elif type == "store":
+            if Draft7Validator(store_schema).is_valid(data):
+                new_method = Method()
+                new_method.title = title
+                new_method.input_file = copy.deepcopy(data)
+                new_method.output_file = store_algo_main(data)
+                new_method.save()
+                return JsonResponse({"method_id": new_method.methodID}, status =200)
+        else:
+            return JsonResponse({"error": ""}, status=400)
+    else:
+            return JsonResponse({"error": ""}, status=400)

@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect
 from jsonschema.validators import validate
-from .forms import upload_file_form
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 from django.template import loader
@@ -9,6 +8,10 @@ from .utilities.find import find_researches
 from .utilities.visJStoTree import tree_transform
 import os, json, copy
 from mainApp.models import Method
+import jsonschema
+from jsonschema import Draft7Validator
+from jsonschema.validators import validate
+from .utilities.validators.schema_validation import schema
 
 
 # Create your views here
@@ -20,42 +23,15 @@ def upload_form(request):
 
     if request.method == 'POST':
         if 'run' in request.POST:
-            input_form = upload_file_form(request.POST, request.FILES)
-            
-            if input_form.is_valid():
-                new_method = Method()
-                new_method.title = request.POST.get('title')
-                new_method.method_type = 'Decision Tree'
-                json_file = request.FILES['upload_file']
-                json_input_data = json_file.read()
-                data = json.loads(json_input_data)
-                tree_data = tree_transform(data)
-                new_method.output_file = dectree_algo_main(tree_data)
-                new_method.input_file = json.loads(json_input_data)
-                new_method.save()
-            else: 
-                return render(request, 'dectree/decision_tree_upload.html',{'form':input_form})
-
+            new_method = Method.objects.latest('methodID')
             return HttpResponseRedirect(reverse('dectree:results', args=(new_method.methodID,)))
         
         elif 'manage' in request.POST:
-            input_form = upload_file_form(request.POST, request.FILES)
-            if input_form.is_valid():
-                new_method = Method()
-                new_method.title = request.POST.get('title')
-                new_method.method_type = 'Decision Tree'
-                json_file = request.FILES['upload_file']
-                json_input_data = json_file.read()
-                new_method.input_file = json.loads(json_input_data)
-                new_method.output_file = dict({})
-                new_method.save()
-            else:
-                return render(request, 'dectree/decision_tree_upload.html',{'form':input_form})
+            new_method = Method.objects.latest('methodID')
             return HttpResponseRedirect(reverse('dectree:manage', args=(new_method.methodID,)))
 
     elif request.method == 'GET':
-        form = upload_file_form()
-        return render(request, 'dectree/decision_tree_upload.html',{'form':form})
+        return render(request, 'dectree/decision_tree_upload.html')
 
 
 def results(request, method_id):
@@ -123,3 +99,36 @@ def ajax_create_and_calculate(request):
         new_method.output_file = dectree_algo_main(tree)
         new_method.save()
         return JsonResponse({"method_id": new_method.methodID}, status =200)
+
+def ajax_upload_manage(request):
+    if request.is_ajax and request.method == "POST":
+        file = request.FILES.get("file")
+        title = request.POST.get('title')
+        json_input_data = file.read()
+        data = json.loads(json_input_data)
+        if Draft7Validator(schema).is_valid(data):
+            new_method = Method()
+            new_method.title = title
+            new_method.input_file = copy.deepcopy(data)
+            new_method.output_file = dict({})
+            new_method.save()
+            return JsonResponse({"method_id": new_method.methodID}, status =200)
+        else:
+            return JsonResponse({"error": ""}, status=400)
+
+def ajax_upload_run(request):
+    if request.is_ajax and request.method == "POST":
+        file = request.FILES.get("file")
+        title = request.POST.get('title')
+        json_input_data = file.read()
+        data = json.loads(json_input_data)
+        if Draft7Validator(schema).is_valid(data):
+            new_method = Method()
+            new_method.title = title
+            new_method.input_file = copy.deepcopy(data)
+            tree = tree_transform(data)
+            new_method.output_file = dectree_algo_main(tree)
+            new_method.save()
+            return JsonResponse({"method_id": new_method.methodID}, status =200)
+        else:
+            return JsonResponse({"error": ""}, status=400)

@@ -2,11 +2,14 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.urls import reverse
 import os, json, copy
-from .forms import upload_file_form
 from mainApp.models import Method
 from .utilities.linear_algo import linear_prog_main
 from .utilities.generate_plots import generate_plots_main
 from .utilities.simplex import simplex_main
+import jsonschema
+from jsonschema import Draft7Validator
+from jsonschema.validators import validate
+from .utilities.validators.schema_validation import schema
 
 # Create your views here.
 def linear_index(request):
@@ -16,47 +19,13 @@ def linear_index(request):
 def upload_form(request):
     if request.method == 'POST':
         if 'run' in request.POST:
-            input_form = upload_file_form(request.POST, request.FILES)
-            if input_form.is_valid():
-                new_method = Method()
-                new_method.title = request.POST.get('title')
-                new_method.method_type = 'Linear Programming'
-                json_file = request.FILES['upload_file']
-                json_input_data = json_file.read()
-                data = json.loads(json_input_data)
-                if data['number'] == 2:
-                    outfile = linear_prog_main(data)
-                    if (outfile['success'] == False):
-                        error_message = outfile['message']
-                        return render(request, 'linear/linear_upload.html',{'form':input_form, 'error_message':error_message})
-                else:
-                    outfile = simplex_main(data)
-                new_method.output_file = outfile
-                new_method.input_file = json.loads(json_input_data)
-                new_method.save()
-            else: 
-                return render(request, 'linear/linear_upload.html',{'form':input_form})
-
+            new_method = Method.objects.latest('methodID')
             return HttpResponseRedirect(reverse('linear:results', args=(new_method.methodID,)))
         elif 'manage' in request.POST:
-            input_form = upload_file_form(request.POST, request.FILES)
-            if input_form.is_valid():
-                new_method = Method()
-                new_method.title = request.POST.get('title')
-                new_method.method_type = 'Linear Programming'
-                json_file = request.FILES['upload_file']
-                json_input_data = json_file.read()
-                new_method.input_file = json.loads(json_input_data)
-                new_method.output_file = dict({})
-                new_method.save()
-            else:
-                return render(request, 'linear/linear_upload.html',{'form':input_form})
+            new_method = Method.objects.latest('methodID')
             return HttpResponseRedirect(reverse('linear:manage', args=(new_method.methodID,)))
-
-    
     elif request.method == 'GET':
-        form = upload_file_form()
-        return render(request, 'linear/linear_upload.html',{'form':form})
+        return render(request, 'linear/linear_upload.html')
 
 def manage(request, method_id):
     if request.method == 'GET':
@@ -146,3 +115,35 @@ def results(request, method_id):
             return HttpResponseRedirect(reverse('linear:linear_index'))
         elif 'inspect' in request.POST:
             return HttpResponseRedirect(reverse('linear:manage', args=(method_id,)))
+
+def ajax_upload_manage(request):
+    if request.is_ajax and request.method == "POST":
+        file = request.FILES.get("file")
+        title = request.POST.get('title')
+        json_input_data = file.read()
+        data = json.loads(json_input_data)
+        if Draft7Validator(schema).is_valid(data):
+            new_method = Method()
+            new_method.title = title
+            new_method.input_file = copy.deepcopy(data)
+            new_method.output_file = dict({})
+            new_method.save()
+            return JsonResponse({"method_id": new_method.methodID}, status =200)
+        else:
+            return JsonResponse({"error": ""}, status=400)
+
+def ajax_upload_run(request):
+    if request.is_ajax and request.method == "POST":
+        file = request.FILES.get("file")
+        title = request.POST.get('title')
+        json_input_data = file.read()
+        data = json.loads(json_input_data)
+        if Draft7Validator(schema).is_valid(data):
+            new_method = Method()
+            new_method.title = title
+            new_method.input_file = copy.deepcopy(data)
+            new_method.output_file = linear_prog_main(data)
+            new_method.save()
+            return JsonResponse({"method_id": new_method.methodID}, status =200)
+        else:
+            return JsonResponse({"error": ""}, status=400)

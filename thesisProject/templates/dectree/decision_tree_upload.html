@@ -7,12 +7,67 @@
     <script type="text/javascript">
         $(document).ready(function(){
             $("#id_upload_file").change(function(){
-                $("#file-name").val($("#id_upload_file").val().replace(/C:\\fakepath\\/i, ''));
+                
+                var fileExtension = ['json'];
+                if ($.inArray($(this).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+                alert("Επιτρέπονται μόνο αρχεία τύπου : "+fileExtension.join(', '));
+                } else{
+                    $("#file-name").val($("#id_upload_file").val().replace(/C:\\fakepath\\/i, ''));
+                }
             });
         });
         $(document).ready(function(){
-            $("#file-name").val($("#id_upload_file").val().replace(/C:\\fakepath\\/i, ''));
-         });
+            $("#manage").click(function(){
+                var data = new FormData();
+                file = $("#id_upload_file").get(0).files[0];
+                
+                data.append("file", file);
+                data.append("title", $("#id_title").val());
+                data.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+                $.ajax({
+                    method: "POST",
+                    url:"/dectree/ajax/upload_manage",
+                    processData: false,
+                    contentType: false,
+                    mimeType: "multipart/form-data",
+                    data: data,
+                    success: function(response){
+                        $("#id_title").attr('name', "manage");
+                        $("#upload_form").submit();
+                    },
+                    error: function(response){
+                        alert("Τα δεδομένα του αρχείου εισόδου δεν επιβεβαιώνονται απο το JSON schema. Δείτε τις οδηγίες.");
+                    }
+                    
+                })
+            });
+        });
+        $(document).ready(function(){
+            $("#run").click(function(){
+                var data = new FormData();
+                file = $("#id_upload_file").get(0).files[0];
+                
+                data.append("file", file);
+                data.append("title", $("#id_title").val());
+                data.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+                $.ajax({
+                    method: "POST",
+                    url:"/dectree/ajax/upload_run",
+                    processData: false,
+                    contentType: false,
+                    mimeType: "multipart/form-data",
+                    data: data,
+                    success: function(response){
+                        $("#id_title").attr('name', "run");
+                        $("#upload_form").submit();
+                    },
+                    error: function(response){
+                        alert("Τα δεδομένα του αρχείου εισόδου δεν επιβεβαιώνονται απο το JSON schema. Δείτε τις οδηγίες.");
+                    }
+                    
+                })
+            });
+        });
    </script>
 {% endblock %}
 {% block body %}
@@ -21,7 +76,7 @@
                 <h3 class="card-title">Δέντρα Αποφάσεων - Ανέβασμα Αρχείου</h3>
             </div>
             <div class="card-body">
-                <form enctype="multipart/form-data" method="POST">
+                <form enctype="multipart/form-data" method="POST" id="upload_form">
                     {% csrf_token %}
                     <div class="form-group">
                         <label for="id_title">Τίτλος</label>
@@ -48,12 +103,10 @@
                         <div class="form-group col-md-2">
         
                         </div>
-                    </div>
-                    <p>{{ form.fieldname.errors.as_text }}</p>
-                    <input type="submit" class="btn btn-primary" name="manage" value="Επεξεργασία">
-                    <input type="submit" class="btn btn-primary" name="run" value="Εκτέλεση">
+                    </div>           
                 </form>
-
+                <input type="submit" class="btn btn-primary" id="manage" name="manage" value="Επεξεργασία">
+                <input type="submit" class="btn btn-primary" id="run" name="run" value="Εκτέλεση">
             </div>
         </div>
     {% endblock %}

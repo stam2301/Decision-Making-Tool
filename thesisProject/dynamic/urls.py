@@ -12,4 +12,5 @@ urlpatterns = [
     path('manage/<int:method_id>', views.manage, name='manage'),
     url(r'^ajax/calculate', views.ajax_calculate, name='ajax_calculate'),
     url(r'^ajax/create_and_calculate', views.ajax_create_and_calculate, name='ajax_create_and_calculate'),
-]
+    url(r'^ajax/upload_manage', views.ajax_upload_manage, name='ajax_upload_manage'),
+    url(r'^ajax/upload_run', views.ajax_upload_run, name='ajax_upload_run')]

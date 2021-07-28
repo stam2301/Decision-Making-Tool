@@ -6,56 +6,108 @@
 {% block head %}
     <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
     <script type="text/javascript">
-         $(document).ready(function(){
-             $("#id_upload_file").change(function(){
-                 $("#file-name").val($("#id_upload_file").val().replace(/C:\\fakepath\\/i, ''));
-             });
-         });
-         $(document).ready(function(){
-            $("#file-name").val($("#id_upload_file").val().replace(/C:\\fakepath\\/i, ''));
-         });
-    </script>
+        $(document).ready(function(){
+            $("#id_upload_file").change(function(){
+                
+                var fileExtension = ['json'];
+                if ($.inArray($(this).val().split('.').pop().toLowerCase(), fileExtension) == -1) {
+                alert("Επιτρέπονται μόνο αρχεία τύπου : "+fileExtension.join(', '));
+                } else{
+                    $("#file-name").val($("#id_upload_file").val().replace(/C:\\fakepath\\/i, ''));
+                }
+            });
+        });
+        $(document).ready(function(){
+            $("#manage").click(function(){
+                var data = new FormData();
+                file = $("#id_upload_file").get(0).files[0];
+                
+                data.append("file", file);
+                data.append("title", $("#id_title").val());
+                data.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+                $.ajax({
+                    method: "POST",
+                    url:"/linear/ajax/upload_manage",
+                    processData: false,
+                    contentType: false,
+                    mimeType: "multipart/form-data",
+                    data: data,
+                    success: function(response){
+                        $("#id_title").attr('name', "manage");
+                        $("#upload_form").submit();
+                    },
+                    error: function(response){
+                        alert("Τα δεδομένα του αρχείου εισόδου δεν επιβεβαιώνονται απο το JSON schema. Δείτε τις οδηγίες.");
+                    }
+                    
+                })
+            });
+        });
+        $(document).ready(function(){
+            $("#run").click(function(){
+                var data = new FormData();
+                file = $("#id_upload_file").get(0).files[0];
+                
+                data.append("file", file);
+                data.append("title", $("#id_title").val());
+                data.append("csrfmiddlewaretoken", "{{ csrf_token }}");
+                $.ajax({
+                    method: "POST",
+                    url:"/linear/ajax/upload_run",
+                    processData: false,
+                    contentType: false,
+                    mimeType: "multipart/form-data",
+                    data: data,
+                    success: function(response){
+                        $("#id_title").attr('name', "run");
+                        $("#upload_form").submit();
+                    },
+                    error: function(response){
+                        alert("Τα δεδομένα του αρχείου εισόδου δεν επιβεβαιώνονται απο το JSON schema. Δείτε τις οδηγίες.");
+                    }
+                    
+                })
+            });
+        });
+   </script>
 {% endblock %}
-
 {% block body %}
-<div class="card card-nav-tabs text-center card-white">
-    <div class="card-header">
-        <h3 class="card-title">Γραμμικός Προγραμματισμός - Ανέβασμα Αρχείου</h3>
-    </div>
-    <div class="card-body">
-        <form enctype="multipart/form-data" method="POST">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="id_title">Τίτλος</label>
-                <br>
-                <input type="text" name="title" maxlength="50" class="form-control" placeholder="Δώστε έναν τίτλο" title="" required="" id="id_title">
+        <div class="card card-nav-tabs text-center card-white">
+            <div class="card-header">
+                <h3 class="card-title">Γραμμικός Προγραμματισμός - Ανέβασμα Αρχείου</h3>
             </div>
-            <div class="form-row">
-                <div class="form-group col-md-2">
-
-                </div>
-                <div class="form-group col-md-8">
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label class="btn btn-success btn" for="id_upload_file">
-                                Διάλεξε Αρχείο
-                            </label>
-                            <input type="file" name="upload_file" class="form-control-file" title="" required="" id="id_upload_file">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <input type="text" id="file-name" class="form-control" placeholder="Το αρχείο σας..." disabled>
-                        </div>
+            <div class="card-body">
+                <form enctype="multipart/form-data" method="POST" id="upload_form">
+                    {% csrf_token %}
+                    <div class="form-group">
+                        <label for="id_title">Τίτλος</label>
+                        <br>
+                        <input type="text" name="title" maxlength="50" class="form-control" placeholder="Δώστε έναν τίτλο" title="" required="" id="id_title">
                     </div>
-                </div>
-                <div class="form-group col-md-2">
-
-                </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+        
+                        </div>
+                        <div class="form-group col-md-8">
+                            <div class="form-row">
+                                <div class="form-group col-md-6">
+                                    <label class="btn btn-success btn" for="id_upload_file">
+                                        Διάλεξε Αρχείο
+                                    </label>
+                                    <input type="file" name="upload_file" class="form-control-file" title="" required="" id="id_upload_file">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <input type="text" id="file-name" class="form-control" placeholder="Το αρχείο σας..." disabled>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group col-md-2">
+        
+                        </div>
+                    </div>           
+                </form>
+                <input type="submit" class="btn btn-primary" id="manage" name="manage" value="Επεξεργασία">
+                <input type="submit" class="btn btn-primary" id="run" name="run" value="Εκτέλεση">
             </div>
-            <p>{{ form.fieldname.errors.as_text }}</p>
-            <input type="submit" class="btn btn-primary" name="manage" value="Επεξεργασία">
-            <input type="submit" class="btn btn-primary" name="run" value="Εκτέλεση">
-        </form>
-
-    </div>
-</div>
-{% endblock %}
+        </div>
+    {% endblock %}
