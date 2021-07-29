@@ -12,11 +12,17 @@ import jsonschema
 from jsonschema import Draft7Validator
 from jsonschema.validators import validate
 from .utilities.validators.schema_validation import schema
+from django.contrib.staticfiles.storage import staticfiles_storage
 
 
 # Create your views here
 def dectree_index(request):
     if request.method == 'GET':
+        #url = staticfiles_storage.path('data.json')
+        
+        #with open(url, 'r+') as json_file:
+            #json_file.seek(0)
+            #json_file.truncate()
         return render(request, 'dectree/decision_tree_index.html')
 
 def upload_form(request):
@@ -36,7 +42,11 @@ def upload_form(request):
 
 def results(request, method_id):
     if request.method == 'GET':
+        #url = staticfiles_storage.path('data.json')
+        
         method = Method.objects.get(methodID=method_id)
+        #with open(url, 'w') as json_file:
+        #    json.dump(method.input_file, json_file)
         data = method.output_file
         db_edges = data['edges']
         db_nodes = data['nodes']

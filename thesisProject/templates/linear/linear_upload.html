@@ -79,10 +79,18 @@
             <div class="card-body">
                 <form enctype="multipart/form-data" method="POST" id="upload_form">
                     {% csrf_token %}
-                    <div class="form-group">
-                        <label for="id_title">Τίτλος</label>
-                        <br>
-                        <input type="text" name="title" maxlength="50" class="form-control" placeholder="Δώστε έναν τίτλο" title="" required="" id="id_title">
+                    <div class="form-row">
+                        <div class="form-group col-md-2">
+        
+                        </div>
+                        <div class="form-group col-md-8">
+                            <label for="id_title">Τίτλος</label>
+                            <br>
+                            <input type="text" name="title" maxlength="50" class="form-control" placeholder="Δώστε έναν τίτλο" title="" required="" id="id_title">
+                        </div>
+                        <div class="form-group col-md-2">
+        
+                        </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-2">
@@ -92,7 +100,7 @@
                             <div class="form-row">
                                 <div class="form-group col-md-6">
                                     <label class="btn btn-success btn" for="id_upload_file">
-                                        Διάλεξε Αρχείο
+                                        Διάλεξτε Αρχείο
                                     </label>
                                     <input type="file" name="upload_file" class="form-control-file" title="" required="" id="id_upload_file">
                                 </div>

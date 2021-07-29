@@ -1,0 +1,473 @@
+{% extends "mainApp/base.html" %}
+{% load static %}
+
+{% block title %}ΟΔΗΓΙΕΣ{% endblock %}
+
+
+{% block head %}
+<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+<script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+{% endblock %}
+{% block body %}
+<div class="card card-nav-tabs card-plain card-white">
+    <div class="card-header card-header-success header-success">
+        <!-- colors: "header-primary", "header-info", "header-success", "header-warning", "header-danger" -->
+        <div class="nav-tabs-navigation">
+            <div class="nav-tabs-wrapper">
+                <ul class="nav nav-tabs" data-tabs="tabs">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#dectree" data-toggle="tab">Δέντρα Αποφάσεων</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#linear" data-toggle="tab">Γραμμικός Προγραμματισμός</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#dynamic_route" data-toggle="tab">Βέλτιστη Διαδρομή</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#dynamic_invest" data-toggle="tab">Προγραμματισμός Επενδύσεων</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#dynamic_store" data-toggle="tab">Προγραμματισμός Παραγωγής και Αποθήκευσης</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div><div class="card-body ">
+        <div class="tab-content text-center">
+            <div class="tab-pane active" id="dectree">
+                <h4 class="card-title">JSON Schema</h4>
+                <pre class="prettyprint text-left">{
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "definitions":{
+                        "startNode":{
+                            "type": "object",
+                            "properties": {
+                                "id": {"type": "integer"},
+                                "level": {"type": "integer"},
+                                "label": {
+                                    "type": "string",
+                                    "enum": ["start"]},
+                                "group": {
+                                    "type": "string",
+                                    "enum": ["startNode"]},
+                                "criterion":{
+                                    "type": "string",
+                                    "enum": ["BAYES", "MAXIMIN", "MAXIMAX"]
+                                },
+                                "title":{
+                                    "type": "string",
+                                    "enum": ["BAYES", "MAXIMIN", "MAXIMAX"]
+                                }
+                            },
+                            "required": ["id", "level", "label", "group", "criterion", "title"]
+                        },
+                        "decision":{
+                            "type": "object",
+                            "properties": {
+                                "id": {"type": "integer"},
+                                "level": {"type": "integer"},
+                                "label": {"type": "string"},
+                                "group": {
+                                    "type": "string",
+                                    "enum": ["decision"]},
+                                "criterion":{
+                                    "type": "string",
+                                    "enum": ["BAYES", "MAXIMIN", "MAXIMAX"]
+                                },
+                                "title":{
+                                    "type": "string",
+                                    "enum": ["BAYES", "MAXIMIN", "MAXIMAX"]
+                                }
+                            },
+                            "required": ["id", "level", "label", "group", "criterion", "title"]
+                        },
+                        "chance":{
+                            "type": "object",
+                            "properties": {
+                                "id": {"type": "integer"},
+                                "level": {"type": "integer"},
+                                "group": {
+                                    "type": "string",
+                                    "enum": ["chance"]},
+                                "label": {"type": "string"},
+                                "cost": {"type": "number"}
+                            },
+                            "required": ["id", "level", "label", "group", "cost"]
+                        },
+                        "leaf":{
+                            "type": "object",
+                            "properties": {
+                                "id": {"type": "integer"},
+                                "level": {"type": "integer"},
+                                "group": {
+                                    "type": "string",
+                                    "enum": ["leaf"]},
+                                "label": {"type": "string"},
+                                "cost": {"type": "number"}
+                            },
+                            "required": ["id", "level", "label", "group", "cost"]
+                        },
+                        "research":{
+                            "type": "object",
+                            "properties": {
+                                "id": {"type": "integer"},
+                                "level": {"type": "integer"},
+                                "crowd": {"type": "integer"},
+                                "cost": {"type": "number"},
+                                "group": {
+                                    "type": "string",
+                                    "enum": ["research"]},
+                                "label": {"type": "string"},
+                                "chance_table": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "chance": {"type": "number"},
+                                            "description":{"type": "string"}
+                                        }
+                                    }
+                                },
+                                "research_table":{
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "forecast": {
+                                                "type": "array",
+                                                "items": {"type": "number"}
+                                            },
+                                            "description": {"type": "string"}
+                                        }
+                                    }
+                                }
+                            },
+                            "required": ["id", "level", "crowd", "cost", "chance_table", "research_table", "label", "group"]
+                        },
+                        "edge":{
+                            "type": "object",
+                            "properties": {
+                                    "id": {"type": "integer"},
+                                    "to": {"type": "integer"},
+                                    "from": {"type": "integer"},
+                                    "label": {"type": "string"}
+                                },
+                            "required": [
+                                "id",
+                                "to",
+                                "from",
+                                "label"
+                            ]
+                        }
+                    },
+                    "type": "object",
+                    "properties":{
+                        "nodes": {
+                            "type": "array",
+                            "items":{
+                                "oneOf": [
+                                    {"$ref": "#/definitions/startNode"},
+                                    {"$ref": "#/definitions/decision"},
+                                    {"$ref": "#/definitions/chance"},
+                                    {"$ref": "#/definitions/leaf"},
+                                    {"$ref": "#/definitions/research"},
+                                ]
+                                },
+                            "additionalItems": False
+                        },
+                        "edges": {
+                            "type": "array",
+                            "items": [
+                                    {"$ref": "#/definitions/edge"}
+                            ]
+                        }
+                    },
+                    "required": [
+                        "nodes",
+                        "edges"
+                    ]
+                }</pre>
+            </div>
+            <div class="tab-pane" id="linear">
+                <h4 class="card-title">JSON Schema</h4>
+                <pre class="prettyprint text-left">{
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "definitions":{
+                        "activity":{
+                            "type": "array",
+                            "items":{
+                                "oneOf": [
+                                    {"type": "integer"}]
+                            }
+                        },
+                        "additionalItems": False
+                    },
+                    "type": "object",
+                    "properties": {
+                      "number": {
+                        "type": "integer",
+                        "minimum": 2,
+                        "maximum": 8
+                      },
+                      "optimize": {
+                        "type": "string",
+                        "enum": ["minimize", "maximize"]
+                      },
+                      "objective": {
+                        "type": "object",
+                        "properties": {
+                          "values": {
+                            "type": "array",
+                            "items": {"oneOf": [
+                                    {
+                                    "type": "number"}]
+                              }
+                            ,
+                            "additionalItems": False
+                          },
+                          "descriptions": {
+                            "type": "array",
+                            "items":{"oneOf": [
+                                    {
+                                    "type": "string"}]
+                              },
+                            "additionalItems": False
+                          }
+                        },
+                        "required": [
+                          "values",
+                          "descriptions"
+                        ]
+                      },
+                      "activities": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/activity"
+                        },
+                      "additionalItems": False 
+                      },
+                      "constraints":{
+                          "type": "object"
+                      }
+                    },
+                    "required": [
+                      "number",
+                      "optimize",
+                      "objective",
+                      "activities",
+                      "constraints"
+                    ]
+                  }</pre>
+            </div>
+            <div class="tab-pane" id="dynamic_route">
+                <h4 class="card-title">JSON Schema</h4>
+                <pre class="prettyprint text-left">{
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "definitions": {
+                      "node":{
+                          "type": "object",
+                          "properties": {
+                              "id": {
+                                    "type": "integer"
+                                  },
+                                  "group": {
+                                    "type": "string",
+                                    "enum":["node","end","start"]
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                          },
+                          "required": [
+                                  "id",
+                                  "group",
+                                  "label"
+                                ]
+                      },
+                      "edge":{
+                          "type": "object",
+                          "properties": {
+                              "id": {
+                                    "type": "integer"
+                                  },
+                                  "to": {
+                                    "type": "integer"
+                                  },
+                                  "from": {
+                                    "type": "integer"
+                                  },
+                                  "label": {
+                                    "type": "string"
+                                  }
+                              },
+                              "required": [
+                                  "id",
+                                  "to",
+                                  "from",
+                                  "label"
+                                ]
+                      }
+                    },
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "object",
+                        "properties": {
+                          "edges": {
+                              "type": "array",
+                              "items": {"$ref":"#/definitions/edge"},
+                              "additionalItems": False
+                          },
+                          "nodes": {
+                              "type": "array",
+                              "items": {"$ref":"#/definitions/node"},
+                          "additionalItems": False
+                          }
+                        },
+                        "required": [
+                          "edges",
+                          "nodes"
+                        ]
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["route"]
+                      },
+                      "options": {
+                        "type": "object"
+                      }
+                    },
+                    "required": [
+                      "data",
+                      "type"
+                    ]
+                  }</pre>
+            </div>
+            <div class="tab-pane" id="dynamic_store">
+                <h4 class="card-title">JSON Schema</h4>
+                <pre class="prettyprint text-left">{
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "definitions": {
+                      "period_data":{
+                        "type": "array",
+                        "items":{"oneOf": [{"type": "number"}]}
+                      }
+                    },
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {"$ref":"#/definitions/period_data"},
+                        "additionalItems": False
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["store"]
+                      },
+                      "options": {
+                        "type": "object",
+                        "properties": {
+                          "periods": {
+                            "type": "integer"
+                          },
+                          "prod_batch": {
+                            "type": "integer"
+                          },
+                          "store_batch": {
+                            "type": "integer"
+                          },
+                          "storage_cost": {
+                            "type": "array",
+                            "items": {"type": "number"},
+                            "minItems": 4,
+                            "maxItems": 4,
+                            "additionalItems": False
+                          },
+                          "production_cost": {
+                            "type": "array",
+                            "items": {"type": "number"},
+                            "minItems": 4,
+                            "maxItems": 4,
+                            "additionalItems": False
+                          },
+                          "start_stock": {
+                            "type": "number"
+                          }
+                        },
+                        "required": [
+                          "periods",
+                          "prod_batch",
+                          "store_batch",
+                          "storage_cost",
+                          "production_cost",
+                          "start_stock"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "data",
+                      "type",
+                      "options"
+                    ]
+                  }</pre>
+            </div>
+            <div class="tab-pane" id="dynamic_invest">
+                <h4 class="card-title">JSON Schema</h4>
+                <pre class="prettyprint text-left">{
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "definitions":{
+                      "period_data":{
+                        "type": "array",
+                        "items": {
+                          "oneOf":[{"type":"number"}]
+                        },
+                        "additionalItems": False
+                      }
+                    },
+                    "type": "object",
+                    "properties": {
+                      "data": {
+                        "type": "array",
+                        "items": {"$ref":"#/definitions/period_data"},
+                        "additionalItems": False
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": ["invest"]
+                      },
+                      "options": {
+                        "type": "object",
+                        "properties": {
+                          "x": {
+                            "type": "integer"
+                          },
+                          "y": {
+                            "type": "integer"
+                          },
+                          "x_description": {
+                            "type": "string"
+                          },
+                          "y_description": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "x",
+                          "y",
+                          "x_description",
+                          "y_description"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "data",
+                      "type",
+                      "options"
+                    ]
+                  }</pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -6,3 +6,7 @@ import os, json, copy
 def mainapp_index(request):
     if request.method == 'GET':
         return render(request, 'mainApp/mainapp_index.html')
+
+def instructions(request):
+    if request.method == 'GET':
+        return render(request, 'mainApp/instructions.html')

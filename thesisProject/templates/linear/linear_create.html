@@ -560,7 +560,7 @@
                         data: JSON.stringify(out_data)},
                     url: "/linear/ajax/create_and_calculate",
                     success: function(response){
-                        document.forms[0].submit();
+                        $("#submit_form").submit();
                     },
                     error: function (response){
                         alert(response["responseJSON"]["error"]);
@@ -633,6 +633,11 @@
             <div class="col-1"> 
 
             </div>
+        </div>
+        <div class="row">
+            <form id="submit_form" enctype="multipart/form-data" method="POST">
+                {% csrf_token %}
+            </form>
         </div>
     </div>
 </div>

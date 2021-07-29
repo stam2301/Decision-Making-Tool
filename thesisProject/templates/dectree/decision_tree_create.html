@@ -665,7 +665,7 @@
                             data: JSON.stringify(get_data_output())},
                         url: "/dectree/ajax/create_and_calculate",
                         success: function(response){
-                            document.forms[0].submit();
+                            $("#submit_form").submit();
                         }
                     })
                 });
@@ -687,13 +687,13 @@
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card card-nav-tabs text-center">
-                        <button class="btn btn-lg btn-warning" id="reset" onclick="init();">Επαναφορά</button>
+                    <div class="">
+                        <button class="btn btn-sm btn-warning" id="reset" onclick="init();">Επαναφορά</button>
                     </div>
                 </div>
                 <div class="col-md-4">
-                    <div class="card card-nav-tabs text-center">
-                        <button class="btn btn-lg btn-success" id="send_data">Εκτέλεση</button>
+                    <div class="">
+                        <button class="btn btn-sm btn-success" id="send_data">Εκτέλεση</button>
                     </div>
                 </div>
             </div>

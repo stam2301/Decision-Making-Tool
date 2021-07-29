@@ -71,7 +71,7 @@ def handle_research(research, dec_root, id, nodes, edges, level):
         max_value = research_chance['decisionToChance']['value'] + research_chance['profit/loss']
 
     nodes.append(create_node(research_chance['decisionToChance']['id'], str(round(research_chance['decisionToChance']['value'], 2)), 'research', level).copy())
-    edges.append(create_edge(dec_root['id'], research_chance['decisionToChance']['id'], research_chance['describe'] +" profit/loss:" + str(research_chance['profit/loss'])))
+    edges.append(create_edge(dec_root['id'], research_chance['decisionToChance']['id'], research_chance['describe'] +" κέρδος/κόστος:" + str(research_chance['profit/loss'])))
 
     research_return=dict({})
     research_return['id'] = id
@@ -101,7 +101,7 @@ def handle_decision (decision_root, id, nodes, edges, level):
         decision['decisionToDecision']['id'] = id
         id = handle_decision(decision['decisionToDecision'], decision['decisionToDecision']['id'], nodes, edges, (level+1))
         nodes.append(create_node(decision['decisionToDecision']['id'], str(round(decision['decisionToDecision']['value'], 2)), 'decision', level).copy())
-        edges.append(create_edge(decision_root['id'], decision['decisionToDecision']['id'], decision['describe'] + " profit/loss:" + str(decision['profit/loss'])))
+        edges.append(create_edge(decision_root['id'], decision['decisionToDecision']['id'], decision['describe'] + " κέρδος/κόστος:" + str(decision['profit/loss'])))
         if (max_value < decision['decisionToDecision']['value'] + decision['profit/loss']):
             max_value = decision['decisionToDecision']['value'] + decision['profit/loss']
     
@@ -121,7 +121,7 @@ def handle_decision (decision_root, id, nodes, edges, level):
             max_value = chance['decisionToChance']['value'] + chance['profit/loss']
 
         nodes.append(create_node(chance['decisionToChance']['id'], str(round(chance['decisionToChance']['value'], 2)), 'chance', level).copy())
-        edges.append(create_edge(decision_root['id'], chance['decisionToChance']['id'], chance['describe'] + " profit/loss:" + str(chance['profit/loss'])))
+        edges.append(create_edge(decision_root['id'], chance['decisionToChance']['id'], chance['describe'] + " κέρδος/κόστος:" + str(chance['profit/loss'])))
 
     for leaf in decision_root['leafs']:
         id+=1
