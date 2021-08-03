@@ -106,7 +106,6 @@ def results(request, method_id):
 
 def ajax_upload_manage(request):
     if request.is_ajax and request.method == "POST":
-        print(request.POST)
         file = request.FILES.get("file")
         title = request.POST.get('title')
         type = request.POST.get('type')

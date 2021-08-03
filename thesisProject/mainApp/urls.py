@@ -8,5 +8,6 @@ app_name = 'mainapp'
 
 urlpatterns = [
      url(r'^$', views.mainapp_index, name='mainapp_index'),
-     url(r'^instructions/', views.instructions, name='instructions')
+     url(r'^instructions/', views.instructions, name='instructions'),
+     url(r'^info/', views.info, name='info'),
 ]

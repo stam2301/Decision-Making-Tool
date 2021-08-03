@@ -142,7 +142,15 @@ def ajax_upload_run(request):
             new_method = Method()
             new_method.title = title
             new_method.input_file = copy.deepcopy(data)
-            new_method.output_file = linear_prog_main(data)
+            new_method.input_file = copy.deepcopy(data)
+            if data['number'] == 2:
+                outfile = linear_prog_main(data)
+                if (outfile['success'] == False):
+                    return JsonResponse({"error": outfile['message']}, status=400)
+                new_method.output_file = outfile
+            elif data['number'] > 2:
+                outfile = simplex_main(data)
+                new_method.output_file = outfile
             new_method.save()
             return JsonResponse({"method_id": new_method.methodID}, status =200)
         else:

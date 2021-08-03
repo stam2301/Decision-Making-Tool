@@ -10,3 +10,7 @@ def mainapp_index(request):
 def instructions(request):
     if request.method == 'GET':
         return render(request, 'mainApp/instructions.html')
+
+def info(request):
+    if request.method == 'GET':
+        return render(request, 'mainApp/info.html')
