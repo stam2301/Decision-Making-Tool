@@ -49,9 +49,7 @@ div.table_description {
     width: 55%;
     height: 400px;
     background-color: #f9f9f9;
-    border-style: solid;
-    border-width: 3px;
-    border-color: white;
+    border: 2px solid lightgray;
     padding: 10px;
     text-align: center;
   }
@@ -64,9 +62,7 @@ div.table_description {
     width: 55%;
     height: 400px;
     background-color: #f9f9f9;
-    border-style: solid;
-    border-width: 3px;
-    border-color: white;
+    border: 2px solid lightgray;
     padding: 10px;
     text-align: center;
   }
@@ -79,9 +75,7 @@ div.table_description {
     width: 55%;
     height: 400px;
     background-color: #f9f9f9;
-    border-style: solid;
-    border-width: 3px;
-    border-color: white;
+    border: 2px solid lightgray;
     padding: 10px;
     text-align: center;
   }
