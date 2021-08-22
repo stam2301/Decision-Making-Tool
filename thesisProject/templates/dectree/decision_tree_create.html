@@ -16,7 +16,7 @@
                     group:"startNode",
                     label:"start",
                     level: 0,
-                    title: "Ισοδύναμη Βεβαιότητα"},
+                    title: "equivalent certainty"},
                 ];
         var input_edges = [];
         var network = null;
@@ -730,7 +730,7 @@
                 <br>
                 <br>
                 <select name="decision-type-input" class="form-control" id="decision-type-input">
-                    <option value="BAYES" selected>Ισοδύναμη Βεβαιότητα</option>
+                    <option value="equivalent certainty" selected>equivalent certainty</option>
                     <option value="MAXIMIN">MAXIMIN</option>
                     <option value="MAXIMAX">MAXIMAX</option>   
                 </select>
@@ -758,11 +758,13 @@
             </div>
             <div class="start input">
                 <select name="start-type-input" class="form-control" id="start-type-input">
-                    <option value="BAYES" selected>Ισοδύναμη Βεβαιότητα</option>
+                    <option value="equivalent certainty" selected>equivalent certainty</option>
                     <option value="MAXIMIN">MAXIMIN</option>
                     <option value="MAXIMAX">MAXIMAX</option>   
                 </select>
             </div>
+            <br>
+            <br>
             <div>
                 <button class="btn btn-lg btn-warning" id="node-cancelButton" >Ακύρωση</button>
                 <button class="btn btn-lg btn-success" id="node-saveButton" >Αποθήκευση</button>

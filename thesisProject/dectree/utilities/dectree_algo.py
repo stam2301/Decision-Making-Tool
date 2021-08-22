@@ -58,7 +58,7 @@ def handle_research(research, dec_root, id, nodes, edges, level):
 
     id+=1
     research_chance['decisionToChance']['id'] = id
-    if (dec_root['criterion'] == 'BAYES'):
+    if (dec_root['criterion'] == 'equivalent certainty'):
         id = handle_chance_bayes(research_chance['decisionToChance'], research_chance['decisionToChance']['id'], nodes, edges, (level+1))
         
     elif (dec_root['criterion'] == 'MAXIMIN'):
@@ -108,7 +108,7 @@ def handle_decision (decision_root, id, nodes, edges, level):
     for chance in decision_root['chances']:
         id+=1
         chance['decisionToChance']['id'] = id
-        if (decision_root['criterion'] == 'BAYES'):
+        if (decision_root['criterion'] == 'equivalent certainty'):
             id = handle_chance_bayes(chance['decisionToChance'], chance['decisionToChance']['id'], nodes, edges, (level+1))
         
         elif (decision_root['criterion'] == 'MAXIMIN'):

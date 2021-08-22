@@ -355,7 +355,7 @@
                     var temp_table = [];
                     for (var i = 0; i < labels.length; i++){
                         var temp = labels[i].split(":");
-                        temp_table.push({description: temp[1], chance: temp[0]});
+                        temp_table.push({description: temp[1], chance: parseFloat(temp[0])});
                     }
                     chance_table = temp_table;
                     research_table = get_research_table(data.rows, data.cols);
@@ -389,7 +389,7 @@
                     var temp_table = [];
                     for (var i = 0; i < labels.length; i++){
                         var temp = labels[i].split(":");
-                        temp_table.push({description: temp[1], chance: temp[0]});
+                        temp_table.push({description: temp[1], chance: parseFloat(temp[0])});
                     }
                     chance_table = temp_table;
                     research_table = get_research_table(data.rows, data.cols);
@@ -591,7 +591,7 @@
                     temp.description = $("#E"+(i+1).toString()).val();
                     temp.forecast = [];
                     for (var j=0; j<y; j++){
-                        temp.forecast.push(document.getElementById("E"+(i+1).toString()+"/S"+(j+1).toString()).value);
+                        temp.forecast.push(parseFloat(document.getElementById("E"+(i+1).toString()+"/S"+(j+1).toString()).value));
                     }
                     re_table.push(Object.assign({},temp));        
                 }
@@ -682,12 +682,12 @@
             </div>
             <div class="col-md-4">
                 <div class="">
-                    <button class="btn btn-lg btn-warning" id="reset" onclick="init();">Επαναφορά</button>
+                    <button class="btn btn-warning" id="reset" onclick="init();">Επαναφορά</button>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="">
-                    <button class="btn btn-lg btn-success" id="send_data">Εκτέλεση</button>
+                    <button class="btn btn-success" id="send_data">Εκτέλεση</button>
                 </div>
             </div>
         </div>
@@ -722,7 +722,7 @@
                 <br>
                 <br>
                 <select name="decision-type-input" class="form-control" id="decision-type-input">
-                    <option value="BAYES" selected>Ισοδύναμη Βεβαιότητα</option>
+                    <option value="equivalent certainty" selected>equivalent certainty</option>
                     <option value="MAXIMIN">MAXIMIN</option>
                     <option value="MAXIMAX">MAXIMAX</option>   
                 </select>
@@ -750,11 +750,13 @@
             </div>
             <div class="start input">
                 <select name="start-type-input" class="form-control" id="start-type-input">
-                    <option value="BAYES" selected>Ισοδύναμη</option>
+                    <option value="equivalent certainty" selected>equivalent certainty</option>
                     <option value="MAXIMIN">MAXIMIN</option>
                     <option value="MAXIMAX">MAXIMAX</option>   
                 </select>
             </div>
+            <br>
+            <br>
             <div>
                 <button class="btn btn-lg btn-warning" id="node-cancelButton" >Ακύρωση</button>
                 <button class="btn btn-lg btn-success" id="node-saveButton" >Αποθήκευση</button>

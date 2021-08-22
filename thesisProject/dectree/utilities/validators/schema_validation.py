@@ -14,11 +14,11 @@ schema = {
                     "enum": ["startNode"]},
                 "criterion":{
                     "type": "string",
-                    "enum": ["BAYES", "MAXIMIN", "MAXIMAX"]
+                    "enum": ["equivalent certainty", "MAXIMIN", "MAXIMAX"]
                 },
                 "title":{
                     "type": "string",
-                    "enum": ["BAYES", "MAXIMIN", "MAXIMAX"]
+                    "enum": ["equivalent certainty", "MAXIMIN", "MAXIMAX"]
                 }
             },
             "required": ["id", "level", "label", "group", "criterion", "title"]
@@ -34,11 +34,11 @@ schema = {
                     "enum": ["decision"]},
                 "criterion":{
                     "type": "string",
-                    "enum": ["BAYES", "MAXIMIN", "MAXIMAX"]
+                    "enum": ["equivalent certainty", "MAXIMIN", "MAXIMAX"]
                 },
                 "title":{
                     "type": "string",
-                    "enum": ["BAYES", "MAXIMIN", "MAXIMAX"]
+                    "enum": ["equivalent certainty", "MAXIMIN", "MAXIMAX"]
                 }
             },
             "required": ["id", "level", "label", "group", "criterion", "title"]

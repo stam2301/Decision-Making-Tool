@@ -9,7 +9,7 @@ select {
   position: relative;
   width: 800px;
   height: 600px;
-  border: 1px solid white;
+  border: 1px solid lightgray;
   background-color: white;
 }
 input[type=number]::-webkit-inner-spin-button, 
@@ -75,7 +75,7 @@ div.table_description {
   right: 20%;
   z-index: 299;
   width: 55%;
-  height: 400px;
+  height: 200px;
   background-color: #f9f9f9;
   border: 2px solid lightgray;
   padding: 10px;

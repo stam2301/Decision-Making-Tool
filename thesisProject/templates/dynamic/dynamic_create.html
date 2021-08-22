@@ -92,10 +92,6 @@
                         document.getElementById("node-operation").innerText = "Προσθήκη Κόμβου";
                         editNode(data, clearNodePopUp, callback);
                     },
-                    editNode: function(data, callback){
-                        document.getElementById("node-operation").innerText = "Επεξεργασία Κόμβου";
-                        editNode(data, cancelNodeEdit, callback);
-                    },
                     addEdge: function(data, callback){
                         document.getElementById("edge-operation").innerText = "Προσθήκη Ακμής";
                         editEdgeWithoutDrag(data, callback);
@@ -479,7 +475,7 @@
             $("#run").empty();
             $("#data").empty();
             if (($("#a").val()).length == 0 || ($("#b").val()).length == 0 || ($("#c").val()).length == 0 || ($("#d").val()).length == 0 || ($("#e").val()).length == 0 || ($("#f").val()).length == 0 || ($("#g").val()).length == 0 || ($("#h").val()).length == 0 || ($("#no-periods").val()).length == 0  ){
-                alert("Please fill all the option fields!");
+                alert("Συμπληρώστε όλα τα πεδία σωστά!!");
                 return;
             }
             var table_body = $("<table/>", {
@@ -516,7 +512,7 @@
             var run = $("<button/>", {
                 id: "run-method",
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "get_data_output();"
             }).html("Εκτέλεση");
             $("#run").append(run);
@@ -526,7 +522,7 @@
             $("#run").empty();
             $("#data").empty();
             if (($("#x-axis").val()).length == 0 || ($("#y-axis").val()).length == 0|| ($("#x-axis-description").val()).length == 0 || ($("#y-axis-description").val()).length == 0){
-                alert("Please fill all the option fields!");
+                alert("Συμπληρώστε όλα τα πεδία σωστά!");
                 return;
             }
             var table_body = $("<table/>", {
@@ -582,7 +578,7 @@
             var run = $("<button/>", {
                 id: "run-method",
                 type: "button",
-                class: "btn btn-success",
+                class: "btn btn-success btn-sm",
                 onClick: "get_data_output();"
             }).html("Εκτέλεση");
             $("#run").append(run);      
@@ -696,14 +692,14 @@
                 output_data.options = collect_options();
                 output_data.data = collect_table_data();
                 if (!output_data.data.length){
-                    alert("Fill all the fields in the data table!");
+                    alert("Συμπληρώστε όλα τα πεδία σωστά!!");
                     return;
                 }
             } else if (type == "store"){
                 output_data.options = collect_storage_options();
                 output_data.data = collect_storage_data();
                 if (!output_data.data.length){
-                    alert("Fill all the fields in the data table!");
+                    alert("Συμπληρώστε όλα τα πεδία σωστά!!");
                     return;
                 }
             }
@@ -775,7 +771,7 @@
             <div id="data" class="col-12"></div>
         </div>
         <div class="row" >
-            <div id="mynetwork" class="col-12">
+            <div id="mynetwork" class="col-12" style="display: none;">
             </div>
             
         </div>

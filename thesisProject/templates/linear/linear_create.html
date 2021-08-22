@@ -28,9 +28,9 @@
                 activities_obj = {};
                 var n = $("#no-dec-variables").val();
                 if (n.length == 0 || n == 0){
-                    alert("Select Number of Decision Variables!");
-                }   else if (n>8){
-                    alert("Maximum number of varible is 8!");
+                    alert("Διαλέξτε το πλήθος των μεταβλητών απόφασης!");
+                }   else if (n>8 || n<2){
+                    alert("Το πλήθος των μεταβλητών απόφασης πρέπει να είναι 2 έως 8!");
                 } else {
                     var n = $("#no-dec-variables").val();
                     var run = $("<button/>", {
@@ -530,20 +530,20 @@
             output_data.number = parseInt(n);
             output_data.objective = collect_obj_function(n);
             if (output_data.objective.flag == 0){
-                alert("Fill the fields of the Objective function correctly!")
+                alert("Συμπληρώστε όλα τα πεδία σωστά!")
                 return;
             }
             delete output_data.objective.flag;
             output_data.activities = collect_activities(n);
             if(output_data.activities.flag == 0){
-                alert("Fill the fields of the activities correctly!");
+                alert("Συμπληρώστε όλα τα πεδία σωστά!");
                 return;
             }
             delete output_data.activities.flag;
 
             output_data.constraints = collect_constraints(n);
             if(output_data.constraints.flag == 0){
-                alert("Fill the fields of the constraints correctly!");
+                alert("Συμπληρώστε όλα τα πεδία σωστά!");
                 return;
             }
             delete output_data.constraints.flag;
