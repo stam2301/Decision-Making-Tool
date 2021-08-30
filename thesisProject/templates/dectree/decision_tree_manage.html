@@ -16,6 +16,8 @@
         var network = null;
         var id = {{ nodes_id |safe }};
         var edge_id = {{ edges_id|safe }};
+        edge_id = edge_id+1;
+
         var input_researches = {{ researches|safe }};
         var researches = Object.create(input_researches);
 
@@ -682,12 +684,12 @@
             </div>
             <div class="col-md-4">
                 <div class="">
-                    <button class="btn btn-warning" id="reset" onclick="init();">Επαναφορά</button>
+                    <button class="btn btn-warning btn-sm" id="reset" onclick="init();">Επαναφορά</button>
                 </div>
             </div>
             <div class="col-md-4">
                 <div class="">
-                    <button class="btn btn-success" id="send_data">Εκτέλεση</button>
+                    <button class="btn btn-success btn-sm" id="send_data">Εκτέλεση</button>
                 </div>
             </div>
         </div>
